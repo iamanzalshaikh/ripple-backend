@@ -1,7 +1,8 @@
 import express from "express";
 import authRoutes from "./auth.routes.ts";
 import profileRoutes from "./profile.routes.ts";
-
+import bikeRoutes from "./bike.routes.ts"
+import onboardingRoutes from "./onboarding.routes.ts";
 
 const router = express.Router();
 
@@ -41,6 +42,6 @@ router.get("/health", (req, res) => {
 // Auth Routes
 router.use("/auth", authRoutes)
 router.use("/profile", profileRoutes);
-;
-
+router.use("/bikes", bikeRoutes);
+router.use("/onboarding", onboardingRoutes);
 export default router;
