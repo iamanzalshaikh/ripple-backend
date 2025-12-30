@@ -1,17 +1,7 @@
-// ============================================
-// File: controllers/authController.ts
-// Updated with Separated Types
-// ============================================
+
 
 import { Response } from "express";
-// import User from "../models/User.js";
 import logger from "../config/logger.js";
-// import { sendSignupOtpEmail, sendLoginOtpEmail } from "../utils/emailService.js";
-// import {
-//   signUserAccessToken,
-//   signUserRefreshToken,
-//   verifyUserRefreshToken,
-// } from "../utils/jwtService.js";
 import {
   AuthRequest,
   IAuthResponse,
@@ -25,8 +15,7 @@ import { UserRole } from "../types/index.js";
 import User from "../models/user.model.js";
 import { signUserAccessToken, signUserRefreshToken, verifyUserRefreshToken } from "../utils/jwt.js";
 import { sendLoginOtpEmail, sendSignupOtpEmail } from "../config/mail.js";
-
-
+// import { sendLoginOtpEmail, sendSignupOtpEmail } from "../config/mail.js";
 
 // Generate 6-digit OTP
 function generateOTP(): string {
@@ -52,26 +41,42 @@ function formatAuthUser(user: any): IAuthUser {
   };
 }
 
+// In-memory OTP storage (use Redis in production)
+const otpStore = new Map<string, { otp: string; expiresAt: number; phone: string }>();
+
 // ============================================
-// SIGNUP FLOW
+// SIGNUP FLOW - Email & Phone Required
+// User created ONLY after OTP verified
 // ============================================
 
 /**
- * Step 1: Send OTP to Phone (Signup)
+ * Step 1: Send OTP to Email (Signup)
  * POST /api/v1/auth/signup/send-otp
+ * Body: { email, phone }
+ * NOTE: User is NOT created yet, only OTP is sent to email
  */
 export const sendSignupOtp = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { phone, email } = req.body;
+    const { email, phone } = req.body;
 
-    // Validation
-    if (!phone) {
+    // Validation - Both required
+    if (!email || !phone) {
       res.status(400).json({
         success: false,
-        message: "Phone number is required",
+        message: "Email and phone number are required",
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid email format",
       });
       return;
     }
@@ -85,75 +90,51 @@ export const sendSignupOtp = async (
       return;
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ phone });
+    // Check if user already exists (by email or phone)
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phone }]
+    });
     if (existingUser) {
       res.status(400).json({
         success: false,
-        message: "Phone number already registered. Please login instead.",
+        message: "Email or phone number already registered. Please login instead.",
       });
       return;
     }
 
     // Generate OTP
     const otp = generateOTP();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // Send OTP via email FIRST (before creating user)
-    let emailSent = false;
-    if (email) {
-      try {
-        await sendSignupOtpEmail(email, otp, phone);
-        emailSent = true;
-        logger.info(`OTP email sent to ${email}`);
-      } catch (emailError: any) {
-        logger.error(`Failed to send email to ${email}: ${emailError.message}`);
-        res.status(500).json({
-          success: false,
-          message: "Failed to send OTP email. Please check your email address and try again.",
-          error: emailError.message,
-        });
-        return; // Don't create user if email fails
-      }
-    } else {
-      res.status(400).json({
+    // Send OTP via email ONLY
+    try {
+      await sendSignupOtpEmail(email, otp, phone);
+      logger.info(`OTP email sent to ${email}`);
+    } catch (emailError: any) {
+      logger.error(`Failed to send email to ${email}: ${emailError.message}`);
+      res.status(500).json({
         success: false,
-        message: "Email address is required to receive OTP",
+        message: "Failed to send OTP email. Please check your email address and try again.",
+        error: emailError.message,
       });
       return;
     }
 
-    // ONLY create user AFTER email is sent successfully
-    const newUser = new User({
-      phone,
-      email,
-      role: UserRole.RIDER,
-      accountStatus: AccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.UNVERIFIED,
-      otp: {
-        code: otp,
-        attempts: 0,
-        maxAttempts: 5,
-        isUsed: false,
-        expiresAt: otpExpiresAt,
-      },
-    });
+    // Store OTP in temporary storage (expires in 10 minutes)
+    otpStore.set(email, { otp, expiresAt, phone });
 
-    await newUser.save();
+    logger.info(`OTP sent to ${email} (${phone}) - User NOT created yet`);
 
-    logger.info(`User created: ${phone}, OTP email sent`);
-
-    const response: IApiResponse = {
+    res.status(200).json({
       success: true,
       message: "OTP sent successfully to your email",
       data: {
+        email,
         phone,
-        email: email,
         otpExpiresIn: "10 minutes",
       },
-    };
+    });
 
-    res.status(200).json(response);
   } catch (error: any) {
     logger.error(`Signup OTP error: ${error.message}`);
     res.status(500).json({
@@ -165,135 +146,33 @@ export const sendSignupOtp = async (
 };
 
 /**
- * Step 2: Verify OTP & Create Account (Signup)
+ * Step 2: Verify OTP & CREATE USER (Signup)
  * POST /api/v1/auth/signup/verify-otp
+ * Body: { email, phone, otp }
+ * NOTE: User is CREATED ONLY AFTER OTP verification succeeds ✅
  */
 export const verifySignupOtp = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { phone, otp } = req.body;
+    const { email, phone, otp } = req.body;
 
-    // Validation
-    if (!phone || !otp) {
+    // Validation - All required
+    if (!email || !phone || !otp) {
       res.status(400).json({
         success: false,
-        message: "Phone number and OTP are required",
+        message: "Email, phone number, and OTP are required",
       });
       return;
     }
 
-    // Find user
-    const user = await User.findOne({ phone });
-    if (!user) {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       res.status(400).json({
         success: false,
-        message: "User not found. Please signup first.",
-      });
-      return;
-    }
-
-    // Check if OTP already used
-    if (user.otp?.isUsed) {
-      res.status(400).json({
-        success: false,
-        message: "This OTP has already been used. Request a new one.",
-      });
-      return;
-    }
-
-    // Check OTP attempts
-    if ((user.otp?.attempts || 0) >= (user.otp?.maxAttempts || 5)) {
-      res.status(429).json({
-        success: false,
-        message: "Too many failed attempts. Request a new OTP.",
-      });
-      return;
-    }
-
-    // Check OTP expiry
-    if (user.otp?.expiresAt && new Date() > user.otp.expiresAt) {
-      res.status(400).json({
-        success: false,
-        message: "OTP has expired. Request a new one.",
-      });
-      return;
-    }
-
-    // Verify OTP
-    if (user.otp?.code !== otp) {
-      if (user.otp) {
-        user.otp.attempts = (user.otp?.attempts || 0) + 1;
-      }
-      await user.save();
-
-      res.status(400).json({
-        success: false,
-        message: `Invalid OTP. ${(user.otp?.maxAttempts || 5) - (user.otp?.attempts || 0)} attempts remaining.`,
-      });
-      return;
-    }
-
-    // OTP is valid - Mark as used
-    if (user.otp) {
-      user.otp.isUsed = true;
-      user.otp.usedAt = new Date();
-    }
-    user.verified = true;
-    user.verificationStatus = VerificationStatus.APPROVED;
-
-    // Generate tokens
-    const accessToken = signUserAccessToken(user._id.toString());
-    const refreshToken = signUserRefreshToken(user._id.toString());
-    
-
-    // Save user
-    await user.save();
-
-    logger.info(`User signup successful: ${phone}`);
-
-    const response: IApiResponse<IAuthResponse> = {
-      success: true,
-      message: "Account created successfully!",
-      data: {
-        user: formatAuthUser(user),
-        accessToken,
-        refreshToken,
-      },
-    };
-
-    res.status(201).json(response);
-  } catch (error: any) {
-    logger.error(`Verify signup OTP error: ${error.message}`);
-    res.status(500).json({
-      success: false,
-      message: "OTP verification failed. Please try again.",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-};
-
-// ============================================
-// LOGIN FLOW
-// ============================================
-
-/**
- * Step 1: Send OTP to Phone (Login)
- * POST /api/v1/auth/login/send-otp
- */
-export const sendLoginOtp = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const { phone } = req.body;
-
-    // Validation
-    if (!phone) {
-      res.status(400).json({
-        success: false,
-        message: "Phone number is required",
+        message: "Invalid email format",
       });
       return;
     }
@@ -307,8 +186,130 @@ export const sendLoginOtp = async (
       return;
     }
 
+    // Check if OTP exists in temporary storage
+    const storedOtp = otpStore.get(email);
+    if (!storedOtp) {
+      res.status(400).json({
+        success: false,
+        message: "OTP not found or expired. Please request a new OTP.",
+      });
+      return;
+    }
+
+    // Check if OTP expired
+    if (Date.now() > storedOtp.expiresAt) {
+      otpStore.delete(email);
+      res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+      return;
+    }
+
+    // Check if phone matches
+    if (storedOtp.phone !== phone) {
+      res.status(400).json({
+        success: false,
+        message: "Phone number does not match.",
+      });
+      return;
+    }
+
+    // Verify OTP
+    if (storedOtp.otp !== otp) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please try again.",
+      });
+      return;
+    }
+
+    // ✅ OTP IS VALID - NOW CREATE USER IN DATABASE
+    const newUser = new User({
+      email,
+      phone,
+      role: UserRole.RIDER,
+      accountStatus: AccountStatus.ACTIVE,
+      verificationStatus: VerificationStatus.APPROVED,
+      verified: true,
+      otp: {
+        code: otp,
+        attempts: 0,
+        maxAttempts: 5,
+        isUsed: true,
+        usedAt: new Date(),
+        expiresAt: new Date(storedOtp.expiresAt),
+      },
+    });
+
+    await newUser.save();
+
+    // Remove OTP from temporary storage
+    otpStore.delete(email);
+
+    // Generate tokens
+    const accessToken = signUserAccessToken(newUser._id.toString());
+    const refreshToken = signUserRefreshToken(newUser._id.toString());
+
+    logger.info(`✅ User created successfully: ${email} | ${phone}`);
+
+    res.status(201).json({
+      success: true,
+      message: "Account created successfully!",
+      data: {
+        user: formatAuthUser(newUser),
+        accessToken,
+        refreshToken,
+      },
+    });
+
+  } catch (error: any) {
+    logger.error(`Verify signup OTP error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "OTP verification failed. Please try again.",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+// ============================================
+// LOGIN FLOW - Email Only
+// ============================================
+
+/**
+ * Step 1: Send OTP to Email (Login)
+ * POST /api/v1/auth/login/send-otp
+ * Body: { email }
+ */
+export const sendLoginOtp = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    // Validation
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+      return;
+    }
+
     // Check if user exists
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) {
       res.status(400).json({
         success: false,
@@ -337,41 +338,33 @@ export const sendLoginOtp = async (
 
     // Generate OTP
     const otp = generateOTP();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = Date.now() + 10 * 60 * 1000;
 
-    // Update user with new OTP
-    user.otp = {
-      code: otp,
-      attempts: 0,
-      maxAttempts: 5,
-      isUsed: false,
-      expiresAt: otpExpiresAt,
-    };
+    // Store OTP in temporary storage
+    otpStore.set(email, { otp, expiresAt, phone: user.phone || "" });
 
-    await user.save();
-
-    // Send OTP via email if available
-    if (user.email) {
-      try {
-        await sendLoginOtpEmail(user.email, otp, phone);
-      } catch (emailError) {
-        logger.warn(`Failed to send email to ${user.email}, but OTP saved`);
-      }
+    // Send OTP via email only
+    try {
+      await sendLoginOtpEmail(user.email, otp);
+      logger.info(`Login OTP email sent to ${user.email}`);
+    } catch (emailError) {
+      logger.error(`Failed to send login email to ${user.email}`);
+      res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Please try again.",
+      });
+      return;
     }
 
-    // Note: OTP is sent only via email, not logged to console (security best practice)
-
-    const response: IApiResponse = {
+    res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
+      message: "OTP sent successfully to your email",
       data: {
-        phone,
-        email: user.email || null,
+        email: user.email,
         otpExpiresIn: "10 minutes",
       },
-    };
+    });
 
-    res.status(200).json(response);
   } catch (error: any) {
     logger.error(`Login OTP error: ${error.message}`);
     res.status(500).json({
@@ -383,28 +376,39 @@ export const sendLoginOtp = async (
 };
 
 /**
- * Step 2: Verify OTP & Login
+ * Step 2: Verify OTP & Login with Email Only
  * POST /api/v1/auth/login/verify-otp
+ * Body: { email, otp }
  */
 export const verifyLoginOtp = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { phone, otp } = req.body;
+    const { email, otp } = req.body;
     const clientIP = req.ip || "unknown";
 
     // Validation
-    if (!phone || !otp) {
+    if (!email || !otp) {
       res.status(400).json({
         success: false,
-        message: "Phone number and OTP are required",
+        message: "Email and OTP are required",
       });
       return;
     }
 
-    // Find user
-    const user = await User.findOne({ phone });
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+      return;
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
     if (!user) {
       res.status(400).json({
         success: false,
@@ -431,56 +435,51 @@ export const verifyLoginOtp = async (
       return;
     }
 
-    // Check OTP attempts
-    if ((user.otp?.attempts || 0) >= (user.otp?.maxAttempts || 5)) {
-      res.status(429).json({
+    // Check if OTP exists in temporary storage
+    const storedOtp = otpStore.get(email);
+    if (!storedOtp) {
+      res.status(400).json({
         success: false,
-        message: "Too many failed attempts. Request a new OTP.",
+        message: "OTP not found or expired. Please request a new OTP.",
       });
       return;
     }
 
-    // Check OTP expiry
-    if (user.otp?.expiresAt && new Date() > user.otp.expiresAt) {
+    // Check if OTP expired
+    if (Date.now() > storedOtp.expiresAt) {
+      otpStore.delete(email);
       res.status(400).json({
         success: false,
-        message: "OTP has expired. Request a new one.",
+        message: "OTP has expired. Please request a new one.",
       });
       return;
     }
 
     // Verify OTP
-    if (user.otp?.code !== otp) {
-      if (user.otp) {
-        user.otp.attempts = (user.otp?.attempts || 0) + 1;
-      }
-      await user.save();
-
+    if (storedOtp.otp !== otp) {
       res.status(400).json({
         success: false,
-        message: `Invalid OTP. ${(user.otp?.maxAttempts || 5) - (user.otp?.attempts || 0)} attempts remaining.`,
+        message: "Invalid OTP. Please try again.",
       });
       return;
     }
 
-    // OTP is valid - Update user
-    if (user.otp) {
-      user.otp.isUsed = true;
-      user.otp.usedAt = new Date();
-    }
+    // ✅ OTP IS VALID - UPDATE LOGIN INFO
     user.lastLoginAt = new Date();
     user.lastLoginIP = clientIP;
+
+    await user.save();
+
+    // Remove OTP from temporary storage
+    otpStore.delete(email);
 
     // Generate tokens
     const accessToken = signUserAccessToken(user._id.toString());
     const refreshToken = signUserRefreshToken(user._id.toString());
 
-    // Save user
-    await user.save();
+    logger.info(`✅ User login successful: ${email}`);
 
-    logger.info(`User login successful: ${phone}`);
-
-    const response: IApiResponse<IAuthResponse> = {
+    res.status(200).json({
       success: true,
       message: "Login successful!",
       data: {
@@ -488,9 +487,8 @@ export const verifyLoginOtp = async (
         accessToken,
         refreshToken,
       },
-    };
+    });
 
-    res.status(200).json(response);
   } catch (error: any) {
     logger.error(`Verify login OTP error: ${error.message}`);
     res.status(500).json({
@@ -501,92 +499,57 @@ export const verifyLoginOtp = async (
   }
 };
 
-// ============================================
-// REFRESH TOKEN
-// ============================================
+// /**
+//  * Get Current User Profile
+//  * GET /api/v1/auth/me
+//  */
+// export const getCurrentUser = async (
+//   req: AuthRequest,
+//   res: Response
+// ): Promise<void> => {
+//   try {
+//     const userId = req.userId;
 
-/**
- * Refresh Access Token
- * POST /api/v1/auth/refresh
- */
-export const refreshAccessToken = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const { refreshToken } = req.body;
+//     if (!userId) {
+//       res.status(401).json({
+//         success: false,
+//         message: "Unauthorized",
+//       });
+//       return;
+//     }
 
-    if (!refreshToken) {
-      res.status(400).json({
-        success: false,
-        message: "Refresh token is required",
-      });
-      return;
-    }
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       res.status(404).json({
+//         success: false,
+//         message: "User not found",
+//       });
+//       return;
+//     }
 
-    // Verify refresh token
-    const decoded = verifyUserRefreshToken(refreshToken) as IJwtPayload;
-    if (!decoded) {
-      res.status(401).json({
-        success: false,
-        message: "Invalid or expired refresh token",
-      });
-      return;
-    }
+//     res.status(200).json({
+//       success: true,
+//       message: "User profile fetched successfully",
+//       data: {
+//         user: formatAuthUser(user),
+//       },
+//     });
 
-    // Find user
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
-    }
+//   } catch (error: any) {
+//     logger.error(`Get current user error: ${error.message}`);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch user profile",
+//       error: process.env.NODE_ENV === "development" ? error.message : undefined,
+//     });
+//   }
+// };
 
-    // Check if suspended
-    if (
-      user.isSuspended ||
-      user.accountStatus === AccountStatus.SUSPENDED ||
-      user.accountStatus === AccountStatus.BANNED
-    ) {
-      res.status(403).json({
-        success: false,
-        message: "Account is suspended or banned",
-      });
-      return;
-    }
 
-    // Generate new access token
-    const newAccessToken = signUserAccessToken(user._id.toString());
-
-    const response: IApiResponse = {
-      success: true,
-      message: "Access token refreshed successfully",
-      data: {
-        accessToken: newAccessToken,
-      },
-    };
-
-    res.status(200).json(response);
-  } catch (error: any) {
-    logger.error(`Refresh token error: ${error.message}`);
-    res.status(500).json({
-      success: false,
-      message: "Token refresh failed",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-};
-
-// ============================================
-// GET CURRENT USER
-// ============================================
-
-/**
- * Get Current User Profile
- * GET /api/v1/auth/me
- */
+// /**
+//  * Get Current User Profile
+//  * GET /api/v1/auth/me
+//  */
 export const getCurrentUser = async (
   req: AuthRequest,
   res: Response

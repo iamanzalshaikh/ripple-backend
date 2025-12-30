@@ -1,5 +1,7 @@
 import express from "express";
-import authRoutes from "./auth.routes.js";
+import authRoutes from "./auth.routes.ts";
+import profileRoutes from "./profile.routes.ts";
+
 
 const router = express.Router();
 
@@ -37,6 +39,8 @@ router.get("/health", (req, res) => {
 });
 
 // Auth Routes
-router.use("/auth", authRoutes);
+router.use("/auth", authRoutes)
+router.use("/profile", profileRoutes);
+;
 
 export default router;
