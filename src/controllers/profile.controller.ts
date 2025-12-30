@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../config/cloudinary";
 
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
-  const user = await User.findById(req.userId);
+  const user = await User.findById(req.userId)
 
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -133,7 +133,6 @@ export const addEmergencyContact = async (
     data: { emergencyContacts: user.emergencyContacts },
   });
 };
-
 
 export const updatePrivacySettings = async (
   req: AuthRequest,
