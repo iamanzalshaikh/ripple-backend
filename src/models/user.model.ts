@@ -161,8 +161,25 @@ export interface IEmergencyContact {
   const emergencyContactSchema = new Schema<IEmergencyContact>(
     {
       name: { type: String, required: true },
-      phone: { type: String, required: true },
-      email: String,
+// Updated phone field in userSchema
+phone: { 
+  type: String, 
+  unique: true, 
+  sparse: true,  // ← ADD THIS to allow null values for unique index
+  trim: true,
+  match: /^[0-9]{10}$/
+  // REMOVE required: true
+},
+
+// The rest of your schema stays the same...
+email: { 
+  type: String, 
+  unique: true, 
+  sparse: true, 
+  required: true,  // ← Email is now REQUIRED
+  lowercase: true,
+  match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+},
       relation: String,
       priority: { type: Number, default: 1 },
       verified: { type: Boolean, default: false }
