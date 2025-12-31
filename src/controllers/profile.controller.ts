@@ -3,9 +3,8 @@ import User from "../models/user.model";
 import { AuthRequest } from "../types/auth.types";
 import { uploadOnCloudinary } from "../config/cloudinary";
 
-
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
-  const user = await User.findById(req.userId)
+  const user = await User.findById(req.userId);
 
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -17,57 +16,55 @@ export const getMyProfile = async (req: AuthRequest, res: Response) => {
   });
 };
 
-
-
 export const updateMyProfile = async (req: AuthRequest, res: Response) => {
-    const allowedFields = [
-      "name",
-      "bio",
-      "city",
-      "state",
-      "country",
-      "ridingLevel",
-      "ridingStyle",
-      "yearsOfExperience",
-    ];
-  
-    const updates: any = {};
-  
-    for (const key of allowedFields) {
-      if (req.body?.[key] !== undefined) {
-        if (key === "ridingStyle") {
-          // ✅ FORCE ARRAY
-          updates[key] = Array.isArray(req.body[key])
-            ? req.body[key]
-            : [req.body[key]];
-        } else if (key === "yearsOfExperience") {
-          updates[key] = Number(req.body[key]); 
-        } else {
-          updates[key] = req.body[key];
-        }
+  const allowedFields = [
+    "name",
+    "bio",
+    "city",
+    "state",
+    "country",
+    "ridingLevel",
+    "ridingStyle",
+    "yearsOfExperience",
+    "onboardingCompleted", // ✅ Added for permissions screen
+  ];
+
+  const updates: any = {};
+
+  for (const key of allowedFields) {
+    if (req.body?.[key] !== undefined) {
+      if (key === "ridingStyle") {
+        // ✅ FORCE ARRAY
+        updates[key] = Array.isArray(req.body[key])
+          ? req.body[key]
+          : [req.body[key]];
+      } else if (key === "yearsOfExperience") {
+        updates[key] = Number(req.body[key]);
+      } else {
+        updates[key] = req.body[key];
       }
     }
-  
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid fields provided to update",
-      });
-    }
-  
-    const user = await User.findByIdAndUpdate(
-      req.userId,
-      { $set: updates },
-      { new: true }
-    );
-  
-    res.json({
-      success: true,
-      message: "Profile updated successfully",
-      data: { user },
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "No valid fields provided to update",
     });
-  };
-  
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.userId,
+    { $set: updates },
+    { new: true }
+  );
+
+  res.json({
+    success: true,
+    message: "Profile updated successfully",
+    data: { user },
+  });
+};
 
 export const updateAvatar = async (req: AuthRequest, res: Response) => {
   if (!req.file) {
@@ -98,11 +95,7 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
   });
 };
 
-
-export const addEmergencyContact = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const addEmergencyContact = async (req: AuthRequest, res: Response) => {
   const { name, phone, relation, priority } = req.body;
 
   if (!name || !phone) {
