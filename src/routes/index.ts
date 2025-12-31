@@ -3,6 +3,8 @@ import authRoutes from "./auth.routes.ts";
 import profileRoutes from "./profile.routes.ts";
 import bikeRoutes from "./bike.routes.ts"
 import onboardingRoutes from "./onboarding.routes.ts";
+import rideRoutes from "./ride.routes.ts";
+import badgeawardRoutes from "./badgeaward.routes";
 
 const router = express.Router();
 
@@ -44,4 +46,9 @@ router.use("/auth", authRoutes)
 router.use("/profile", profileRoutes);
 router.use("/bikes", bikeRoutes);
 router.use("/onboarding", onboardingRoutes);
+router.use("/badges", badgeawardRoutes);
+
+
+
+router.use('/rides', rideRoutes);
 export default router;
