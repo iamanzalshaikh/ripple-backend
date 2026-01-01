@@ -22,8 +22,41 @@ app.use(
   })
 );
 
-// Security Headers
-app.use(helmet());
+// Security Headers with relaxed CSP for map resources
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdnjs.cloudflare.com",
+          "https://unpkg.com"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdnjs.cloudflare.com",
+          "https://unpkg.com"
+        ],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https:",
+          "http:",
+          "blob:"
+        ],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Body Parser
 app.use(express.json());

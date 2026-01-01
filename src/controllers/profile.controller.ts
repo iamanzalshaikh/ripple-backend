@@ -2,6 +2,7 @@ import { Response } from "express";
 import User from "../models/user.model";
 import { AuthRequest } from "../types/auth.types";
 import { uploadOnCloudinary } from "../config/cloudinary";
+import logger from "../config/logger";
 
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
@@ -67,6 +68,217 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
       data: { user },
     });
   };
+
+  /**
+ * ✅ GET /api/v1/profile/emergency-contacts
+ * Get all emergency contacts for current user
+ */
+export const getEmergencyContacts = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        contacts: user.emergencyContacts,
+        count: user.emergencyContacts.length
+      }
+    });
+  } catch (error: any) {
+    logger.error('Error getting emergency contacts:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
+
+
+/**
+ * ✅ PATCH /api/v1/profile/emergency-contacts/:id
+ * Update emergency contact
+ * Body: { name?, phone?, email?, relation?, priority? }
+ */
+export const updateEmergencyContact = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, email, relation, priority } = req.body;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const contact = user.emergencyContacts.id(id);
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact not found'
+      });
+    }
+
+    // Update fields
+    if (name) contact.name = name;
+    if (phone) {
+      // Validate phone format
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone number (10 digits required)'
+        });
+      }
+      contact.phone = phone;
+    }
+    if (email !== undefined) {
+      if (email) {
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid email format'
+          });
+        }
+      }
+      contact.email = email;
+    }
+    if (relation) contact.relation = relation;
+    if (priority) contact.priority = priority;
+
+    // Re-sort by priority
+    user.emergencyContacts.sort((a, b) => a.priority - b.priority);
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Contact updated',
+      data: { contact }
+    });
+  } catch (error: any) {
+    logger.error('Error updating emergency contact:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * ✅ DELETE /api/v1/profile/emergency-contacts/:id
+ * Delete emergency contact
+ */
+export const deleteEmergencyContact = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const contact = user.emergencyContacts.id(id);
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact not found'
+      });
+    }
+
+    contact.deleteOne();
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Contact deleted',
+      data: { remaining: user.emergencyContacts.length }
+    });
+  } catch (error: any) {
+    logger.error('Error deleting emergency contact:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * ✅ PATCH /api/v1/profile/emergency-contacts/reorder
+ * Reorder emergency contacts by priority
+ * Body: { contacts: [{ id, priority }, ...] }
+ */
+export const reorderEmergencyContacts = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const { contacts } = req.body;
+
+    if (!Array.isArray(contacts) || contacts.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid contacts array'
+      });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update priorities
+    contacts.forEach(({ id, priority }) => {
+      const contact = user!.emergencyContacts.id(id);
+      if (contact) {
+        contact.priority = priority;
+      }
+    });
+
+    // Re-sort
+    user.emergencyContacts.sort((a, b) => a.priority - b.priority);
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Contacts reordered',
+      data: { contacts: user.emergencyContacts }
+    });
+  } catch (error: any) {
+    logger.error('Error reordering contacts:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
   
 
 export const updateAvatar = async (req: AuthRequest, res: Response) => {
@@ -99,16 +311,69 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
 };
 
 
+// export const addEmergencyContact = async (
+//   req: AuthRequest,
+//   res: Response
+// ) => {
+//   const { name, phone, relation, priority } = req.body;
+
+//   if (!name || !phone) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Name and phone are required",
+//     });
+//   }
+
+//   const user = await User.findById(req.userId);
+//   if (!user) {
+//     return res.status(404).json({ success: false, message: "User not found" });
+//   }
+
+//   user.emergencyContacts.push({
+//     name,
+//     phone,
+//     relation,
+//     priority: priority || 1,
+//     verified: false,
+//   });
+
+//   await user.save();
+
+//   res.json({
+//     success: true,
+//     message: "Emergency contact added",
+//     data: { emergencyContacts: user.emergencyContacts },
+//   });
+// };
+
 export const addEmergencyContact = async (
   req: AuthRequest,
   res: Response
 ) => {
-  const { name, phone, relation, priority } = req.body;
+  const { name, phone, email, relation, priority } = req.body;
 
+  // Validate required fields
   if (!name || !phone) {
     return res.status(400).json({
       success: false,
       message: "Name and phone are required",
+    });
+  }
+
+  // Validate email format if provided
+  if (email && !isValidEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email format",
+    });
+  }
+
+  // Validate phone format
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid phone number (10 digits required)",
     });
   }
 
@@ -117,22 +382,42 @@ export const addEmergencyContact = async (
     return res.status(404).json({ success: false, message: "User not found" });
   }
 
-  user.emergencyContacts.push({
+  // Create new contact with email
+  const newContact = {
     name,
     phone,
+    email: email || null,
     relation,
     priority: priority || 1,
     verified: false,
-  });
+  };
 
+  user.emergencyContacts.push(newContact);
   await user.save();
 
-  res.json({
+  // Get the newly added contact with its _id
+  const addedContact = user.emergencyContacts[user.emergencyContacts.length - 1];
+
+  res.status(201).json({
     success: true,
     message: "Emergency contact added",
-    data: { emergencyContacts: user.emergencyContacts },
+    data: {
+      contact: {
+        _id: addedContact._id,
+        ...addedContact.toObject(),
+      },
+      emergencyContacts: user.emergencyContacts,
+      count: user.emergencyContacts.length,
+    },
   });
 };
+
+// Helper function to validate email
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 
 export const updatePrivacySettings = async (
   req: AuthRequest,

@@ -5,6 +5,8 @@ import bikeRoutes from "./bike.routes.ts"
 import onboardingRoutes from "./onboarding.routes.ts";
 import rideRoutes from "./ride.routes.ts";
 import badgeawardRoutes from "./badgeaward.routes";
+import soslogRoutes from "./soslog.routes.ts";
+import publicRoutes from "./public.routes.ts";
 
 const router = express.Router();
 
@@ -40,7 +42,7 @@ router.get("/health", (req, res) => {
     service: "HerRidez API v1",
   });
 });
-
+router.use('/public', publicRoutes); 
 // Auth Routes
 router.use("/auth", authRoutes)
 router.use("/profile", profileRoutes);
@@ -51,4 +53,6 @@ router.use("/badges", badgeawardRoutes);
 
 
 router.use('/rides', rideRoutes);
+router.use('/safety', soslogRoutes); 
+
 export default router;
