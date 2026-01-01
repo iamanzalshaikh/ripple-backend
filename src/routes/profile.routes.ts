@@ -3,7 +3,6 @@ import isAuth from "../middlewares/auth.middleware";
 import { addEmergencyContact, deleteEmergencyContact, getEmergencyContacts, getMyProfile, reorderEmergencyContacts, updateAvatar, updateEmergencyContact, updateMyProfile, updatePrivacySettings } from "../controllers/profile.controller";
 import upload from "../middlewares/upload.middleware";
 
-
 const router = express.Router();
 
 router.get("/me", isAuth, getMyProfile);

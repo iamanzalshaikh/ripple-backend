@@ -6,7 +6,7 @@ import logger from "../config/logger";
 
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
-  const user = await User.findById(req.userId)
+  const user = await User.findById(req.userId);
 
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -17,8 +17,6 @@ export const getMyProfile = async (req: AuthRequest, res: Response) => {
     data: { user: user.getFullProfile() },
   });
 };
-
-
 
 export const updateMyProfile = async (req: AuthRequest, res: Response) => {
     const allowedFields = [
