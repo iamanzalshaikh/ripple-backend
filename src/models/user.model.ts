@@ -158,45 +158,92 @@ export interface IEmergencyContact {
   
   type IUserModel = Model<IUserDocument, {}, IUserMethods>;
   
-  const emergencyContactSchema = new Schema<IEmergencyContact>(
-    {
-      name: {
-        type: String,
-        required: true,
-        trim: true,
-      },
+  // const emergencyContactSchema = new Schema<IEmergencyContact>(
+  //   {
+  //     name: {
+  //       type: String,
+  //       required: true,
+  //       trim: true,
+  //     },
   
-      phone: {
-        type: String,
-        required: true,
-        trim: true,
-        match: /^[0-9]{10}$/,
-      },
+  //     phone: {
+  //       type: String,
+  //       required: true,
+  //       trim: true,
+  //       match: /^[0-9]{10}$/,
+  //     },
   
-      email: {
-        type: String,
-        required: false, // ✅ OPTIONAL
-        lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      },
+  //     email: {
+  //       type: String,
+  //       required: false, // ✅ OPTIONAL
+  //       lowercase: true,
+  //       match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  //     },
   
-      relation: {
-        type: String,
-        required: true,
-      },
+  //     relation: {
+  //       type: String,
+  //       required: true,
+  //     },
   
-      priority: {
-        type: Number,
-        default: 1,
-      },
+  //     priority: {
+  //       type: Number,
+  //       default: 1,
+  //     },
   
-      verified: {
-        type: Boolean,
-        default: false,
-      },
+  //     verified: {
+  //       type: Boolean,
+  //       default: false,
+  //     },
+  //   },
+  //   { _id: false }
+  // );
+  
+
+
+
+// ============================================
+// AFTER (✅ Correct - _id enabled)
+// ============================================
+const emergencyContactSchema = new Schema<IEmergencyContact>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    { _id: false }
-  );
+
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+      match: /^[0-9]{10}$/,
+    },
+
+    email: {
+      type: String,
+      required: false,
+      lowercase: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
+
+    relation: {
+      type: String,
+      required: true,
+    },
+
+    priority: {
+      type: Number,
+      default: 1,
+    },
+
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: true }  // ✅ ENABLE _id GENERATION (or just remove this line)
+);
+
   
   
   const verificationPhotosSchema = new Schema<IVerificationPhotos>(
