@@ -1,22 +1,3 @@
-// import express from 'express';
-// import { getAllBadges, getBadgeProgress, getMyAwards, getMyBadges } from '../controllers/badgeAward.controller';
-
-
-// const router = express.Router();
-
-// /**
-//  * Badge APIs
-//  */
-// router.get('/badges/me', isAuth, getMyBadges);
-// router.get('/badges', isAuth, getAllBadges);
-// router.get('/badges/progress', isAuth, getBadgeProgress);
-
-// /**
-//  * Award APIs
-//  */
-// router.get('/awards/me', isAuth, getMyAwards);
-
-// export default router;
 
 
 import express from 'express';
