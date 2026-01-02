@@ -1,5 +1,3 @@
-
-
 import express from 'express';
 import { getAllBadges, getBadgeProgress, getMyAwards, getMyBadges } from '../controllers/badgeAward.controller';
 import isAuth from '../middlewares/auth.middleware';
