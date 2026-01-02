@@ -7,7 +7,8 @@ import rideRoutes from "./ride.routes.ts";
 import badgeawardRoutes from "./badgeaward.routes";
 import soslogRoutes from "./soslog.routes.ts";
 import publicRoutes from "./public.routes.ts";
-
+import postRoutes from "./post.routes.ts";
+import notificationRoutes from "./notification.routes.ts";
 const router = express.Router();
 
 /**
@@ -54,5 +55,9 @@ router.use("/badges", badgeawardRoutes);
 
 router.use('/rides', rideRoutes);
 router.use('/safety', soslogRoutes); 
+
+
+router.use('/posts', postRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;

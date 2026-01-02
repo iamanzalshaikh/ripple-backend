@@ -170,12 +170,18 @@ export const triggerSOS = async (req: AuthRequest, res: Response) => {
         });
       }
   
+      // Generate backend URL for live tracking
+      // For local dev: use BACKEND_URL env var or default to localhost:PORT
+      // For production: set BACKEND_URL to your public backend URL
+      const backendUrl = process.env.BACKEND_URL || `http://localhost:${config.PORT || 3000}`;
+      const liveUrl = `${backendUrl}/api/v1/safety/live/${liveShareToken}`;
+
       res.status(201).json({
         success: true,
         message: 'SOS triggered successfully',
         data: {
           sosId: sosLog._id.toString(),
-          liveUrl: `${config.FRONTEND_URL}/api/v1/safety/live/${liveShareToken}`,
+          liveUrl: liveUrl,
           contactsAlerted: user.emergencyContacts.length,
           status: 'active',
           triggeredAt: sosLog.triggeredAt
@@ -243,6 +249,8 @@ export const triggerSOS = async (req: AuthRequest, res: Response) => {
 //       });
 //     }
 //   };
+
+
   
 export const updateSOSLocation = async (req: AuthRequest, res: Response) => {
     try {
@@ -316,39 +324,23 @@ export const updateSOSLocation = async (req: AuthRequest, res: Response) => {
         });
       }
   
-      // ✅ FILTER CONTACTS WITH EMAIL
-      const contactsWithEmail = user.emergencyContacts.filter((c) => c.email);
-  
-      if (contactsWithEmail.length > 0) {
-        // ✅ QUEUE EMAIL JOB
-        await sosQueue.add('send-location-update', {
-          sosId: sosLog._id.toString(),
-          userId: sosLog.userId._id.toString(),
-          location: { lat, lng },
-          liveShareToken: sosLog.liveShareToken,
-          contacts: contactsWithEmail,
-          totalUpdates: sosLog.locationHistory.length,
-        });
-  
-        logger.info(
-          `[SOS] 📧 Location update email queued for ${contactsWithEmail.length} contacts`
-        );
-      } else {
-        logger.warn(
-          `[SOS] ⚠️ No email addresses found for emergency contacts`
-        );
-      }
+      // ✅ OPTION 2: NO EMAIL NOTIFICATIONS FOR UPDATES
+      // Emergency contacts already received the initial SOS email with live tracking link
+      // They can see real-time updates on the live tracking page (refreshes every 5s)
+      logger.info(
+        `[SOS] � Location updated - Live tracking page will auto-update (no email sent)`
+      );
   
       res.json({
         success: true,
-        message: `Location updated & ${contactsWithEmail.length > 0 ? 'emails queued' : 'no emails (no contact emails)'}`,
+        message: 'Location updated - visible on live tracking page',
         data: {
           sosId: sosLog._id.toString(),
           currentLocation: sosLog.location,
           locationHistory: sosLog.locationHistory,
           lastLocationUpdate: sosLog.lastLocationUpdate,
           totalLocationUpdates: sosLog.locationHistory.length,
-          contactsNotified: contactsWithEmail.length,
+          contactsNotified: 0,
         },
       });
     } catch (error: any) {
@@ -817,41 +809,62 @@ export const getLiveSOSTracking = async (
                   }
                 }
   
+                let updateInterval = null;
+
                 async function updateLocation() {
+                  // Don't update if map/marker not initialized yet
+                  if (!map || !marker) {
+                    console.log('Map not ready, skipping update');
+                    return;
+                  }
+
                   try {
                     const response = await fetch(apiUrl);
                     const result = await response.json();
-  
+
                     if (result.success && result.data) {
                       const currentLocation = result.data.location;
                       const locationHistory = result.data.locationHistory || [];
-  
+
                       if (currentLocation) {
                         const newLatLng = [currentLocation.lat, currentLocation.lng];
                         
                         // Update marker position
                         marker.setLatLng(newLatLng);
                         
-                        // Center map on new location
-                        map.setView(newLatLng, map.getZoom());
+                        // Center map on new location (smooth pan)
+                        map.panTo(newLatLng);
                       }
-  
-                      if (locationHistory && locationHistory.length > 0) {
+
+                      if (locationHistory && locationHistory.length > 0 && polyline) {
                         // Update polyline path
                         const pathLatLngs = locationHistory.map(loc => [loc.lat, loc.lng]);
                         polyline.setLatLngs(pathLatLngs);
+                        
+                        // Fit bounds to show entire path
+                        if (pathLatLngs.length > 1) {
+                          map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+                        }
                       }
                     }
                   } catch (error) {
                     console.error('Error updating location:', error);
                   }
                 }
-  
+
                 // Initialize map when page loads
-                window.addEventListener('load', initMap);
-                
-                // Update location every 5 seconds
-                setInterval(updateLocation, 5000);
+                window.addEventListener('load', function() {
+                  initMap();
+                  
+                  // Start update interval AFTER map is initialized (wait 1 second to be safe)
+                  setTimeout(function() {
+                    // Update immediately
+                    updateLocation();
+                    
+                    // Then update every 5 seconds
+                    updateInterval = setInterval(updateLocation, 5000);
+                  }, 1000);
+                });
               </script>
             </body>
           </html>
