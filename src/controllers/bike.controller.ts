@@ -9,14 +9,25 @@ import logger from "../config/logger";
  * POST /api/v1/bikes
  * Add a new bike
  */
-export const addBike = async (req: AuthRequest, res: Response): Promise<void> => {
+export const addBike = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const userId = req.userId!;
-    const { brand, model, year, cc, color, registrationNumber, primary, notes } =
-      req.body;
+    const {
+      brand,
+      model,
+      year,
+      cc,
+      color,
+      registrationNumber,
+      primary,
+      notes,
+    } = req.body;
 
     const parsedYear = typeof year === "string" ? parseInt(year, 10) : year;
 
@@ -100,8 +111,6 @@ export const addBike = async (req: AuthRequest, res: Response): Promise<void> =>
   }
 };
 
-
-
 /**
  * Get all bikes for user
  * GET /api/v1/bikes
@@ -184,8 +193,18 @@ export const updateBike = async (
   try {
     const userId = req.userId;
     const { id } = req.params;
-    const { brand, model, year, cc, color, registrationNumber, primary, mileage, notes } =
-      req.body;
+    const {
+      brand,
+      model,
+      year,
+      cc,
+      color,
+      registrationNumber,
+      primary,
+      mileage,
+      notes,
+      imageUrl,
+    } = req.body;
 
     logger.info(`Updating bike ${id} for user ${userId}`);
 
@@ -208,14 +227,12 @@ export const updateBike = async (
     if (color) updates.color = color;
     if (registrationNumber) updates.registrationNumber = registrationNumber;
     if (mileage !== undefined) updates.mileage = mileage;
-    if (notes) updates.notes = notes;
+    if (notes !== undefined) updates.notes = notes;
+    if (imageUrl !== undefined) updates.imageUrl = imageUrl;
 
     // If setting as primary, unset others
     if (primary === true) {
-      await Bike.updateMany(
-        { userId, _id: { $ne: id } },
-        { primary: false }
-      );
+      await Bike.updateMany({ userId, _id: { $ne: id } }, { primary: false });
       updates.primary = true;
     }
 
@@ -266,10 +283,7 @@ export const setPrimaryBike = async (
     }
 
     // Unset primary on all other bikes
-    await Bike.updateMany(
-      { userId, _id: { $ne: id } },
-      { primary: false }
-    );
+    await Bike.updateMany({ userId, _id: { $ne: id } }, { primary: false });
 
     // Set this as primary
     const updatedBike = await Bike.findByIdAndUpdate(
@@ -365,89 +379,81 @@ export const setPrimaryBike = async (
 //   }
 // };
 
-
-
 export const deleteBike = async (
-    req: AuthRequest,
-    res: Response
-  ): Promise<void> => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-  
-    try {
-      const userId = req.userId;
-      const { id } = req.params;
-  
-      logger.info(`Deleting bike ${id} for user ${userId}`);
-  
-      // Check ownership
-      const bike = await Bike.findOne({ _id: id, userId }, null, { session });
-      if (!bike) {
-        await session.abortTransaction();
-        res.status(404).json({
-          success: false,
-          message: "Bike not found or not authorized",
-        });
-        return;
-      }
-  
-      // Soft delete WITH SESSION
-      const deletedBike = await Bike.findByIdAndUpdate(
-        id,
-        { status: "archived" },
-        { new: true, session }
-      );
-  
-      // Remove from user's bikes array WITH SESSION
-      await User.findByIdAndUpdate(
-        userId,
-        { $pull: { bikes: id } },
-        { session }
-      );
-  
-      // If this was primary, set another as primary WITH SESSION
-      const primaryBike = await Bike.findOne(
-        { userId, primary: true, status: "active" },
-        null,
-        { session }
-      );
-  
-      if (!primaryBike) {
-        const nextBike = await Bike.findOne(
-          { userId, status: "active" },
-          null,
-          { session }
-        ).sort({ createdAt: -1 });
-  
-        if (nextBike) {
-          nextBike.primary = true;
-          await nextBike.save({ session });
-        }
-      }
-  
-      // Commit
-      await session.commitTransaction();
-  
-      logger.info(`✅ Bike deleted: ${id}`);
-  
-      res.json({
-        success: true,
-        message: "Bike deleted successfully",
-        data: deletedBike?.toJSON(),
-      });
-    } catch (error: any) {
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const userId = req.userId;
+    const { id } = req.params;
+
+    logger.info(`Deleting bike ${id} for user ${userId}`);
+
+    // Check ownership
+    const bike = await Bike.findOne({ _id: id, userId }, null, { session });
+    if (!bike) {
       await session.abortTransaction();
-  
-      logger.error(`❌ Error deleting bike: ${error.message}`);
-      res.status(500).json({
+      res.status(404).json({
         success: false,
-        message: "Failed to delete bike",
-        error: error.message,
+        message: "Bike not found or not authorized",
       });
-    } finally {
-      await session.endSession();
+      return;
     }
-  };
+
+    // Soft delete WITH SESSION
+    const deletedBike = await Bike.findByIdAndUpdate(
+      id,
+      { status: "archived" },
+      { new: true, session }
+    );
+
+    // Remove from user's bikes array WITH SESSION
+    await User.findByIdAndUpdate(userId, { $pull: { bikes: id } }, { session });
+
+    // If this was primary, set another as primary WITH SESSION
+    const primaryBike = await Bike.findOne(
+      { userId, primary: true, status: "active" },
+      null,
+      { session }
+    );
+
+    if (!primaryBike) {
+      const nextBike = await Bike.findOne({ userId, status: "active" }, null, {
+        session,
+      }).sort({ createdAt: -1 });
+
+      if (nextBike) {
+        nextBike.primary = true;
+        await nextBike.save({ session });
+      }
+    }
+
+    // Commit
+    await session.commitTransaction();
+
+    logger.info(`✅ Bike deleted: ${id}`);
+
+    res.json({
+      success: true,
+      message: "Bike deleted successfully",
+      data: deletedBike?.toJSON(),
+    });
+  } catch (error: any) {
+    await session.abortTransaction();
+
+    logger.error(`❌ Error deleting bike: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete bike",
+      error: error.message,
+    });
+  } finally {
+    await session.endSession();
+  }
+};
 
 /**
  * Get primary bike
