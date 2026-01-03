@@ -28,6 +28,7 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
       "ridingLevel",
       "ridingStyle",
       "yearsOfExperience",
+      "onboardingCompleted",
     ];
   
     const updates: any = {};
