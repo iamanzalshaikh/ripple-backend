@@ -6,9 +6,9 @@ import Post from '../models/post.model';
 import Comment from '../models/comment.model';
 import User from '../models/user.model';
 import Ride from '../models/ride.model';
-import logger from '../config/logger';
+import logger from '../config/logger.js';
 import postQueue from '../queues/post.queue';
-import { uploadOnCloudinary } from '../config/cloudinary';
+import { uploadOnCloudinary } from '../config/cloudinary.js';
 
 interface AuthRequest extends Request {
   userId: string;

@@ -1,6 +1,6 @@
 import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
-import logger from '../config/logger';
+import logger from '../config/logger.js';
 import rideModel from '../models/ride.model';
 import User from '../models/user.model';
 import Badge from '../models/badge.model';

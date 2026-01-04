@@ -1,7 +1,7 @@
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import logger from "./logger.js";
-import { verifyUserAccessToken } from "../utils/jwt";
+import { verifyUserAccessToken } from "../utils/jwt.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {

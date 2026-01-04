@@ -1,8 +1,8 @@
 // import { Response } from "express";
 // import User, { IEmergencyContact } from "../models/user.model";
 // import { AuthRequest } from "../types/auth.types";
-// import { uploadOnCloudinary } from "../config/cloudinary";
-// import logger from "../config/logger";
+// import { uploadOnCloudinary } from "../config/cloudinary.js";
+// import logger from "../config/logger.js";
 
 
 // export const getMyProfile = async (req: AuthRequest, res: Response) => {

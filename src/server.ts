@@ -1,9 +1,9 @@
 // import { createServer } from "http";
-// import app from "./app";
-// import connectDB from "./config/db";
-// import config from "./config/config";
-// import { connectRedis } from "./config/redis";
-// import { initBadges } from "./seeds/initBadges";
+// import app from "./app.js";
+// import connectDB from "./config/db.js";
+// import config from "./config/config.js";
+// import { connectRedis } from "./config/redis.js";
+// import { initBadges } from "./seeds/initBadges.js";
 
 // const startServer = async () => {
 //   await connectDB();
