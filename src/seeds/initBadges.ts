@@ -1,6 +1,6 @@
 // src/seeds/initBadges.ts
 import Badge from "../models/badge.model.js";
-import { BADGES } from "./badges.seed";
+import { BADGES } from "./badges.seed.js";
 
 export const initBadges = async () => {
   console.log("🏷️ Initializing badges...");
