@@ -143,7 +143,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         postId: post._id,
         userId,
         userName: poster?.name || 'Someone',
-        userAvatar: poster?.avatar
+        userAvatar: poster?.avatarUrl
       });
     }
 
@@ -259,7 +259,7 @@ export const likePost = async (req: AuthRequest, res: Response) => {
           userId: post.userId,
           fromUserId: userId,
           fromUserName: liker?.name || 'Someone',
-          fromUserAvatar: liker?.avatar,
+          fromUserAvatar: liker?.avatarUrl,
           postId: post._id,
           message: `${liker?.name || 'Someone'} liked your post`
         });
@@ -328,7 +328,7 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
         userId: post.userId,
         fromUserId: userId,
         fromUserName: commenter?.name || 'Someone',
-        fromUserAvatar: commenter?.avatar,
+        fromUserAvatar: commenter?.avatarUrl,
         postId: post._id,
         commentId: comment._id,
         message: `${commenter?.name || 'Someone'} commented on your post`

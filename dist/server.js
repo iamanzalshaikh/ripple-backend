@@ -1,0 +1,73 @@
+// import { createServer } from "http";
+// import app from "./app";
+// import connectDB from "./config/db";
+// import config from "./config/config";
+// import { connectRedis } from "./config/redis";
+// import { initBadges } from "./seeds/initBadges";
+// const startServer = async () => {
+//   await connectDB();
+//   await connectRedis();
+//   await initBadges();
+//   const httpServer = createServer(app);
+//   httpServer.listen(config.PORT, () => {
+//     console.log(`🚀 Server running on http://localhost:${config.PORT}`);
+//   });
+// };
+// startServer();
+// ==========================================
+// File: src/server.ts (UPDATED WITH SOCKET.IO)
+// ==========================================
+import { createServer } from 'http';
+import app from './app';
+import connectDB from './config/db';
+import config from './config/config';
+import { connectRedis } from './config/redis';
+import { initBadges } from './seeds/initBadges';
+import initializeSocket from './config/socket';
+import logger from './config/logger';
+const startServer = async () => {
+    try {
+        // Connect to MongoDB
+        await connectDB();
+        logger.info('✅ MongoDB connected');
+        // Connect to Redis
+        await connectRedis();
+        logger.info('✅ Redis connected');
+        // Initialize badges
+        await initBadges();
+        logger.info('✅ Badges initialized');
+        // ✅ CREATE HTTP SERVER (required for Socket.io)
+        const httpServer = createServer(app);
+        // ✅ INITIALIZE SOCKET.IO
+        const io = initializeSocket(httpServer);
+        logger.info('✅ Socket.io initialized');
+        // ✅ ATTACH IO TO APP (so controllers can access it)
+        app.io = io;
+        // Start listening
+        httpServer.listen(config.PORT, () => {
+            logger.info(`🚀 Server running on http://localhost:${config.PORT}`);
+            logger.info(`✅ WebSocket server ready at ws://localhost:${config.PORT}`);
+        });
+        // ✅ GRACEFUL SHUTDOWN
+        process.on('SIGTERM', () => {
+            logger.info('SIGTERM received, shutting down gracefully...');
+            httpServer.close(() => {
+                logger.info('Server closed');
+                process.exit(0);
+            });
+        });
+        process.on('SIGINT', () => {
+            logger.info('SIGINT received, shutting down gracefully...');
+            httpServer.close(() => {
+                logger.info('Server closed');
+                process.exit(0);
+            });
+        });
+    }
+    catch (error) {
+        logger.error(`❌ Failed to start server: ${error.message}`);
+        process.exit(1);
+    }
+};
+startServer();
+//# sourceMappingURL=server.js.map

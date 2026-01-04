@@ -1,15 +1,15 @@
 import express from "express";
-import authRoutes from "./auth.routes.ts";
-import profileRoutes from "./profile.routes.ts";
-import bikeRoutes from "./bike.routes.ts"
-import onboardingRoutes from "./onboarding.routes.ts";
-import rideRoutes from "./ride.routes.ts";
+import authRoutes from "./auth.routes";
+import profileRoutes from "./profile.routes";
+import bikeRoutes from "./bike.routes";
+import onboardingRoutes from "./onboarding.routes";
+import rideRoutes from "./ride.routes";
 import badgeawardRoutes from "./badgeaward.routes";
-import soslogRoutes from "./soslog.routes.ts";
-import publicRoutes from "./public.routes.ts";
-import postRoutes from "./post.routes.ts";
-import notificationRoutes from "./notification.routes.ts";
-const router = express.Router();
+import soslogRoutes from "./soslog.routes";
+import publicRoutes from "./public.routes";
+import postRoutes from "./post.routes";
+import notificationRoutes from "./notification.routes";
+const router: express.Router = express.Router();
 
 /**
  * @swagger

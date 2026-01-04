@@ -15,6 +15,7 @@ export default {
   SMTP_PORT: process.env.SMTP_PORT!,
   SMTP_USER: process.env.SMTP_USER!,
   SMTP_PASS: process.env.SMTP_PASS!,
+  SMTP_SECURE: process.env.SMTP_SECURE || "false",
   EMAIL_FROM: process.env.EMAIL_FROM!,
   AWS_REGION: process.env.AWS_REGION!,
   AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID!,

@@ -3,7 +3,7 @@ import { getCurrentUser, sendLoginOtp, sendSignupOtp, verifyLoginOtp, verifySign
 import isAuth from "../middlewares/auth.middleware";
 
 
-const router = Router();
+const router: Router = Router();
 
 // Signup Routes
 router.post("/signup/send-otp", sendSignupOtp);
