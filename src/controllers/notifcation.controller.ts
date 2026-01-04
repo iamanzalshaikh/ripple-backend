@@ -8,9 +8,9 @@
 import { Request, Response } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
-import logger from '../config/logger';
-import Notification from '../models/notification.model';
-import app from '../app';
+import logger from '../config/logger.js';
+import Notification from '../models/notification.model.js';
+import app from '../app.js';
 
 interface AuthRequest extends Request {
   userId: string;

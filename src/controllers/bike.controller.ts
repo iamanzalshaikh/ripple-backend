@@ -1,9 +1,9 @@
 import { Response } from "express";
 import mongoose from "mongoose";
-import { AuthRequest } from "../types/auth.types";
-import User from "../models/user.model";
-import Bike, { IBike } from "../models/bike.model";
-import logger from "../config/logger";
+import { AuthRequest } from "../types/auth.types.js";
+import User from "../models/user.model.js";
+import Bike, { IBike } from "../models/bike.model.js";
+import logger from "../config/logger.js";
 
 /**
  * POST /api/v1/bikes

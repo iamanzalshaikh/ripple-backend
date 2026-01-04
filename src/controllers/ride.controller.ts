@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
 
 
-import RideTelemetry from '../models/ridetelemetry.model';
-import Ride from '../models/ride.model';
+import RideTelemetry from '../models/ridetelemetry.model.js';
+import Ride from '../models/ride.model.js';
 
-import User from "../models/user.model";
-import redisClient from '../config/redis'; // ✅ YOUR REDIS SETUP
+import User from "../models/user.model.js";
+import redisClient from '../config/redis.js'; // ✅ YOUR REDIS SETUP
 
-import logger from '../config/logger';
-import { simplifyPolyline , calculateDistance } from '../utils/ride';
-import { generateToken } from '../utils/token';
-import rideQueue from '../queues/ride.queue';
-import Bike from '../models/bike.model';
+import logger from '../config/logger.js';
+import { simplifyPolyline , calculateDistance } from '../utils/ride.js';
+import { generateToken } from '../utils/token.js';
+import rideQueue from '../queues/ride.queue.js';
+import Bike from '../models/bike.model.js';
 
 // ✅ Match your AuthRequest type
 interface AuthRequest extends Request {
