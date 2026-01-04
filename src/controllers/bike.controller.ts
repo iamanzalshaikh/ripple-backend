@@ -1,7 +1,7 @@
 import { Response } from "express";
 import mongoose from "mongoose";
-import { AuthRequest } from "../types/auth.types";
-import User from "../models/user.model";
+import { AuthRequest } from "../types/auth.types.js";
+import User from "../models/user.model.js";
 import Bike, { IBike } from "../models/bike.model.js";
 import logger from "../config/logger.js";
 

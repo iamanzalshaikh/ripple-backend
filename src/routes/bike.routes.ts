@@ -1,6 +1,6 @@
 import express, { Router } from "express";
-import { addBike, deleteBike, getBikeById, getBikeCount, getBikes, getPrimaryBike, setPrimaryBike, updateBike } from "../controllers/bike.controller";
-import isAuth from "../middlewares/auth.middleware";
+import { addBike, deleteBike, getBikeById, getBikeCount, getBikes, getPrimaryBike, setPrimaryBike, updateBike } from "../controllers/bike.controller.js";
+import isAuth from '../middlewares/auth.middleware.js';
 
 
 const router: Router = express.Router();

@@ -138,9 +138,9 @@
 
 
 import { Request, Response } from 'express';
-import User from '../models/user.model';
-import Badge from '../models/badge.model';
-import Award from '../models/award.model';
+import User from '../models/user.model.js';
+import Badge from '../models/badge.model.js';
+import Award from '../models/award.model.js';
 
 /**
  * ===============================

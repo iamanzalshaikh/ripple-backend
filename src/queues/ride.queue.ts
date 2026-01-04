@@ -1,11 +1,11 @@
 import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
 import logger from '../config/logger.js';
-import rideModel from '../models/ride.model';
-import User from '../models/user.model';
-import Badge from '../models/badge.model';
-import Award from '../models/award.model';
-import RideTelemetry from '../models/ridetelemetry.model';
+import rideModel from '../models/ride.model.js';
+import User from '../models/user.model.js';
+import Badge from '../models/badge.model.js';
+import Award from '../models/award.model.js';
+import RideTelemetry from '../models/ridetelemetry.model.js';
 
 // ✅ Create ioredis connection for BullMQ with correct options
 const bullmqRedis = new Redis({

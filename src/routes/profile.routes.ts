@@ -1,7 +1,7 @@
 import express from "express";
-import isAuth from "../middlewares/auth.middleware";
-import { addEmergencyContact, deleteEmergencyContact, getEmergencyContacts, getMyProfile, reorderEmergencyContacts, updateAvatar, updateEmergencyContact, updateMyProfile, updatePrivacySettings } from "../controllers/profile.controller";
-import upload from "../middlewares/upload.middleware";
+import isAuth from "../middlewares/auth.middleware.js";
+import { addEmergencyContact, deleteEmergencyContact, getEmergencyContacts, getMyProfile, reorderEmergencyContacts, updateAvatar, updateEmergencyContact, updateMyProfile, updatePrivacySettings } from "../controllers/profile.controller.js";
+import upload from "../middlewares/upload.middleware.js";
 
 const router: express.Router = express.Router();
 
