@@ -139,7 +139,7 @@ export const rideWorker = new Worker(
 
         // ✅ totalDistance is ALREADY in KM, don't divide by 1000!
         const totalDistanceKm = user.totalDistance || 0;
-        const badgesAwarded = [];
+        const badgesAwarded: string[] = [];
 
         // 🔍 DEBUG LOGGING
         logger.info(`[award-badges DEBUG] User ${userId}:`);
@@ -215,16 +215,28 @@ export const rideWorker = new Worker(
       throw error;
     }
   },
+  // {
+  //   connection: bullmqRedis,
+  //   concurrency: 10,
+  //   settings: {
+  //     maxStalledCount: 2 as any,
+  //     stalledInterval: 5000,
+  //     maxRetriesPerSecond: 100,
+  //     lockDuration: 30000,
+  //     lockRenewTime: 15000
+  //   }
+  // }
+
   {
     connection: bullmqRedis,
     concurrency: 10,
     settings: {
-      maxStalledCount: 2,
+      maxStalledCount: 2 as any,
       stalledInterval: 5000,
       maxRetriesPerSecond: 100,
       lockDuration: 30000,
       lockRenewTime: 15000
-    }
+    } as any  // ✅ ADD THIS
   }
 );
 

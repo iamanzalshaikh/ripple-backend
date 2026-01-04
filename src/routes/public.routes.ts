@@ -6,7 +6,7 @@ import { Router, Request, Response } from 'express';
 import SOSLog from '../models/soslog.model.js';
 import logger from '../config/logger.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * ✅ GET /live/:token
@@ -73,9 +73,10 @@ router.get('/live/:token', async (req: Request, res: Response) => {
 
     logger.info(`[LIVE TRACKING] Serving live tracking page for SOS ${sosLog._id}`);
 
-    const riderName = sosLog.userId.name || 'Unknown';
-    const riderPhone = sosLog.userId.phone;
-    const riderAvatar = sosLog.userId.avatarUrl;
+    const populatedUser = sosLog.userId as any;
+    const riderName = populatedUser.name || 'Unknown';
+    const riderPhone = populatedUser.phone;
+    const riderAvatar = populatedUser.avatarUrl;
     const lat = sosLog.location.lat;
     const lng = sosLog.location.lng;
     const status = sosLog.status;
@@ -381,10 +382,10 @@ router.get('/live/:token', async (req: Request, res: Response) => {
       </html>
     `;
 
-    res.send(html);
+    return res.send(html);
   } catch (error: any) {
     logger.error('Error serving live tracking page:', error.message);
-    res.status(500).send('Error loading live tracking page');
+    return res.status(500).send('Error loading live tracking page');
   }
 });
 

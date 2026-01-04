@@ -3,7 +3,7 @@ import isAuth from '../middlewares/auth.middleware.js';
 import { getLiveSOSTracking, getSOSHistory, resolveSOSAlert, triggerSOS, updateSOSLocation } from '../controllers/soslog.controller.js';
 
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * ==================== SOS ALERTS ====================

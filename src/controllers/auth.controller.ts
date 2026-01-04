@@ -345,7 +345,7 @@ export const sendLoginOtp = async (
 
     // Send OTP via email only
     try {
-      await sendLoginOtpEmail(user.email, otp);
+      await sendLoginOtpEmail(user.email!, otp, user.phone || "");
       logger.info(`Login OTP email sent to ${user.email}`);
     } catch (emailError) {
       logger.error(`Failed to send login email to ${user.email}`);

@@ -38,9 +38,8 @@ interface IBadge extends Document {
           required: true
         },
         min: Number,
-        max: Number,
-        _id: false
-      }
+        max: Number
+      } as any
     },
     { timestamps: true }
   );

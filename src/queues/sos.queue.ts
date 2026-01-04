@@ -69,7 +69,7 @@ export const sosWorker = new Worker(
 
         // Sort by priority
         const sortedContacts = contacts.sort(
-          (a, b) => a.priority - b.priority
+          (a: any, b: any) => a.priority - b.priority
         );
 
         // Send email to each contact
@@ -144,7 +144,7 @@ export const sosWorker = new Worker(
 
         // Sort by priority
         const sortedContacts = contacts.sort(
-          (a, b) => a.priority - b.priority
+          (a: any, b: any) => a.priority - b.priority
         );
 
         // Send location update email to each contact
@@ -211,12 +211,12 @@ export const sosWorker = new Worker(
     connection: bullmqRedis,
     concurrency: 5,
     settings: {
-      maxStalledCount: 2,
+      maxStalledCount: 2 as any,
       stalledInterval: 5000,
       maxRetriesPerSecond: 100,
       lockDuration: 30000,
       lockRenewTime: 15000
-    }
+    } as any  // ✅ ADD THIS
   }
 );
 

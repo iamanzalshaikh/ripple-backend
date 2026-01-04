@@ -144,8 +144,7 @@ import { specs } from './config/swagger.js';
 
 // ✅ END NEW IMPORTS
 
-const app = express();
-
+const app: express.Express = express();
 // ============================================
 // MIDDLEWARES
 // ============================================
