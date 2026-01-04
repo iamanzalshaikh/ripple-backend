@@ -5,7 +5,6 @@
 // import { connectRedis } from "./config/redis";
 // import { initBadges } from "./seeds/initBadges";
 
-
 // const startServer = async () => {
 //   await connectDB();
 
@@ -22,40 +21,39 @@
 
 // startServer();
 
-
 // ==========================================
 // File: src/server.ts (UPDATED WITH SOCKET.IO)
 // ==========================================
-import { createServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
-import app from './app';
-import connectDB from './config/db';
-import config from './config/config';
-import { connectRedis } from './config/redis';
-import { initBadges } from './seeds/initBadges';
-import initializeSocket from './config/socket';
-import logger from './config/logger';
+import { createServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import app from "./app.js";
+import connectDB from "./config/db.js";
+import config from "./config/config.js";
+import { connectRedis } from "./config/redis.js";
+import { initBadges } from "./seeds/initBadges.js";
+import initializeSocket from "./config/socket.js";
+import logger from "./config/logger.js";
 
 const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
-    logger.info('✅ MongoDB connected');
+    logger.info("✅ MongoDB connected");
 
     // Connect to Redis
     await connectRedis();
-    logger.info('✅ Redis connected');
+    logger.info("✅ Redis connected");
 
     // Initialize badges
     await initBadges();
-    logger.info('✅ Badges initialized');
+    logger.info("✅ Badges initialized");
 
     // ✅ CREATE HTTP SERVER (required for Socket.io)
     const httpServer = createServer(app);
 
     // ✅ INITIALIZE SOCKET.IO
     const io: SocketIOServer = initializeSocket(httpServer);
-    logger.info('✅ Socket.io initialized');
+    logger.info("✅ Socket.io initialized");
 
     // ✅ ATTACH IO TO APP (so controllers can access it)
     (app as any).io = io;
@@ -67,18 +65,18 @@ const startServer = async () => {
     });
 
     // ✅ GRACEFUL SHUTDOWN
-    process.on('SIGTERM', () => {
-      logger.info('SIGTERM received, shutting down gracefully...');
+    process.on("SIGTERM", () => {
+      logger.info("SIGTERM received, shutting down gracefully...");
       httpServer.close(() => {
-        logger.info('Server closed');
+        logger.info("Server closed");
         process.exit(0);
       });
     });
 
-    process.on('SIGINT', () => {
-      logger.info('SIGINT received, shutting down gracefully...');
+    process.on("SIGINT", () => {
+      logger.info("SIGINT received, shutting down gracefully...");
       httpServer.close(() => {
-        logger.info('Server closed');
+        logger.info("Server closed");
         process.exit(0);
       });
     });

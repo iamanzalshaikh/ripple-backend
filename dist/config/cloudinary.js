@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import "dotenv/config";
-import config from "./config";
-import logger from "./logger";
+import config from "./config.js";
+import logger from "./logger.js";
 import streamifier from "streamifier";
 // Cloudinary Configuration
 cloudinary.config({

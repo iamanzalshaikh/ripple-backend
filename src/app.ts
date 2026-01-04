@@ -134,7 +134,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import apiRoutes from "./routes";
+import apiRoutes from "./routes/index.js";
 import logger from "./config/logger.js";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger.js";

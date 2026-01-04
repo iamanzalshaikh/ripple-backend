@@ -1,5 +1,5 @@
-import { Server as HTTPServer } from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Server as HTTPServer } from "http";
+import { Server as SocketIOServer, Socket } from "socket.io";
 export interface AuthenticatedSocket extends Socket {
     data: {
         userId: string;
