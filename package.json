@@ -1,5 +1,5 @@
 {
-  "name": "heridez-backend",
+  "name": "herridez-backend",
   "version": "1.0.0",
   "description": "Backend for HerRidez platform",
   "main": "dist/server.js",

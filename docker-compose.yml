@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  herridez-backend:
+    build: .
+    container_name: herridez-backend
+    restart: always
+    ports:
+      - "3004:3004"
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
