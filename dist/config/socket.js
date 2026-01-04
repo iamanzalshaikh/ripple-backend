@@ -1,6 +1,6 @@
-import { Server as SocketIOServer } from 'socket.io';
-import logger from './logger';
-import { verifyUserAccessToken } from '../utils/jwt';
+import { Server as SocketIOServer } from "socket.io";
+import logger from "./logger.js";
+import { verifyUserAccessToken } from "../utils/jwt";
 /**
  * Initialize Socket.io server
  * This function is called from server.ts
@@ -8,27 +8,27 @@ import { verifyUserAccessToken } from '../utils/jwt';
 export const initializeSocket = (httpServer) => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: process.env.FRONTEND_URL || '*',
-            methods: ['GET', 'POST'],
-            credentials: true
+            origin: process.env.FRONTEND_URL || "*",
+            methods: ["GET", "POST"],
+            credentials: true,
         },
-        transports: ['websocket', 'polling'],
+        transports: ["websocket", "polling"],
         pingInterval: 25000,
-        pingTimeout: 20000
+        pingTimeout: 20000,
     });
     // ==================== MIDDLEWARE: AUTHENTICATION ====================
     io.use((socket, next) => {
         try {
             const token = socket.handshake.auth.token;
             if (!token) {
-                logger.warn('[Socket] No token provided');
-                return next(new Error('No token provided'));
+                logger.warn("[Socket] No token provided");
+                return next(new Error("No token provided"));
             }
             // Verify JWT token
             const decoded = verifyUserAccessToken(token);
             if (!decoded || !decoded.userId) {
-                logger.warn('[Socket] Invalid token');
-                return next(new Error('Invalid token'));
+                logger.warn("[Socket] Invalid token");
+                return next(new Error("Invalid token"));
             }
             // Store userId in socket for later use
             socket.data.userId = decoded.userId;
@@ -37,35 +37,35 @@ export const initializeSocket = (httpServer) => {
         }
         catch (error) {
             logger.error(`[Socket Auth] Error: ${error.message}`);
-            next(new Error('Authentication failed'));
+            next(new Error("Authentication failed"));
         }
     });
     // ==================== CONNECTION HANDLER ====================
-    io.on('connection', (socket) => {
+    io.on("connection", (socket) => {
         const userId = socket.data.userId;
         // Join user to personal room (e.g., "user:userId")
         // This allows sending notifications only to that user
         socket.join(`user:${userId}`);
         logger.info(`[Socket Connect] User ${userId} connected. Socket ID: ${socket.id}`);
         // ==================== EVENT: ping (keep-alive) ====================
-        socket.on('ping', () => {
-            socket.emit('pong');
+        socket.on("ping", () => {
+            socket.emit("pong");
             logger.debug(`[Socket Ping] User ${userId} pinged`);
         });
         // ==================== EVENT: disconnect ====================
-        socket.on('disconnect', (reason) => {
+        socket.on("disconnect", (reason) => {
             logger.info(`[Socket Disconnect] User ${userId} disconnected. Reason: ${reason}`);
         });
         // ==================== EVENT: error ====================
-        socket.on('error', (error) => {
+        socket.on("error", (error) => {
             logger.error(`[Socket Error] User ${userId}: ${error.message}`);
         });
     });
     // ==================== SERVER EVENTS ====================
-    io.engine.on('connection_error', (err) => {
-        logger.error('[Socket Engine Error]:', err.message);
+    io.engine.on("connection_error", (err) => {
+        logger.error("[Socket Engine Error]:", err.message);
     });
-    logger.info('✅ Socket.io server initialized');
+    logger.info("✅ Socket.io server initialized");
     return io;
 };
 /**
@@ -84,10 +84,10 @@ export const sendNotificationToUser = (io, userId, notification) => {
         logger.warn(`[sendNotificationToUser] Socket.io not available`);
         return;
     }
-    io.to(`user:${userId}`).emit('notification', {
+    io.to(`user:${userId}`).emit("notification", {
         ...notification,
         timestamp: new Date(),
-        id: `notif_${Date.now()}`
+        id: `notif_${Date.now()}`,
     });
     logger.info(`[sendNotificationToUser] Notification sent to user ${userId}: ${notification.message}`);
 };

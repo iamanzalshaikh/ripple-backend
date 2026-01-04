@@ -1,7 +1,7 @@
-import { Server as HTTPServer } from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import logger from './logger';
-import { verifyUserAccessToken } from '../utils/jwt';
+import { Server as HTTPServer } from "http";
+import { Server as SocketIOServer, Socket } from "socket.io";
+import logger from "./logger.js";
+import { verifyUserAccessToken } from "../utils/jwt.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {
@@ -16,13 +16,13 @@ export interface AuthenticatedSocket extends Socket {
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || '*',
-      methods: ['GET', 'POST'],
-      credentials: true
+      origin: process.env.FRONTEND_URL || "*",
+      methods: ["GET", "POST"],
+      credentials: true,
     },
-    transports: ['websocket', 'polling'],
+    transports: ["websocket", "polling"],
     pingInterval: 25000,
-    pingTimeout: 20000
+    pingTimeout: 20000,
   });
 
   // ==================== MIDDLEWARE: AUTHENTICATION ====================
@@ -31,60 +31,66 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
       const token = socket.handshake.auth.token;
 
       if (!token) {
-        logger.warn('[Socket] No token provided');
-        return next(new Error('No token provided'));
+        logger.warn("[Socket] No token provided");
+        return next(new Error("No token provided"));
       }
 
       // Verify JWT token
       const decoded = verifyUserAccessToken(token) as any;
       if (!decoded || !decoded.userId) {
-        logger.warn('[Socket] Invalid token');
-        return next(new Error('Invalid token'));
+        logger.warn("[Socket] Invalid token");
+        return next(new Error("Invalid token"));
       }
 
       // Store userId in socket for later use
       socket.data.userId = decoded.userId;
-      logger.info(`[Socket Auth] User ${decoded.userId} authenticated (Socket ID: ${socket.id})`);
+      logger.info(
+        `[Socket Auth] User ${decoded.userId} authenticated (Socket ID: ${socket.id})`
+      );
 
       next();
     } catch (error: any) {
       logger.error(`[Socket Auth] Error: ${error.message}`);
-      next(new Error('Authentication failed'));
+      next(new Error("Authentication failed"));
     }
   });
 
   // ==================== CONNECTION HANDLER ====================
-  io.on('connection', (socket: AuthenticatedSocket) => {
+  io.on("connection", (socket: AuthenticatedSocket) => {
     const userId = socket.data.userId;
 
     // Join user to personal room (e.g., "user:userId")
     // This allows sending notifications only to that user
     socket.join(`user:${userId}`);
-    logger.info(`[Socket Connect] User ${userId} connected. Socket ID: ${socket.id}`);
+    logger.info(
+      `[Socket Connect] User ${userId} connected. Socket ID: ${socket.id}`
+    );
 
     // ==================== EVENT: ping (keep-alive) ====================
-    socket.on('ping', () => {
-      socket.emit('pong');
+    socket.on("ping", () => {
+      socket.emit("pong");
       logger.debug(`[Socket Ping] User ${userId} pinged`);
     });
 
     // ==================== EVENT: disconnect ====================
-    socket.on('disconnect', (reason: string) => {
-      logger.info(`[Socket Disconnect] User ${userId} disconnected. Reason: ${reason}`);
+    socket.on("disconnect", (reason: string) => {
+      logger.info(
+        `[Socket Disconnect] User ${userId} disconnected. Reason: ${reason}`
+      );
     });
 
     // ==================== EVENT: error ====================
-    socket.on('error', (error: any) => {
+    socket.on("error", (error: any) => {
       logger.error(`[Socket Error] User ${userId}: ${error.message}`);
     });
   });
 
   // ==================== SERVER EVENTS ====================
-  io.engine.on('connection_error', (err) => {
-    logger.error('[Socket Engine Error]:', err.message);
+  io.engine.on("connection_error", (err) => {
+    logger.error("[Socket Engine Error]:", err.message);
   });
 
-  logger.info('✅ Socket.io server initialized');
+  logger.info("✅ Socket.io server initialized");
   return io;
 };
 
@@ -103,7 +109,7 @@ export const sendNotificationToUser = (
   io: SocketIOServer | null,
   userId: string,
   notification: {
-    type: 'like' | 'comment' | 'follow' | 'ride_share';
+    type: "like" | "comment" | "follow" | "ride_share";
     fromUserId?: string;
     fromUserName?: string;
     fromUserAvatar?: string;
@@ -117,13 +123,15 @@ export const sendNotificationToUser = (
     return;
   }
 
-  io.to(`user:${userId}`).emit('notification', {
+  io.to(`user:${userId}`).emit("notification", {
     ...notification,
     timestamp: new Date(),
-    id: `notif_${Date.now()}`
+    id: `notif_${Date.now()}`,
   });
 
-  logger.info(`[sendNotificationToUser] Notification sent to user ${userId}: ${notification.message}`);
+  logger.info(
+    `[sendNotificationToUser] Notification sent to user ${userId}: ${notification.message}`
+  );
 };
 
 /**
@@ -133,7 +141,7 @@ export const sendNotificationToUsers = (
   io: SocketIOServer | null,
   userIds: string[],
   notification: {
-    type: 'like' | 'comment' | 'follow' | 'ride_share';
+    type: "like" | "comment" | "follow" | "ride_share";
     fromUserId?: string;
     fromUserName?: string;
     fromUserAvatar?: string;
@@ -149,7 +157,9 @@ export const sendNotificationToUsers = (
     sendNotificationToUser(io, userId, notification);
   });
 
-  logger.info(`[sendNotificationToUsers] Notifications sent to ${userIds.length} users`);
+  logger.info(
+    `[sendNotificationToUsers] Notifications sent to ${userIds.length} users`
+  );
 };
 
 export default initializeSocket;

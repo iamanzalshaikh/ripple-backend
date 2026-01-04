@@ -1,10 +1,10 @@
 // import { Queue, Worker } from 'bullmq';
 // import Redis from 'ioredis';
 // import { Server as SocketIOServer } from 'socket.io';
-// import logger from '../config/logger';
+// import logger from '../config/logger.js';
 // import Notification from '../models/notification.model';
 // import User from '../models/user.model';
-// import app from '../app';
+// import app from '../app.js';
 
 // // Create ioredis connection for BullMQ
 // const bullmqRedis = new Redis({
