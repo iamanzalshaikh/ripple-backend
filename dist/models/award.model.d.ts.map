@@ -1,1 +1,0 @@
-{"version":3,"file":"award.model.d.ts","sourceRoot":"","sources":["../../src/models/award.model.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,EAAE,EAAE,QAAQ,EAAU,MAAM,UAAU,CAAC;AAGtD,UAAU,MAAO,SAAQ,QAAQ;IAC7B,MAAM,EAAE,QAAQ,CAAC,KAAK,CAAC,QAAQ,CAAC;IAChC,OAAO,EAAE,QAAQ,CAAC,KAAK,CAAC,QAAQ,CAAC;IACjC,SAAS,EAAE,IAAI,CAAC;CACjB;;;;;;AA0BD,wBAA4D"}

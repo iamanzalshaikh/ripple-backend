@@ -9,6 +9,11 @@ import soslogRoutes from "./soslog.routes";
 import publicRoutes from "./public.routes";
 import postRoutes from "./post.routes";
 import notificationRoutes from "./notification.routes";
+import rideEventRoutes from "./rideEvent.routes";
+import groupRoutes from "./group.routes";
+import chatRoutes from "./chat.routes";
+
+
 const router: express.Router = express.Router();
 
 /**
@@ -59,5 +64,9 @@ router.use('/safety', soslogRoutes);
 
 router.use('/posts', postRoutes);
 router.use('/notifications', notificationRoutes);
+
+router.use('/rideevents', rideEventRoutes);
+router.use('/groups', groupRoutes);
+router.use('/chat', chatRoutes);
 
 export default router;
