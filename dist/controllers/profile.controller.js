@@ -1,8 +1,3 @@
-// import { Response } from "express";
-// import User, { IEmergencyContact } from "../models/user.model";
-// import { AuthRequest } from "../types/auth.types";
-// import { uploadOnCloudinary } from "../config/cloudinary";
-// import logger from "../config/logger";
 import User from "../models/user.model.js";
 import { uploadOnCloudinary } from "../config/cloudinary.js";
 import logger from "../config/logger.js";

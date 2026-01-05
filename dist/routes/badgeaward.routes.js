@@ -1,6 +1,6 @@
 import express from 'express';
-import { getAllBadges, getBadgeProgress, getMyAwards, getMyBadges } from '../controllers/badgeAward.controller';
-import isAuth from '../middlewares/auth.middleware';
+import { getAllBadges, getBadgeProgress, getMyAwards, getMyBadges } from '../controllers/badgeAward.controller.js';
+import isAuth from '../middlewares/auth.middleware.js';
 const router = express.Router();
 /**
  * Badge APIs

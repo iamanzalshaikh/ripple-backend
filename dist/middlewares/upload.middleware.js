@@ -1,5 +1,5 @@
 import multer from "multer";
-import logger from "../config/logger";
+import logger from "../config/logger.js";
 const storage = multer.memoryStorage();
 const upload = multer({
     storage,

@@ -1,13 +1,3 @@
-// import { Response } from 'express';
-// import { AuthRequest } from '../types/auth.types.js';
-// import User from '../models/user.model.js';
-// import SOSLog from '../models/soslog.model.js';
-// import Ride from '../models/ride.model.js';
-// // import { sosQueue } from '../queues/sos.queue.js';
-// import logger from '../config/logger.js';
-// import crypto from 'crypto';
-// import sosQueue from '../queues/sos.queue.js';
-// import config from '../config/config.js';
 import User from '../models/user.model.js';
 import SOSLog from '../models/soslog.model.js';
 import Ride from '../models/ride.model.js';

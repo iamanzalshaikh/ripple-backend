@@ -1,10 +1,10 @@
-import Post from '../models/post.model';
-import Comment from '../models/comment.model';
-import User from '../models/user.model';
-import Ride from '../models/ride.model';
-import logger from '../config/logger';
-import postQueue from '../queues/post.queue';
-import { uploadOnCloudinary } from '../config/cloudinary';
+import Post from '../models/post.model.js';
+import Comment from '../models/comment.model.js';
+import User from '../models/user.model.js';
+import Ride from '../models/ride.model.js';
+import logger from '../config/logger.js';
+import postQueue from '../queues/post.queue.js';
+import { uploadOnCloudinary } from '../config/cloudinary.js';
 /**
  * POST /api/v1/posts
  * Create a new post with Cloudinary image upload

@@ -1,6 +1,6 @@
 import express from "express";
-import isAuth from "../middlewares/auth.middleware";
-import { checkOnboardingStatus, completeOnboarding } from "../controllers/onboarding.controller";
+import isAuth from '../middlewares/auth.middleware.js';
+import { checkOnboardingStatus, completeOnboarding } from "../controllers/onboarding.controller.js";
 const router = express.Router();
 /**
  * All routes require authentication

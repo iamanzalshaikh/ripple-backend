@@ -1,9 +1,9 @@
 // ==========================================
 // FINAL CODE - PART 3: NOTIFICATION CONTROLLER + SETUP
 // ==========================================
-import logger from '../config/logger';
-import Notification from '../models/notification.model';
-import app from '../app';
+import logger from '../config/logger.js';
+import Notification from '../models/notification.model.js';
+import app from '../app.js';
 /**
  * GET /api/v1/notifications
  * Get user notifications with filters

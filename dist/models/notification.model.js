@@ -11,13 +11,17 @@ const notificationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['like', 'comment', 'follow', 'ride_share'],
+        enum: ['like', 'comment', 'follow', 'ride', 'event', 'group', 'mentor', 'ride_share'],
         required: true
     },
     fromUserId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         index: true
+    },
+    fromUserName: {
+        type: String,
+        sparse: true
     },
     postId: {
         type: Schema.Types.ObjectId,
@@ -27,6 +31,16 @@ const notificationSchema = new Schema({
     commentId: {
         type: Schema.Types.ObjectId,
         ref: 'Comment',
+        sparse: true
+    },
+    rideEventId: {
+        type: Schema.Types.ObjectId,
+        ref: 'RideEvent',
+        sparse: true
+    },
+    groupId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Group',
         sparse: true
     },
     message: {

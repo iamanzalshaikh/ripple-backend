@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { AuthRequest } from "../types/auth.types";
+import { AuthRequest } from "../types/auth.types.js";
 /**
  * POST /api/v1/bikes
  * Add a new bike

@@ -1,0 +1,60 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IPrivateChatRoom extends Document {
+  _id: mongoose.Types.ObjectId;
+  roomId: string; // user1_user2 format (sorted)
+  user1: mongoose.Types.ObjectId;
+  user2: mongoose.Types.ObjectId;
+  context?: 'marketplace' | 'mentor' | 'general';
+  contextId?: mongoose.Types.ObjectId; // For item/mentor reference
+  lastMessage?: string;
+  lastMessageAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const PrivateChatRoomSchema = new Schema<IPrivateChatRoom>(
+  {
+    roomId: {
+      type: String,
+      unique: true,
+      index: true,
+      required: true
+    },
+    user1: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    user2: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    context: {
+      type: String,
+      enum: ['marketplace', 'mentor', 'general'],
+      default: 'general'
+    },
+    contextId: {
+      type: Schema.Types.ObjectId,
+      sparse: true
+    },
+    lastMessage: String,
+    lastMessageAt: Date,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+    }
+  },
+  { timestamps: true }
+);
+
+PrivateChatRoomSchema.index({ user1: 1, user2: 1 });
+PrivateChatRoomSchema.index({ roomId: 1 });
+
+export default mongoose.model<IPrivateChatRoom>('PrivateChatRoom', PrivateChatRoomSchema);

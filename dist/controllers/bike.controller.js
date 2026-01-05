@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import User from "../models/user.model";
-import Bike from "../models/bike.model";
-import logger from "../config/logger";
+import User from "../models/user.model.js";
+import Bike from "../models/bike.model.js";
+import logger from "../config/logger.js";
 /**
  * POST /api/v1/bikes
  * Add a new bike
