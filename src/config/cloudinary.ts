@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import "dotenv/config";
-import config from "./config";
-import logger from "./logger";
+import config from "./config.js";
+import logger from "./logger.js";
 import streamifier from "streamifier";
 
 // Cloudinary Configuration
@@ -14,7 +14,7 @@ cloudinary.config({
 // Function to Upload Buffer to Cloudinary (Optimized)
 const uploadOnCloudinary = async (
   fileBuffer: Buffer,
-  folder: string = "library-books",
+  folder: string = "library-books"
 ): Promise<string | null> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -31,7 +31,7 @@ const uploadOnCloudinary = async (
           return resolve(result.secure_url);
         }
         return resolve(null);
-      },
+      }
     );
 
     streamifier.createReadStream(fileBuffer).pipe(uploadStream);

@@ -75,7 +75,6 @@
 
 
 
-
 /**
  * File: src/server.ts
  * Main server entry point with Socket.io support
@@ -98,15 +97,15 @@ const startServer = async () => {
 
     // Connect to MongoDB
     await connectDB();
-    logger.info('✅ MongoDB connected');
+    logger.info("✅ MongoDB connected");
 
     // Connect to Redis
     await connectRedis();
-    logger.info('✅ Redis connected');
+    logger.info("✅ Redis connected");
 
     // Initialize badges
     await initBadges();
-    logger.info('✅ Badges initialized');
+    logger.info("✅ Badges initialized");
 
     // ==================== CREATE HTTP SERVER ====================
     // Required for Socket.io
@@ -120,7 +119,7 @@ const startServer = async () => {
     // - Private Chat (1:1 messaging)
     // - Notifications
     const io: SocketIOServer = initializeSocket(httpServer);
-    logger.info('✅ Socket.io initialized');
+    logger.info("✅ Socket.io initialized");
 
     // ==================== ATTACH IO TO APP ====================
     // Controllers can access: (app as any).io
@@ -151,8 +150,8 @@ const startServer = async () => {
       });
     });
 
-    process.on('SIGINT', () => {
-      logger.info('SIGINT received, shutting down gracefully...');
+    process.on("SIGINT", () => {
+      logger.info("SIGINT received, shutting down gracefully...");
       httpServer.close(() => {
         logger.info('HTTP server closed');
         process.exit(0);

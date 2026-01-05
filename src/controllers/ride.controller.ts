@@ -724,11 +724,11 @@ export const deleteRide = async (req: AuthRequest, res: Response) => {
 // import Ride from '../models/ride.model';
 
 // import User from "../models/user.model";
-// import redisClient from '../config/redis'; // ✅ YOUR REDIS SETUP
+// import redisClient from '../config/redis.js'; // ✅ YOUR REDIS SETUP
 
-// import logger from '../config/logger';
-// import { simplifyPolyline , calculateDistance } from '../utils/ride';
-// import { generateToken } from '../utils/token';
+// import logger from '../config/logger.js';
+// import { simplifyPolyline , calculateDistance } from '../utils/ride.js';
+// import { generateToken } from '../utils/token.js';
 // import rideQueue from '../queues/ride.queue';
 
 

@@ -1,0 +1,41 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy deploy script to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy.sh"
+          target: "/tmp/deploy-herridez-backend-script"
+
+      - name: Execute deployment script
+        uses: appleboy/ssh-action@master
+        with:
+          command_timeout: 30m
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Clean up old script location
+            rm -rf ~/deploy-herridez-backend.sh 
+
+            # Move the new script
+            mv /tmp/deploy-herridez-backend-script/deploy.sh ~/deploy-herridez-backend.sh
+
+            # Make executable and run
+            chmod +x ~/deploy-herridez-backend.sh
+            ~/deploy-herridez-backend.sh
