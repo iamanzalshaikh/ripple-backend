@@ -116,15 +116,15 @@ export const createRideEvent = (req: AuthRequest, res: Response) : void => {
       timezone: timezone || 'Asia/Kolkata',
       eventType,
       privacy,
-      status: 'scheduled', // ✅ CHANGED: Auto-scheduled instead of draft
+        status: 'SCHEDULED', // ✅ CHANGED: Auto-scheduled instead of draft
       safetyLevel: 'high',
       chatRoomId: `event-${Date.now()}`,
-      participants: [
-        {
-          userId: organizerId as any,
-          status: 'joined',
-          joinedAt: new Date()
-        }
+        participants: [
+          {
+            userId: organizerId as any,
+            status: 'JOINED',
+            joinedAt: new Date()
+          }
       ]
     });
 
@@ -161,7 +161,9 @@ export const createRideEvent = (req: AuthRequest, res: Response) : void => {
 export const listRideEvents = (req: AuthRequest, res: Response) : void => {
   (async () => {
     try {
-    const { lat, lng, radius = 50, difficulty, status = 'scheduled', page = 1, limit = 10 } = req.query;
+    // const { lat, lng, radius = 50, difficulty, status = 'scheduled', page = 1, limit = 10 } = req.query;
+    const { lat, lng, radius = 50, difficulty, status = 'SCHEDULED', page = 1, limit = 10 } = req.query;
+
 
     let query: any = { status };
 
@@ -251,9 +253,9 @@ export const getRideEventDetail = (req: AuthRequest, res: Response) : void => {
         isOrganizer,
         isParticipant,
         canJoin:
-          ride.status === 'scheduled' &&
-          ride.participants.length < ride.maxParticipants &&
-          !isParticipant
+        ride.status === 'SCHEDULED' &&
+        ride.participants.length < ride.maxParticipants &&
+        !isParticipant
       }
     });
   } catch (error: any) {
@@ -310,9 +312,17 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response) : void => {
       return res.status(400).json({ success: false, error: 'Ride is full' });
     }
 
+    // ride.participants.push({
+    //   userId: userId as any,
+    //   status: 'rsvp',
+    //   joinedAt: new Date(),
+    //   bikeId: bikeId as any
+    // });
+
+
     ride.participants.push({
       userId: userId as any,
-      status: 'rsvp',
+      status: 'JOINED',
       joinedAt: new Date(),
       bikeId: bikeId as any
     });
@@ -357,67 +367,154 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response) : void => {
  * POST /api/v1/ride-events/:id/start
  * Start group ride (Organizer only)
  */
-export const startRideEvent = (req: AuthRequest, res: Response) : void => {
+// export const startRideEvent = (req: AuthRequest, res: Response) : void => {
+//   (async () => {
+//     try {
+//     const { id } = req.params;
+//     const organizerId = req.userId;
+
+//     logger.info(`[startRideEvent] Starting ride ${id}`);
+
+//     const ride = await RideEvent.findById(id);
+//     if (!ride) {
+//       return res.status(404).json({ success: false, error: 'Ride not found' });
+//     }
+
+//     if (ride.organizerId.toString() !== organizerId) {
+//       return res.status(403).json({ success: false, error: 'Only organizer can start' });
+//     }
+
+//     ride.status = 'live';
+//     ride.liveStartedAt = new Date();
+
+//     ride.participants = ride.participants.map((p: any) => ({
+//       ...p,
+//       status: 'joined'
+//     }));
+
+//     await ride.save();
+
+//     // Initialize Redis storage
+//     await redisClient.setEx(
+//       `ride-event-${id}:locations`,
+//       86400,
+//       JSON.stringify({})
+//     );
+
+//     await redisClient.setEx(
+//       `ride-event-${id}:stats`,
+//       86400,
+//       JSON.stringify({
+//         startedAt: ride.liveStartedAt,
+//         totalDistance: 0,
+//         avgGroupSpeed: 0,
+//         maxSpeed: 0
+//       })
+//     );
+
+//     logger.info(`[startRideEvent] Ride ${id} is LIVE`);
+
+//     return res.json({
+//       success: true,
+//       data: {
+//         rideEventId: ride._id,
+//         status: 'live',
+//         startedAt: ride.liveStartedAt
+//       }
+//     });
+//   } catch (error: any) {
+//     logger.error(`[startRideEvent] Error: ${error.message}`);
+//     return res.status(500).json({ success: false, error: error.message });
+//   }
+// })();;
+// };
+
+
+export const startRideEvent = (req: AuthRequest, res: Response): void => {
   (async () => {
     try {
-    const { id } = req.params;
-    const organizerId = req.userId;
+      const { id } = req.params;
+      const organizerId = req.userId;
 
-    logger.info(`[startRideEvent] Starting ride ${id}`);
+      logger.info(`[startRideEvent] Starting ride ${id}`);
 
-    const ride = await RideEvent.findById(id);
-    if (!ride) {
-      return res.status(404).json({ success: false, error: 'Ride not found' });
-    }
-
-    if (ride.organizerId.toString() !== organizerId) {
-      return res.status(403).json({ success: false, error: 'Only organizer can start' });
-    }
-
-    ride.status = 'live';
-    ride.liveStartedAt = new Date();
-
-    ride.participants = ride.participants.map((p: any) => ({
-      ...p,
-      status: 'joined'
-    }));
-
-    await ride.save();
-
-    // Initialize Redis storage
-    await redisClient.setEx(
-      `ride-event-${id}:locations`,
-      86400,
-      JSON.stringify({})
-    );
-
-    await redisClient.setEx(
-      `ride-event-${id}:stats`,
-      86400,
-      JSON.stringify({
-        startedAt: ride.liveStartedAt,
-        totalDistance: 0,
-        avgGroupSpeed: 0,
-        maxSpeed: 0
-      })
-    );
-
-    logger.info(`[startRideEvent] Ride ${id} is LIVE`);
-
-    return res.json({
-      success: true,
-      data: {
-        rideEventId: ride._id,
-        status: 'live',
-        startedAt: ride.liveStartedAt
+      const ride = await RideEvent.findById(id);
+      if (!ride) {
+        return res.status(404).json({ success: false, error: 'Ride not found' });
       }
-    });
-  } catch (error: any) {
-    logger.error(`[startRideEvent] Error: ${error.message}`);
-    return res.status(500).json({ success: false, error: error.message });
-  }
-})();;
+
+      if (ride.organizerId.toString() !== organizerId) {
+        return res.status(403).json({ success: false, error: 'Only organizer can start' });
+      }
+
+      if (ride.status !== 'SCHEDULED') {
+        return res.status(400).json({ 
+          success: false, 
+          error: `Ride is ${ride.status}, cannot start` 
+        });
+      }
+
+      ride.status = 'LIVE';
+      ride.liveStartedAt = new Date();
+
+      // DON'T auto-mark as joined - they stay JOINED until they tap "Start My Ride"
+
+      await ride.save();
+
+      // Initialize Redis storage
+      await redisClient.setEx(
+        `ride-event-${id}:locations`,
+        86400,
+        JSON.stringify({})
+      );
+
+      await redisClient.setEx(
+        `ride-event-${id}:stats`,
+        86400,
+        JSON.stringify({
+          startedAt: ride.liveStartedAt,
+          totalDistance: 0,
+          avgGroupSpeed: 0,
+          maxSpeed: 0
+        })
+      );
+
+      // BROADCAST TO ALL PARTICIPANTS
+      const io = (req.app as any).io;
+      if (io) {
+        io.to(`ride:${id}`).emit('host-started-ride', {
+          rideEventId: id,
+          title: ride.title,
+          startedAt: ride.liveStartedAt,
+          message: `🚴 ${ride.title} has started!`,
+          status: 'LIVE',
+          timestamp: new Date()
+        });
+      }
+
+      logger.info(`[startRideEvent] Ride ${id} is LIVE`);
+
+      return res.json({
+        success: true,
+        data: {
+          rideEventId: ride._id,
+          status: 'LIVE',
+          startedAt: ride.liveStartedAt
+        }
+      });
+    } catch (error: any) {
+      logger.error(`[startRideEvent] Error: ${error.message}`);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  })();
 };
+
+
+
+/**
+ * POST /api/v1/ride-events/:id/stream
+ * Stream ride event location
+ */
 
 export const streamRideEventLocation = (req: AuthRequest, res: Response) : void => {
     (async () => {
@@ -430,8 +527,8 @@ export const streamRideEventLocation = (req: AuthRequest, res: Response) : void 
         return res.status(400).json({ success: false, error: 'Invalid chunk' });
       }
   
-      const ride = await RideEvent.findOne({ _id: id, status: 'live' });
-      if (!ride) {
+      const ride = await RideEvent.findOne({ _id: id, status: 'LIVE' });
+            if (!ride) {
         return res.status(404).json({ success: false, error: 'Ride not live' });
       }
   
@@ -577,6 +674,160 @@ eventType: (ride as any).eventType || 'group_ride',
 })();
   };
   
+
+  export const riderStartsRide = (req: AuthRequest, res: Response): void => {
+    (async () => {
+      try {
+        const { id } = req.params;
+        const userId = req.userId;
+        const { location, emergencyContacts } = req.body;
+  
+        logger.info(`[riderStartsRide] Rider ${userId} starting ride ${id}`);
+  
+        const ride = await RideEvent.findById(id);
+        if (!ride) {
+          return res.status(404).json({ success: false, error: 'Ride not found' });
+        }
+  
+        if (ride.status !== 'LIVE') {
+          return res.status(400).json({ success: false, error: 'Ride is not live yet' });
+        }
+  
+        const participantIndex = ride.participants.findIndex(
+          (p: any) => p.userId.toString() === userId
+        );
+  
+        if (participantIndex === -1) {
+          return res.status(403).json({ success: false, error: 'Not a participant' });
+        }
+  
+        const timeElapsedMinutes =
+          (Date.now() - ride.liveStartedAt!.getTime()) / (1000 * 60);
+        let distanceFromStart = 0;
+  
+        if (location) {
+          const lat1 = ride.route.startPoint.coordinates[1];
+          const lon1 = ride.route.startPoint.coordinates[0];
+          const lat2 = location.lat;
+          const lon2 = location.lng;
+          const R = 6371;
+          const dLat = ((lat2 - lat1) * Math.PI) / 180;
+          const dLon = ((lon2 - lon1) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+              Math.cos((lat2 * Math.PI) / 180) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          distanceFromStart = R * c;
+        }
+  
+        const isLateJoin =
+          timeElapsedMinutes > ride.lateJoinConfig.lateJoinWindowMinutes ||
+          distanceFromStart > ride.lateJoinConfig.maxDistanceFromStartKm;
+  
+        ride.participants[participantIndex].status = 'ACTIVE';
+        ride.participants[participantIndex].personalStartTime = new Date();
+        ride.participants[participantIndex].liveLocationEnabled = true;
+        ride.participants[participantIndex].sosEnabled = true;
+        ride.participants[participantIndex].emergencyContacts =
+          emergencyContacts || [];
+        ride.participants[participantIndex].wasLateJoin = isLateJoin;
+        ride.participants[participantIndex].lateJoinReason = isLateJoin
+          ? `${Math.round(timeElapsedMinutes)}min late, ${distanceFromStart.toFixed(1)}km away`
+          : undefined;
+  
+        await ride.save();
+  
+        await RideEventParticipant.updateOne(
+          { rideEventId: id, userId },
+          {
+            status: 'ACTIVE',
+            personalStartTime: new Date(),
+            liveLocationEnabled: true,
+            sosEnabled: true,
+            emergencyContacts: emergencyContacts || [],
+            wasLateJoin: isLateJoin,
+            lateJoinReason: isLateJoin
+              ? `${Math.round(timeElapsedMinutes)}min late`
+              : undefined
+          },
+          { upsert: true }
+        );
+  
+        logger.info(`[riderStartsRide] Rider ${userId} is now ACTIVE`);
+  
+        return res.json({
+          success: true,
+          data: {
+            rideEventId: id,
+            status: 'ACTIVE',
+            personalStartTime: new Date(),
+            wasLateJoin: isLateJoin
+          }
+        });
+      } catch (error: any) {
+        logger.error(`[riderStartsRide] Error: ${error.message}`);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    })();
+  };
+  
+  export const riderEndsRide = (req: AuthRequest, res: Response): void => {
+    (async () => {
+      try {
+        const { id } = req.params;
+        const userId = req.userId;
+  
+        logger.info(`[riderEndsRide] Rider ${userId} ending ride ${id}`);
+  
+        const ride = await RideEvent.findById(id);
+        if (!ride) {
+          return res.status(404).json({ success: false, error: 'Ride not found' });
+        }
+  
+        const participantIndex = ride.participants.findIndex(
+          (p: any) => p.userId.toString() === userId
+        );
+  
+        if (participantIndex === -1) {
+          return res.status(403).json({ success: false, error: 'Not a participant' });
+        }
+  
+        if (ride.participants[participantIndex].status === 'ACTIVE') {
+          ride.participants[participantIndex].status = 'COMPLETED';
+          ride.participants[participantIndex].personalEndTime = new Date();
+        }
+  
+        await ride.save();
+  
+        await RideEventParticipant.updateOne(
+          { rideEventId: id, userId },
+          {
+            status: 'COMPLETED',
+            personalEndTime: new Date(),
+            finishedRide: true
+          }
+        );
+  
+        logger.info(`[riderEndsRide] Rider ${userId} completed ride ${id}`);
+  
+        return res.json({
+          success: true,
+          data: {
+            rideEventId: id,
+            status: 'COMPLETED',
+            message: '✅ Ride completed!'
+          }
+        });
+      } catch (error: any) {
+        logger.error(`[riderEndsRide] Error: ${error.message}`);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    })();
+  };
+
   /**
    * GET /api/v1/ride-events/:id/summary
    * Get completed ride summary with all stats
@@ -588,8 +839,8 @@ eventType: (ride as any).eventType || 'group_ride',
       const userId = req.userId;
   
       const ride = await RideEvent.findById(id).populate('organizerId', 'name avatarUrl').lean();
-  
-      if (!ride || ride.status !== 'completed') {
+
+      if (!ride || ride.status !== 'COMPLETED') {
         return res.status(404).json({ success: false, error: 'Ride not completed' });
       }
   
@@ -657,42 +908,120 @@ calories: `${(userStats as any).calories ?? 0}`,
  * POST /api/v1/ride-events/:id/end
  * End group ride (Organizer only)
  */
-export const endRideEvent =  (req: AuthRequest, res: Response) : void => {
-    (async () => {
+// export const endRideEvent =  (req: AuthRequest, res: Response) : void => {
+//     (async () => {
+//     try {
+//       const { id } = req.params;
+//       const organizerId = req.userId;
+  
+//       logger.info(`[endRideEvent] Ending ride ${id}`);
+  
+//       const ride = await RideEvent.findById(id);
+//       if (!ride) {
+//         return res.status(404).json({ success: false, error: 'Ride not found' });
+//       }
+  
+//       if (ride.organizerId.toString() !== organizerId) {
+//         return res.status(403).json({ success: false, error: 'Only organizer can end' });
+//       }
+  
+//       ride.status = 'completed';
+//       ride.liveEndedAt = new Date();
+//       await ride.save();
+  
+//       // Queue background job
+//       await rideEventQueue.add('process-group-ride', { rideEventId: ride._id }, { priority: 1 });
+  
+//       // Cleanup Redis
+//       await redisClient.del(`ride-event-${id}:locations`);
+//       await redisClient.del(`ride-event-${id}:stats`);
+//       await redisClient.del(`ride-event-${id}:participants`);
+  
+//       logger.info(`[endRideEvent] Ride ${id} completed`);
+  
+//       return res.json({
+//         success: true,
+//         data: {
+//           rideEventId: ride._id,
+//           status: 'completed',
+//           endedAt: ride.liveEndedAt
+//         }
+//       });
+//     } catch (error: any) {
+//       logger.error(`[endRideEvent] Error: ${error.message}`);
+//       return res.status(500).json({ success: false, error: error.message });
+//     }
+//     })();
+//   };
+
+
+
+export const endRideEvent = (req: AuthRequest, res: Response): void => {
+  (async () => {
     try {
       const { id } = req.params;
       const organizerId = req.userId;
-  
+
       logger.info(`[endRideEvent] Ending ride ${id}`);
-  
+
       const ride = await RideEvent.findById(id);
       if (!ride) {
         return res.status(404).json({ success: false, error: 'Ride not found' });
       }
-  
+
       if (ride.organizerId.toString() !== organizerId) {
         return res.status(403).json({ success: false, error: 'Only organizer can end' });
       }
-  
-      ride.status = 'completed';
+
+      ride.status = 'COMPLETED';
       ride.liveEndedAt = new Date();
+
+      // Mark no-shows (who were JOINED but never ACTIVE)
+      ride.participants = ride.participants.map((p: any) => ({
+        ...p,
+        status: p.status === 'JOINED' ? 'NO_SHOW' : p.status,
+        isNoShow: p.status === 'JOINED',
+        noShowReason: p.status === 'JOINED' ? 'Did not start tracking' : null
+      }));
+
       await ride.save();
-  
+
+      // Update all no-shows in participant table
+      await RideEventParticipant.updateMany(
+        { rideEventId: id, status: 'JOINED' },
+        {
+          status: 'NO_SHOW',
+          isNoShow: true,
+          noShowReason: 'Did not start tracking'
+        }
+      );
+
+      // Broadcast to all
+      const io = (req.app as any).io;
+      if (io) {
+        io.to(`ride:${id}`).emit('ride-ended', {
+          rideEventId: id,
+          endedAt: ride.liveEndedAt,
+          message: '🏁 Ride has ended!',
+          timestamp: new Date()
+        });
+      }
+
       // Queue background job
       await rideEventQueue.add('process-group-ride', { rideEventId: ride._id }, { priority: 1 });
-  
+
       // Cleanup Redis
       await redisClient.del(`ride-event-${id}:locations`);
       await redisClient.del(`ride-event-${id}:stats`);
       await redisClient.del(`ride-event-${id}:participants`);
-  
+
       logger.info(`[endRideEvent] Ride ${id} completed`);
-  
+
       return res.json({
         success: true,
         data: {
           rideEventId: ride._id,
-          status: 'completed',
+          status: 'COMPLETED',
           endedAt: ride.liveEndedAt
         }
       });
@@ -700,8 +1029,8 @@ export const endRideEvent =  (req: AuthRequest, res: Response) : void => {
       logger.error(`[endRideEvent] Error: ${error.message}`);
       return res.status(500).json({ success: false, error: error.message });
     }
-    })();
-  };
+  })();
+};
 
   
 /**

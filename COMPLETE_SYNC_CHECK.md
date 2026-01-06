@@ -160,3 +160,5 @@ const message = await ChatMessage.create({
 **Everything is synced and correct!** Just one small fix needed in the rideEvent controller to set `roomType` when creating event chat messages. Everything else is perfect! 🎉
 
 
+
+
