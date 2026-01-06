@@ -10,6 +10,7 @@ export interface INotification extends Document {
   fromUserName?: string;
   postId?: mongoose.Types.ObjectId;
   commentId?: mongoose.Types.ObjectId;
+  commentText?: string; // Store actual comment text for better UX
   rideEventId?: mongoose.Types.ObjectId;
   groupId?: mongoose.Types.ObjectId;
   message: string;
@@ -54,6 +55,12 @@ const notificationSchema = new Schema<INotification>(
     commentId: {
       type: Schema.Types.ObjectId,
       ref: 'Comment',
+      sparse: true
+    },
+
+    commentText: {
+      type: String,
+      maxlength: 500,
       sparse: true
     },
 
