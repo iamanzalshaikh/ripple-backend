@@ -376,6 +376,7 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
         fromUserAvatar: commenter?.avatarUrl,
         postId: post._id,
         commentId: comment._id,
+        commentText: comment.text, // Include actual comment text
         message: `${commenter?.name || "Someone"} commented on your post`,
       });
     }
