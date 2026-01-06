@@ -8,7 +8,8 @@ import User from "../models/user.model.js";
 import redisClient from '../config/redis.js'; // ✅ YOUR REDIS SETUP
 
 import logger from '../config/logger.js';
-import { simplifyPolyline , calculateDistance } from '../utils/ride.js';
+import { simplifyPolyline } from '../utils/ride.js';
+import { calculateDistance }  from '../utils/ride.js';
 import { generateToken } from '../utils/token.js';
 import rideQueue from '../queues/ride.queue.js';
 import Bike from '../models/bike.model.js';

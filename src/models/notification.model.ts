@@ -5,10 +5,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'like' | 'comment' | 'follow' | 'ride_share';
+  type: 'like' | 'comment' | 'follow' | 'ride' | 'event' | 'group' | 'mentor' | 'ride_share';
   fromUserId?: mongoose.Types.ObjectId;
+  fromUserName?: string;
   postId?: mongoose.Types.ObjectId;
   commentId?: mongoose.Types.ObjectId;
+  rideEventId?: mongoose.Types.ObjectId;
+  groupId?: mongoose.Types.ObjectId;
   message: string;
   read: boolean;
   readAt?: Date;
@@ -27,7 +30,7 @@ const notificationSchema = new Schema<INotification>(
 
     type: {
       type: String,
-      enum: ['like', 'comment', 'follow', 'ride_share'],
+      enum: ['like', 'comment', 'follow', 'ride', 'event', 'group', 'mentor', 'ride_share'],
       required: true
     },
 
@@ -35,6 +38,11 @@ const notificationSchema = new Schema<INotification>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       index: true
+    },
+
+    fromUserName: {
+      type: String,
+      sparse: true
     },
 
     postId: {
@@ -46,6 +54,18 @@ const notificationSchema = new Schema<INotification>(
     commentId: {
       type: Schema.Types.ObjectId,
       ref: 'Comment',
+      sparse: true
+    },
+
+    rideEventId: {
+      type: Schema.Types.ObjectId,
+      ref: 'RideEvent',
+      sparse: true
+    },
+
+    groupId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Group',
       sparse: true
     },
 
