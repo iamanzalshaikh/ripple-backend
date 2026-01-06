@@ -236,7 +236,7 @@ export const postWorker = new Worker(
       const io = (app as any).io as SocketIOServer | null;
 
       if (job.name === 'send-notification') {
-        const { type, userId, fromUserId, fromUserName, fromUserAvatar, postId, commentId, message } = job.data;
+        const { type, userId, fromUserId, fromUserName, fromUserAvatar, postId, commentId, commentText, message } = job.data;
 
         logger.info(`[send-notification] Creating notification for user ${userId}`);
 
@@ -251,6 +251,7 @@ export const postWorker = new Worker(
           fromUserId,
           postId: postId || null,
           commentId: commentId || null,
+          commentText: commentText || null, // Store comment text for comment notifications
           message: message || 'New activity',
           read: false
         });
@@ -266,6 +267,7 @@ export const postWorker = new Worker(
             fromUserAvatar,
             postId,
             commentId,
+            commentText: commentText || null, // Include comment text in real-time notification
             message,
             timestamp: new Date(),
             read: false
