@@ -7,7 +7,6 @@
 // import upload from '../middlewares/upload.middleware';
 // import { commentPost, createPost, deleteComment, deletePost, getComments, getFeed, likePost } from '../controllers/post.controller';
 
-
 // const router: Router = express.Router();
 
 // /**
@@ -38,7 +37,6 @@
 //  * }
 //  */
 // router.post('/', isAuth, upload.array('media', 5), createPost);  // ✅ ADD MULTER MIDDLEWARE
-
 
 // /**
 //  * ==================== FEED ====================
@@ -74,7 +72,6 @@
 //  */
 // router.get('/feed', isAuth, getFeed);
 
-
 // /**
 //  * ==================== LIKES ====================
 //  */
@@ -97,7 +94,6 @@
 //  * }
 //  */
 // router.post('/:id/like', isAuth, likePost);
-
 
 // /**
 //  * ==================== COMMENTS ====================
@@ -160,7 +156,6 @@
 //  */
 // router.delete('/:postId/comments/:commentId', isAuth, deleteComment);
 
-
 // /**
 //  * ==================== DELETE POST ====================
 //  */
@@ -183,31 +178,39 @@
 
 // export default router;
 
-
-
-
-import express, { Router } from 'express';
-import isAuth from '../middlewares/auth.middleware.js';
-import upload from '../middlewares/upload.middleware.js';
-import { commentPost, createPost, deleteComment, deletePost, getComments, getFeed, likePost } from '../controllers/post.controller.js';
+import express, { Router } from "express";
+import isAuth from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/upload.middleware.js";
+import {
+  commentPost,
+  createPost,
+  deleteComment,
+  deletePost,
+  getComments,
+  getFeed,
+  getMyPosts,
+  likePost,
+} from "../controllers/post.controller.js";
 
 const router: Router = express.Router();
 
 // Wrap handlers to satisfy Express typing
 const wrappedCreatePost: any = createPost;
 const wrappedGetFeed: any = getFeed;
+const wrappedGetMyPosts: any = getMyPosts;
 const wrappedLikePost: any = likePost;
 const wrappedGetComments: any = getComments;
 const wrappedCommentPost: any = commentPost;
 const wrappedDeleteComment: any = deleteComment;
 const wrappedDeletePost: any = deletePost;
 
-router.post('/', isAuth, upload.array('media', 5), wrappedCreatePost);
-router.get('/feed', isAuth, wrappedGetFeed);
-router.post('/:id/like', isAuth, wrappedLikePost);
-router.get('/:id/comments', isAuth, wrappedGetComments);
-router.post('/:id/comment', isAuth, wrappedCommentPost);
-router.delete('/:postId/comments/:commentId', isAuth, wrappedDeleteComment);
-router.delete('/:id', isAuth, wrappedDeletePost);
+router.post("/", isAuth, upload.array("media", 5), wrappedCreatePost);
+router.get("/feed", isAuth, wrappedGetFeed);
+router.get("/me", isAuth, wrappedGetMyPosts);
+router.post("/:id/like", isAuth, wrappedLikePost);
+router.get("/:id/comments", isAuth, wrappedGetComments);
+router.post("/:id/comment", isAuth, wrappedCommentPost);
+router.delete("/:postId/comments/:commentId", isAuth, wrappedDeleteComment);
+router.delete("/:id", isAuth, wrappedDeletePost);
 
 export default router;
