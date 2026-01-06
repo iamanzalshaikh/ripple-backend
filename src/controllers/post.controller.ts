@@ -1,14 +1,14 @@
 // ==========================================
 // File: src/controllers/post.controller.ts (WITH CLOUDINARY)
 // ==========================================
-import { Request, Response } from 'express';
-import Post from '../models/post.model.js';
-import Comment from '../models/comment.model.js';
-import User from '../models/user.model.js';
-import Ride from '../models/ride.model.js';
-import logger from '../config/logger.js';
-import postQueue from '../queues/post.queue.js';
-import { uploadOnCloudinary } from '../config/cloudinary.js';
+import { Request, Response } from "express";
+import Post from "../models/post.model.js";
+import Comment from "../models/comment.model.js";
+import User from "../models/user.model.js";
+import Ride from "../models/ride.model.js";
+import logger from "../config/logger.js";
+import postQueue from "../queues/post.queue.js";
+import { uploadOnCloudinary } from "../config/cloudinary.js";
 
 interface AuthRequest extends Request {
   userId: string;
@@ -17,21 +17,21 @@ interface AuthRequest extends Request {
 /**
  * POST /api/v1/posts
  * Create a new post with Cloudinary image upload
- * 
+ *
  * MULTIPART FORM DATA (NOT JSON)
- * 
+ *
  * Form Fields:
  * - caption: string (optional)
  * - privacy: 'private' | 'friends' | 'public' (default: 'friends')
  * - rideId: string (optional)
  * - location: JSON string (optional)
- * 
+ *
  * Files:
  * - media: Array of image/video files
  */
 export const createPost = async (req: AuthRequest, res: Response) => {
   try {
-    const { caption, privacy = 'friends', rideId, location } = req.body;
+    const { caption, privacy = "friends", rideId, location } = req.body;
     const userId = req.userId;
     const files = req.files as Express.Multer.File[] | undefined;
 
@@ -41,21 +41,21 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     if (!caption && (!files || files.length === 0)) {
       return res.status(400).json({
         success: false,
-        error: 'Post must have caption or media'
+        error: "Post must have caption or media",
       });
     }
 
     if (caption && caption.length > 2000) {
       return res.status(400).json({
         success: false,
-        error: 'Caption too long (max 2000 characters)'
+        error: "Caption too long (max 2000 characters)",
       });
     }
 
-    if (!['private', 'friends', 'public'].includes(privacy)) {
+    if (!["private", "friends", "public"].includes(privacy)) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid privacy setting'
+        error: "Invalid privacy setting",
       });
     }
 
@@ -65,7 +65,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       if (!ride) {
         return res.status(404).json({
           success: false,
-          error: 'Ride not found'
+          error: "Ride not found",
         });
       }
     }
@@ -79,8 +79,8 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       for (const file of files) {
         try {
           // Determine if it's a video or image
-          const isVideo = file.mimetype.startsWith('video/');
-          const folder = isVideo ? 'herridez/videos' : 'herridez/posts';
+          const isVideo = file.mimetype.startsWith("video/");
+          const folder = isVideo ? "herridez/videos" : "herridez/posts";
 
           // Upload to Cloudinary
           const imageUrl = await uploadOnCloudinary(file.buffer, folder);
@@ -88,14 +88,18 @@ export const createPost = async (req: AuthRequest, res: Response) => {
           if (imageUrl) {
             mediaArray.push({
               url: imageUrl,
-              type: isVideo ? 'video' : 'photo'
+              type: isVideo ? "video" : "photo",
             });
             logger.info(`[createPost] File uploaded: ${imageUrl}`);
           } else {
-            logger.warn(`[createPost] Failed to upload file: ${file.originalname}`);
+            logger.warn(
+              `[createPost] Failed to upload file: ${file.originalname}`
+            );
           }
         } catch (uploadError: any) {
-          logger.error(`[createPost] Upload error for ${file.originalname}: ${uploadError.message}`);
+          logger.error(
+            `[createPost] Upload error for ${file.originalname}: ${uploadError.message}`
+          );
           // Continue with other files instead of failing completely
         }
       }
@@ -103,7 +107,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       if (mediaArray.length === 0) {
         return res.status(400).json({
           success: false,
-          error: 'Failed to upload media. Please try again.'
+          error: "Failed to upload media. Please try again.",
         });
       }
     }
@@ -121,35 +125,37 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     // Create post
     const post = new Post({
       userId,
-      caption: caption || '',
+      caption: caption || "",
       media: mediaArray,
       rideId: rideId || null,
       location: parsedLocation || null,
-      privacy
+      privacy,
     });
 
     await post.save();
-    await post.populate('userId', 'name avatar');
+    await post.populate("userId", "name avatar");
     if (rideId) {
-      await post.populate('rideId');
+      await post.populate("rideId");
     }
 
-    logger.info(`[createPost] Post ${post._id} created with ${mediaArray.length} media files`);
+    logger.info(
+      `[createPost] Post ${post._id} created with ${mediaArray.length} media files`
+    );
 
-    // Notify followers if not private
-    if (privacy !== 'private') {
-      const poster = await User.findById(userId).select('name avatar');
-      await postQueue.add('notify-followers', {
-        postId: post._id,
-        userId,
-        userName: poster?.name || 'Someone',
-        userAvatar: poster?.avatarUrl
-      });
-    }
+    // TODO: Notify followers - to be reimplemented by backend dev
+    // if (privacy !== 'private') {
+    //   const poster = await User.findById(userId).select('name avatar');
+    //   await postQueue.add('notify-followers', {
+    //     postId: post._id,
+    //     userId,
+    //     userName: poster?.name || 'Someone',
+    //     userAvatar: poster?.avatarUrl
+    //   });
+    // }
 
     return res.status(201).json({
       success: true,
-      data: post
+      data: post,
     });
   } catch (error: any) {
     logger.error(`[createPost] Error: ${error.message}`);
@@ -159,7 +165,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
 /**
  * GET /api/v1/posts/feed
- * Get personalized feed
+ * Get personalized feed - shows public posts from all users except current user
  */
 export const getFeed = async (req: AuthRequest, res: Response) => {
   try {
@@ -172,28 +178,22 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 
     logger.info(`[getFeed] Fetching feed for user ${userId}`);
 
-    const currentUser = await User.findById(userId).select('following');
-    const followingIds = currentUser?.following || [];
-    followingIds.push(userId as any);
-
+    // Get all public and friends posts from OTHER users (not current user)
+    // Since followers/following isn't fully implemented, show all other users' public posts
     const posts = await Post.find({
-      $or: [
-        { userId: { $in: followingIds }, privacy: { $ne: 'private' } },
-        { userId, privacy: 'private' }
-      ]
+      // userId: { $ne: userId }, // Exclude current user's posts
+      privacy: "public", // Only public posts for now
     })
-      .populate('userId', 'name avatar handle')
-      .populate('rideId', 'distance duration avgSpeed maxSpeed')
+      .populate("userId", "name avatar handle")
+      .populate("rideId", "distance duration avgSpeed maxSpeed")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean();
 
     const total = await Post.countDocuments({
-      $or: [
-        { userId: { $in: followingIds }, privacy: { $ne: 'private' } },
-        { userId, privacy: 'private' }
-      ]
+      userId: { $ne: userId },
+      privacy: "public",
     });
 
     return res.json({
@@ -203,11 +203,52 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
         page: pageNum,
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: any) {
     logger.error(`[getFeed] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * GET /api/v1/posts/me
+ * Get current user's posts
+ */
+export const getMyPosts = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const { page = 1, limit = 20 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, parseInt(limit as string) || 20);
+    const skip = (pageNum - 1) * limitNum;
+
+    logger.info(`[getMyPosts] Fetching posts for user ${userId}`);
+
+    const posts = await Post.find({ userId })
+      .populate("userId", "name avatar handle")
+      .populate("rideId", "distance duration avgSpeed maxSpeed")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await Post.countDocuments({ userId });
+
+    return res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getMyPosts] Error: ${error.message}`);
     return res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -225,13 +266,13 @@ export const likePost = async (req: AuthRequest, res: Response) => {
 
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ success: false, error: 'Post not found' });
+      return res.status(404).json({ success: false, error: "Post not found" });
     }
 
-    const alreadyLiked = post.likes.some(id => id.toString() === userId);
+    const alreadyLiked = post.likes.some((id) => id.toString() === userId);
 
     if (alreadyLiked) {
-      post.likes = post.likes.filter(id => id.toString() !== userId);
+      post.likes = post.likes.filter((id) => id.toString() !== userId);
       post.likeCount = Math.max(0, post.likeCount - 1);
       await post.save();
 
@@ -241,8 +282,8 @@ export const likePost = async (req: AuthRequest, res: Response) => {
         success: true,
         data: {
           liked: false,
-          likeCount: post.likeCount
-        }
+          likeCount: post.likeCount,
+        },
       });
     } else {
       post.likes.push(userId as any);
@@ -252,16 +293,16 @@ export const likePost = async (req: AuthRequest, res: Response) => {
       logger.info(`[likePost] Post ${postId} liked by ${userId}`);
 
       if (post.userId.toString() !== userId) {
-        const liker = await User.findById(userId).select('name avatar');
+        const liker = await User.findById(userId).select("name avatar");
 
-        await postQueue.add('send-notification', {
-          type: 'like',
+        await postQueue.add("send-notification", {
+          type: "like",
           userId: post.userId,
           fromUserId: userId,
-          fromUserName: liker?.name || 'Someone',
+          fromUserName: liker?.name || "Someone",
           fromUserAvatar: liker?.avatarUrl,
           postId: post._id,
-          message: `${liker?.name || 'Someone'} liked your post`
+          message: `${liker?.name || "Someone"} liked your post`,
         });
       }
 
@@ -269,8 +310,8 @@ export const likePost = async (req: AuthRequest, res: Response) => {
         success: true,
         data: {
           liked: true,
-          likeCount: post.likeCount
-        }
+          likeCount: post.likeCount,
+        },
       });
     }
   } catch (error: any) {
@@ -292,22 +333,26 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
     logger.info(`[commentPost] User ${userId} commenting on post ${postId}`);
 
     if (!text || text.trim().length === 0) {
-      return res.status(400).json({ success: false, error: 'Comment cannot be empty' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Comment cannot be empty" });
     }
 
     if (text.length > 1000) {
-      return res.status(400).json({ success: false, error: 'Comment too long' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Comment too long" });
     }
 
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ success: false, error: 'Post not found' });
+      return res.status(404).json({ success: false, error: "Post not found" });
     }
 
     const comment = new Comment({
       postId,
       userId,
-      text: text.trim()
+      text: text.trim(),
     });
 
     await comment.save();
@@ -316,28 +361,28 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
     post.commentCount += 1;
     await post.save();
 
-    await comment.populate('userId', 'name avatar handle');
+    await comment.populate("userId", "name avatar handle");
 
     logger.info(`[commentPost] Comment ${comment._id} created`);
 
     if (post.userId.toString() !== userId) {
-      const commenter = await User.findById(userId).select('name avatar');
+      const commenter = await User.findById(userId).select("name avatar");
 
-      await postQueue.add('send-notification', {
-        type: 'comment',
+      await postQueue.add("send-notification", {
+        type: "comment",
         userId: post.userId,
         fromUserId: userId,
-        fromUserName: commenter?.name || 'Someone',
+        fromUserName: commenter?.name || "Someone",
         fromUserAvatar: commenter?.avatarUrl,
         postId: post._id,
         commentId: comment._id,
-        message: `${commenter?.name || 'Someone'} commented on your post`
+        message: `${commenter?.name || "Someone"} commented on your post`,
       });
     }
 
     return res.status(201).json({
       success: true,
-      data: comment
+      data: comment,
     });
   } catch (error: any) {
     logger.error(`[commentPost] Error: ${error.message}`);
@@ -359,7 +404,7 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const comments = await Comment.find({ postId })
-      .populate('userId', 'name avatar handle')
+      .populate("userId", "name avatar handle")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -374,8 +419,8 @@ export const getComments = async (req: AuthRequest, res: Response) => {
         page: pageNum,
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: any) {
     logger.error(`[getComments] Error: ${error.message}`);
@@ -394,7 +439,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
     const post = await Post.findOne({ _id: postId, userId });
     if (!post) {
-      return res.status(404).json({ success: false, error: 'Post not found' });
+      return res.status(404).json({ success: false, error: "Post not found" });
     }
 
     await Comment.deleteMany({ postId });
@@ -404,7 +449,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
     return res.json({
       success: true,
-      data: { message: 'Post deleted' }
+      data: { message: "Post deleted" },
     });
   } catch (error: any) {
     logger.error(`[deletePost] Error: ${error.message}`);
@@ -423,14 +468,16 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
 
     const comment = await Comment.findOne({ _id: commentId, userId });
     if (!comment) {
-      return res.status(404).json({ success: false, error: 'Comment not found' });
+      return res
+        .status(404)
+        .json({ success: false, error: "Comment not found" });
     }
 
     await Post.updateOne(
       { _id: postId },
       {
         $pull: { comments: commentId },
-        $inc: { commentCount: -1 }
+        $inc: { commentCount: -1 },
       }
     );
 
@@ -440,7 +487,7 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
 
     return res.json({
       success: true,
-      data: { message: 'Comment deleted' }
+      data: { message: "Comment deleted" },
     });
   } catch (error: any) {
     logger.error(`[deleteComment] Error: ${error.message}`);
