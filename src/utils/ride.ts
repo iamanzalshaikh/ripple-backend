@@ -160,7 +160,6 @@
  * Your existing functions stay EXACTLY as they are
  */
 
-// ==================== YOUR EXISTING FUNCTIONS (KEEP AS-IS) ====================
 
 /**
  * Calculate distance between array of points using Haversine formula

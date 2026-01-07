@@ -1,10 +1,4 @@
-// ==========================================
-// FINAL CODE - PART 3: NOTIFICATION CONTROLLER + SETUP
-// ==========================================
 
-// ==========================================
-// File: src/controllers/notification.controller.ts
-// ==========================================
 import { Request, Response } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
