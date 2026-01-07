@@ -90,13 +90,11 @@
 
 // export default router;
 
-
-
-
-import express, { Router } from 'express';
+import express, { Router } from "express";
 import {
   createRideEvent,
   listRideEvents,
+  getMyRideEvents,
   getRideEventDetail,
   rsvpRideEvent,
   startRideEvent,
@@ -108,27 +106,28 @@ import {
   sendChatMessage,
   getChatMessages,
   riderStartsRide,
-  riderEndsRide
-} from '../controllers/rideEvent.controller.js';
-import isAuth from '../middlewares/auth.middleware.js';
+  riderEndsRide,
+} from "../controllers/rideEvent.controller.js";
+import isAuth from "../middlewares/auth.middleware.js";
 
 const router: Router = express.Router();
 
 // router.use(isAuth);
 
-router.post('/', isAuth, createRideEvent as any);
-router.get('/', isAuth, listRideEvents as any);
-router.get('/:id', isAuth, getRideEventDetail as any);
-router.post('/:id/rsvp', isAuth, rsvpRideEvent as any);
-router.post('/:id/start', isAuth, startRideEvent as any);
-router.post('/:id/rider-start', isAuth, riderStartsRide as any);      // ← ADD THIS ROUTE
-router.post('/:id/rider-end', isAuth, riderEndsRide as any);          // ← ADD THIS ROUTE
-router.patch('/:id/stream', isAuth, streamRideEventLocation as any);
-router.get('/:id/live', isAuth, getRideEventLive as any);
-router.post('/:id/end', isAuth,endRideEvent as any);
-router.get('/:id/summary', isAuth, getRideEventSummary as any);
-router.post('/:id/rate/:targetUserId', isAuth, rateRider as any);
-router.post('/:id/chat', isAuth, sendChatMessage as any);
-router.get('/:id/chat', isAuth, getChatMessages as any);
+router.post("/", isAuth, createRideEvent as any);
+router.get("/", isAuth, listRideEvents as any);
+router.get("/me", isAuth, getMyRideEvents as any); // Must be before /:id
+router.get("/:id", isAuth, getRideEventDetail as any);
+router.post("/:id/rsvp", isAuth, rsvpRideEvent as any);
+router.post("/:id/start", isAuth, startRideEvent as any);
+router.post("/:id/rider-start", isAuth, riderStartsRide as any); // ← ADD THIS ROUTE
+router.post("/:id/rider-end", isAuth, riderEndsRide as any); // ← ADD THIS ROUTE
+router.patch("/:id/stream", isAuth, streamRideEventLocation as any);
+router.get("/:id/live", isAuth, getRideEventLive as any);
+router.post("/:id/end", isAuth, endRideEvent as any);
+router.get("/:id/summary", isAuth, getRideEventSummary as any);
+router.post("/:id/rate/:targetUserId", isAuth, rateRider as any);
+router.post("/:id/chat", isAuth, sendChatMessage as any);
+router.get("/:id/chat", isAuth, getChatMessages as any);
 
 export default router;
