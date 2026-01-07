@@ -3,11 +3,11 @@ import RideEvent from "../models/rideEvent.model.js";
 import RideEventParticipant from "../models/rideEventParticipant.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import User from "../models/user.model.js";
-import Notification from "../models/notification.model";
+import Notification from "../models/notification.model.js";
 import redisClient from "../config/redis.js";
 import logger from "../config/logger.js";
 import rideEventQueue from "../queues/rideEvent.queue.js";
-import { sendNotificationToUser } from "../config/socket";
+import { sendNotificationToUser } from "../config/socket.js";
 import {
   calculateDistance,
   simplifyPolyline,
