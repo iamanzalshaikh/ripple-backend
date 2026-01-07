@@ -3,9 +3,11 @@ import RideEvent from "../models/rideEvent.model.js";
 import RideEventParticipant from "../models/rideEventParticipant.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.model";
 import redisClient from "../config/redis.js";
 import logger from "../config/logger.js";
 import rideEventQueue from "../queues/rideEvent.queue.js";
+import { sendNotificationToUser } from "../config/socket";
 import {
   calculateDistance,
   simplifyPolyline,
@@ -178,12 +180,13 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
       if (lat && lng) {
         const latNum = parseFloat(lat as string);
         const lngNum = parseFloat(lng as string);
-        const radiusMeters = parseInt(radius as string) * 1000;
+        const radiusKm = parseInt(radius as string) || 50;
+        // Convert km to radians for $centerSphere (Earth radius = 6378.1 km)
+        const radiusRadians = radiusKm / 6378.1;
 
         query["route.startPoint"] = {
-          $near: {
-            $geometry: { type: "Point", coordinates: [lngNum, latNum] },
-            $maxDistance: radiusMeters,
+          $geoWithin: {
+            $centerSphere: [[lngNum, latNum], radiusRadians],
           },
         };
       }
@@ -329,9 +332,10 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
       }
 
       const isOrganizer = (ride.organizerId as any)._id.toString() === userId;
-      const isParticipant = ride.participants.some(
+      const userParticipant = ride.participants.find(
         (p: any) => p.userId._id.toString() === userId
       );
+      const isParticipant = !!userParticipant;
 
       return res.json({
         success: true,
@@ -341,6 +345,7 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
           spotsAvailable: ride.maxParticipants - ride.participants.length,
           isOrganizer,
           isParticipant,
+          myParticipantStatus: userParticipant?.status || null,
           canJoin:
             ride.status === "SCHEDULED" &&
             ride.participants.length < ride.maxParticipants &&
@@ -586,16 +591,59 @@ export const startRideEvent = (req: AuthRequest, res: Response): void => {
         })
       );
 
-      // BROADCAST TO ALL PARTICIPANTS
+      // SEND NOTIFICATIONS TO ALL PARTICIPANTS
       const io = (req.app as any).io;
+
+      // Get organizer info
+      const organizer = await User.findById(organizerId).select("name").lean();
+      const organizerName = organizer?.name || "Organizer";
+
+      // Get all participants (excluding organizer)
+      const participantUserIds = ride.participants
+        .filter((p: any) => p.userId.toString() !== organizerId)
+        .map((p: any) => p.userId.toString());
+
+      const notificationMessage = `🚴 "${ride.title}" has started! Tap to begin your ride.`;
+
+      // Create notifications in DB for each participant
+      const notifications = participantUserIds.map((userId: string) => ({
+        userId,
+        type: "ride" as const,
+        fromUserId: organizerId,
+        fromUserName: organizerName,
+        rideEventId: id,
+        message: notificationMessage,
+        read: false,
+      }));
+
+      if (notifications.length > 0) {
+        await Notification.insertMany(notifications);
+        logger.info(
+          `[startRideEvent] Created ${notifications.length} notifications`
+        );
+      }
+
+      // Send real-time socket notifications to each participant's user room
       if (io) {
+        // Broadcast to ride room (for anyone currently on ride screens)
         io.to(`ride:${id}`).emit("host-started-ride", {
           rideEventId: id,
           title: ride.title,
           startedAt: ride.liveStartedAt,
-          message: `🚴 ${ride.title} has started!`,
+          message: notificationMessage,
           status: "LIVE",
           timestamp: new Date(),
+        });
+
+        // Also send to each participant's personal notification channel
+        participantUserIds.forEach((userId: string) => {
+          sendNotificationToUser(io, userId, {
+            type: "ride",
+            message: notificationMessage,
+            fromUserId: organizerId,
+            fromUserName: organizerName,
+            rideEventId: id,
+          });
         });
       }
 
