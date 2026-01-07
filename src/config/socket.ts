@@ -12,12 +12,12 @@
 
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
-import logger from "./logger";
-import { verifyUserAccessToken, UserTokenPayload } from "../utils/jwt";
-import ChatMessage from "../models/chatMessage.model";
-import RideEvent from "../models/rideEvent.model";
-import Group from "../models/group.model";
-import User from "../models/user.model";
+import logger from "./logger.js";
+import { verifyUserAccessToken, UserTokenPayload } from "../utils/jwt.js";
+import ChatMessage from "../models/chatMessage.model.js";
+import RideEvent from "../models/rideEvent.model.js";
+import Group from "../models/group.model.js";
+import User from "../models/user.model.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {
