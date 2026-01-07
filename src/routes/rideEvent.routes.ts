@@ -116,10 +116,12 @@ const router: Router = express.Router();
 
 // router.use(isAuth);
 
+
 router.post('/', isAuth, createRideEvent as any);
 router.get('/', isAuth, listRideEvents as any);
 router.get('/:id', isAuth, getRideEventDetail as any);
-router.post('/:id/rsvp', isAuth, rsvpRideEvent as any);
+router.post('/:id/rsvp', isAuth, rsvpRideEvent as any); 
+
 router.post('/:id/start', isAuth, startRideEvent as any);
 router.post('/:id/rider-start', isAuth, riderStartsRide as any);      // ← ADD THIS ROUTE
 router.post('/:id/rider-end', isAuth, riderEndsRide as any);          // ← ADD THIS ROUTE
@@ -130,5 +132,8 @@ router.get('/:id/summary', isAuth, getRideEventSummary as any);
 router.post('/:id/rate/:targetUserId', isAuth, rateRider as any);
 router.post('/:id/chat', isAuth, sendChatMessage as any);
 router.get('/:id/chat', isAuth, getChatMessages as any);
+
+
+
 
 export default router;
