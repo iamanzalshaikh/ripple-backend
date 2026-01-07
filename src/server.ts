@@ -1,13 +1,12 @@
-
-import { createServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
-import app from './app';
-import connectDB from './config/db';
-import config from './config/config';
-import { connectRedis } from './config/redis';
-import { initBadges } from './seeds/initBadges';
-import initializeSocket from './config/socket';
-import logger from './config/logger';
+import { createServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import app from "./app.js";
+import connectDB from "./config/db.js";
+import config from "./config/config.js";
+import { connectRedis } from "./config/redis.js";
+import { initBadges } from "./seeds/initBadges.js";
+import initializeSocket from "./config/socket.js";
+import logger from "./config/logger.js";
 
 const startServer = async () => {
   try {
@@ -28,7 +27,7 @@ const startServer = async () => {
     // ==================== CREATE HTTP SERVER ====================
     // Required for Socket.io
     const httpServer = createServer(app);
-    logger.info('✅ HTTP server created');
+    logger.info("✅ HTTP server created");
 
     // ==================== INITIALIZE SOCKET.IO ====================
     // This handles:
@@ -43,27 +42,27 @@ const startServer = async () => {
     // Controllers can access: (app as any).io
     // Useful for sending notifications from API endpoints
     (app as any).io = io;
-    logger.info('✅ Socket.io attached to app');
+    logger.info("✅ Socket.io attached to app");
 
     // ==================== START SERVER ====================
     httpServer.listen(config.PORT, () => {
       logger.info(`🚀 Server running on http://localhost:${config.PORT}`);
       logger.info(`✅ WebSocket server ready at ws://localhost:${config.PORT}`);
-      logger.info('');
-      logger.info('Available Socket.io channels:');
-      logger.info('  - Ride Events: ride:{rideEventId}');
-      logger.info('  - Groups: group:{groupId}');
-      logger.info('  - Private Chat: private:{roomId}');
-      logger.info('  - Notifications: user:{userId}');
-      logger.info('');
+      logger.info("");
+      logger.info("Available Socket.io channels:");
+      logger.info("  - Ride Events: ride:{rideEventId}");
+      logger.info("  - Groups: group:{groupId}");
+      logger.info("  - Private Chat: private:{roomId}");
+      logger.info("  - Notifications: user:{userId}");
+      logger.info("");
     });
 
     // ==================== GRACEFUL SHUTDOWN ====================
 
-    process.on('SIGTERM', () => {
-      logger.info('SIGTERM received, shutting down gracefully...');
+    process.on("SIGTERM", () => {
+      logger.info("SIGTERM received, shutting down gracefully...");
       httpServer.close(() => {
-        logger.info('HTTP server closed');
+        logger.info("HTTP server closed");
         process.exit(0);
       });
     });
@@ -71,18 +70,18 @@ const startServer = async () => {
     process.on("SIGINT", () => {
       logger.info("SIGINT received, shutting down gracefully...");
       httpServer.close(() => {
-        logger.info('HTTP server closed');
+        logger.info("HTTP server closed");
         process.exit(0);
       });
     });
 
     // Handle uncaught exceptions
-    process.on('uncaughtException', (error) => {
+    process.on("uncaughtException", (error) => {
       logger.error(`❌ Uncaught Exception: ${error.message}`);
       process.exit(1);
     });
 
-    process.on('unhandledRejection', (reason, promise) => {
+    process.on("unhandledRejection", (reason, promise) => {
       logger.error(`❌ Unhandled Rejection at ${promise}: ${reason}`);
     });
   } catch (error: any) {

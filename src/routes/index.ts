@@ -1,18 +1,17 @@
 import express from "express";
-import authRoutes from "./auth.routes";
-import profileRoutes from "./profile.routes";
-import bikeRoutes from "./bike.routes";
-import onboardingRoutes from "./onboarding.routes";
-import rideRoutes from "./ride.routes";
-import badgeawardRoutes from "./badgeaward.routes";
-import soslogRoutes from "./soslog.routes";
-import publicRoutes from "./public.routes";
-import postRoutes from "./post.routes";
-import notificationRoutes from "./notification.routes";
-import rideEventRoutes from "./rideEvent.routes";
-import groupRoutes from "./group.routes";
-import chatRoutes from "./chat.routes";
-
+import authRoutes from "./auth.routes.js";
+import profileRoutes from "./profile.routes.js";
+import bikeRoutes from "./bike.routes.js";
+import onboardingRoutes from "./onboarding.routes.js";
+import rideRoutes from "./ride.routes.js";
+import badgeawardRoutes from "./badgeaward.routes.js";
+import soslogRoutes from "./soslog.routes.js";
+import publicRoutes from "./public.routes.js";
+import postRoutes from "./post.routes.js";
+import notificationRoutes from "./notification.routes.js";
+import rideEventRoutes from "./rideEvent.routes.js";
+import groupRoutes from "./group.routes.js";
+import chatRoutes from "./chat.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -48,25 +47,22 @@ router.get("/health", (req, res) => {
     service: "HerRidez API v1",
   });
 });
-router.use('/public', publicRoutes); 
+router.use("/public", publicRoutes);
 // Auth Routes
-router.use("/auth", authRoutes)
+router.use("/auth", authRoutes);
 router.use("/profile", profileRoutes);
 router.use("/bikes", bikeRoutes);
 router.use("/onboarding", onboardingRoutes);
 router.use("/badges", badgeawardRoutes);
 
+router.use("/rides", rideRoutes);
+router.use("/safety", soslogRoutes);
 
+router.use("/posts", postRoutes);
+router.use("/notifications", notificationRoutes);
 
-router.use('/rides', rideRoutes);
-router.use('/safety', soslogRoutes); 
-
-
-router.use('/posts', postRoutes);
-router.use('/notifications', notificationRoutes);
-
-router.use('/rideevents', rideEventRoutes);
-router.use('/groups', groupRoutes);
-router.use('/chat', chatRoutes);
+router.use("/rideevents", rideEventRoutes);
+router.use("/groups", groupRoutes);
+router.use("/chat", chatRoutes);
 
 export default router;
