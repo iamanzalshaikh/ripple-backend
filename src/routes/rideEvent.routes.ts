@@ -90,13 +90,11 @@
 
 // export default router;
 
-
-
-
-import express, { Router } from 'express';
+import express, { Router } from "express";
 import {
   createRideEvent,
   listRideEvents,
+  getMyRideEvents,
   getRideEventDetail,
   rsvpRideEvent,
   startRideEvent,
@@ -108,9 +106,9 @@ import {
   sendChatMessage,
   getChatMessages,
   riderStartsRide,
-  riderEndsRide
-} from '../controllers/rideEvent.controller.js';
-import isAuth from '../middlewares/auth.middleware.js';
+  riderEndsRide,
+} from "../controllers/rideEvent.controller.js";
+import isAuth from "../middlewares/auth.middleware.js";
 
 const router: Router = express.Router();
 
