@@ -430,14 +430,14 @@
 import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
 import { Server as SocketIOServer } from 'socket.io';
-import logger from '../config/logger';
-import RideEvent from '../models/rideEvent.model';
-import RideEventParticipant from '../models/rideEventParticipant.model';
-import User from '../models/user.model';
-import Badge from '../models/badge.model';
-import Award from '../models/award.model';
-import Notification from '../models/notification.model';
-import app from '../app';
+import logger from '../config/logger.js';
+import RideEvent from '../models/rideEvent.model.js';
+import RideEventParticipant from '../models/rideEventParticipant.model.js';
+import User from '../models/user.model.js';
+import Badge from '../models/badge.model.js';
+import Award from '../models/award.model.js';
+import Notification from '../models/notification.model.js';
+import app from '../app.js';
 
 // Create ioredis connection for BullMQ
 const bullmqRedis = new Redis({

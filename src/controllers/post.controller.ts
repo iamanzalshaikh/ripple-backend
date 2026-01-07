@@ -1,6 +1,4 @@
-// ==========================================
-// File: src/controllers/post.controller.ts (WITH CLOUDINARY)
-// ==========================================
+
 import { Request, Response } from "express";
 import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";

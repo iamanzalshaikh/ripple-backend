@@ -58,8 +58,8 @@ import {
   sendPrivateMessage,
   getPrivateConversations,
   deletePrivateChat
-} from '../controllers/private.controller';
-import isAuth from '../middlewares/auth.middleware';
+} from '../controllers/private.controller.js';
+import isAuth from '../middlewares/auth.middleware.js';
 
 const router: Router = express.Router();
 

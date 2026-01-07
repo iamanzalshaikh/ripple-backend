@@ -3,10 +3,10 @@
 
 
 import { Request, Response } from 'express';
-import Group from '../models/group.model';
-import User from '../models/user.model';
-import Notification from '../models/notification.model';
-import logger from '../config/logger';
+import Group from '../models/group.model.js';
+import User from '../models/user.model.js';
+import Notification from '../models/notification.model.js';
+import logger from '../config/logger.js';
 import { v4 as uuidv4 } from 'uuid';
 
 interface AuthRequest extends Request {

@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import RideEvent from "../models/rideEvent.model";
-import RideEventParticipant from "../models/rideEventParticipant.model";
-import ChatMessage from "../models/chatMessage.model";
-import User from "../models/user.model";
+import RideEvent from "../models/rideEvent.model.js";
+import RideEventParticipant from "../models/rideEventParticipant.model.js";
+import ChatMessage from "../models/chatMessage.model.js";
+import User from "../models/user.model.js";
 import Notification from "../models/notification.model";
-import redisClient from "../config/redis";
-import logger from "../config/logger";
-import rideEventQueue from "../queues/rideEvent.queue";
+import redisClient from "../config/redis.js";
+import logger from "../config/logger.js";
+import rideEventQueue from "../queues/rideEvent.queue.js";
 import { sendNotificationToUser } from "../config/socket";
 import {
   calculateDistance,
@@ -21,7 +21,7 @@ import {
   formatSpeed,
   calculateRideDifficulty,
   getDifficultyLabel,
-} from "../utils/ride";
+} from "../utils/ride.js";
 
 // import rideEventQueue from '../queues/rideEvent.queue';
 // import rideEventQueue from '../queues/rideEvent.queue';
