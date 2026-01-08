@@ -592,3 +592,241 @@ export const getCurrentUser = async (
     });
   }
 };
+
+/**
+ * Search users by name, handle, or city
+ * Supports pagination and filtering
+ */
+export const searchUsers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { query, limit = 20, page = 1, filter = 'all' } = req.query;
+    const userId = req.userId;
+
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "Search query is required",
+      });
+      return;
+    }
+
+    // Trim and validate query
+    const searchQuery = query.trim();
+    if (searchQuery.length < 2) {
+      res.status(400).json({
+        success: false,
+        message: "Search query must be at least 2 characters",
+      });
+      return;
+    }
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 20));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search filter
+    const searchFilter: any = {
+      verified: true,
+      isSuspended: false,
+      verificationStatus: 'approved',
+      $or: [
+        { name: { $regex: searchQuery, $options: 'i' } },
+        { handle: { $regex: searchQuery, $options: 'i' } },
+        { city: { $regex: searchQuery, $options: 'i' } },
+      ],
+    };
+
+    // Apply additional filters
+    if (filter === 'creators') {
+      searchFilter.isCreator = true;
+    } else if (filter === 'experts') {
+      searchFilter.ridingLevel = 'Expert';
+    }
+
+    // Exclude current user
+    if (userId) {
+      searchFilter._id = { $ne: userId };
+    }
+
+    // Execute search with pagination
+    const totalUsers = await User.countDocuments(searchFilter);
+    const users = await User.find(searchFilter)
+      .select(
+        'name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance'
+      )
+      .limit(limitNum)
+      .skip(skip)
+      .sort({ followerCount: -1 })
+      .lean();
+
+    const totalPages = Math.ceil(totalUsers / limitNum);
+
+    const response: IApiResponse = {
+      success: true,
+      message: "Users found",
+      data: {
+        users: users.map(formatUserCard),
+        pagination: {
+          total: totalUsers,
+          page: pageNum,
+          limit: limitNum,
+          totalPages,
+        },
+      },
+    };
+
+    res.status(200).json(response);
+  } catch (error: any) {
+    logger.error(`Search users error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search users",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Get suggested users based on:
+ * - Users you don't follow
+ * - Similar riding level and style
+ * - Same city/region
+ * - High engagement metrics
+ */
+export const getSuggestedUsers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const { limit = 10 } = req.query;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
+
+    // Fetch current user
+    const currentUser = await User.findById(userId).select(
+      'following city ridingLevel ridingStyle'
+    );
+
+    if (!currentUser) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    // Build suggestion filter
+    const suggestionFilter: any = {
+      _id: { $ne: userId },
+      verified: true,
+      isSuspended: false,
+      verificationStatus: 'approved',
+      following: { $nin: [userId] }, // Users who don't follow current user
+    };
+
+    // Strategy 1: Users with same riding level and style (highest priority)
+    const sameStyleUsers = await User.find({
+      ...suggestionFilter,
+      ridingLevel: currentUser.ridingLevel,
+      ridingStyle: { $in: currentUser.ridingStyle },
+    })
+      .select(
+        'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+      )
+      .limit(Math.ceil(limitNum / 2))
+      .sort({ followerCount: -1 })
+      .lean();
+
+    // Strategy 2: Users from same city
+    let sameCityUsers: any[] = [];
+    if (currentUser.city) {
+      sameCityUsers = await User.find({
+        ...suggestionFilter,
+        city: currentUser.city,
+        _id: {
+          $nin: sameStyleUsers.map((u: any) => u._id),
+        },
+      })
+        .select(
+          'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+        )
+        .limit(Math.ceil(limitNum / 3))
+        .sort({ followerCount: -1 })
+        .lean();
+    }
+
+    // Strategy 3: Popular verified creators
+    const popularCreators = await User.find({
+      ...suggestionFilter,
+      isCreator: true,
+      _id: {
+        $nin: [
+          ...sameStyleUsers.map((u: any) => u._id),
+          ...sameCityUsers.map((u: any) => u._id),
+        ],
+      },
+    })
+      .select(
+        'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+      )
+      .limit(limitNum - sameStyleUsers.length - sameCityUsers.length)
+      .sort({ followerCount: -1 })
+      .lean();
+
+    // Combine and shuffle for variety
+    const suggestedUsers = [
+      ...sameStyleUsers,
+      ...sameCityUsers,
+      ...popularCreators,
+    ]
+      .slice(0, limitNum)
+      .map(formatUserCard);
+
+    const response: IApiResponse = {
+      success: true,
+      message: "Suggested users fetched",
+      data: {
+        users: suggestedUsers,
+      },
+    };
+
+    res.status(200).json(response);
+  } catch (error: any) {
+    logger.error(`Get suggested users error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch suggested users",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Get users for display cards
+ */
+function formatUserCard(user: any) {
+  return {
+    _id: user._id,
+    name: user.name || 'Anonymous',
+    handle: user.handle,
+    avatarUrl: user.avatarUrl,
+    bio: user.bio,
+    city: user.city,
+    ridingLevel: user.ridingLevel,
+    isCreator: user.isCreator,
+    followerCount: user.followerCount || 0,
+    totalDistance: user.totalDistance || 0,
+  };
+}

@@ -178,6 +178,8 @@
 
 // export default router;
 
+
+
 import express, { Router } from "express";
 import isAuth from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
@@ -187,30 +189,47 @@ import {
   deleteComment,
   deletePost,
   getComments,
+  getExploreFeed,
   getFeed,
   getMyPosts,
+  getPostById,
+  getUserPosts,
   likePost,
+  tagUsers,
+  updatePost,
 } from "../controllers/post.controller.js";
 
 const router: Router = express.Router();
 
 // Wrap handlers to satisfy Express typing
 const wrappedCreatePost: any = createPost;
-const wrappedGetFeed: any = getFeed;
+const wrappedGetFeed: any = getFeed;  
 const wrappedGetMyPosts: any = getMyPosts;
 const wrappedLikePost: any = likePost;
 const wrappedGetComments: any = getComments;
 const wrappedCommentPost: any = commentPost;
 const wrappedDeleteComment: any = deleteComment;
 const wrappedDeletePost: any = deletePost;
+const wrappedGetExploreFeed: any = getExploreFeed;
+const wrappedGetUserPosts: any = getUserPosts;
+const wrappedTagUsers: any = tagUsers;
+const wrappedGetPostById: any = getPostById;
+const wrappedUpdatePost: any = updatePost;
 
 router.post("/", isAuth, upload.array("media", 5), wrappedCreatePost);
 router.get("/feed", isAuth, wrappedGetFeed);
+router.get("/explore", isAuth, wrappedGetExploreFeed);
+router.get("/user/:userId", isAuth, wrappedGetUserPosts);
 router.get("/me", isAuth, wrappedGetMyPosts);
+// Specific routes with /:id/* must come before /:id
 router.post("/:id/like", isAuth, wrappedLikePost);
+router.post("/:id/tag", isAuth, wrappedTagUsers);
 router.get("/:id/comments", isAuth, wrappedGetComments);
 router.post("/:id/comment", isAuth, wrappedCommentPost);
 router.delete("/:postId/comments/:commentId", isAuth, wrappedDeleteComment);
+// Generic /:id route comes last
+router.get("/:id", isAuth, wrappedGetPostById);
+router.patch("/:id", isAuth, wrappedUpdatePost);
 router.delete("/:id", isAuth, wrappedDeletePost);
 
 export default router;

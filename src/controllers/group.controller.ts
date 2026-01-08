@@ -1,7 +1,3 @@
-
-
-
-
 import { Request, Response } from 'express';
 import Group from '../models/group.model.js';
 import User from '../models/user.model.js';
@@ -606,6 +602,7 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 //     }
 //   })();
 // };
+
 
 // /**
 //  * GET /api/v1/groups/:id

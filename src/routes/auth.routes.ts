@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCurrentUser, sendLoginOtp, sendSignupOtp, verifyLoginOtp, verifySignupOtp } from "../controllers/auth.controller.js";
+import { getCurrentUser, getSuggestedUsers, searchUsers, sendLoginOtp, sendSignupOtp, verifyLoginOtp, verifySignupOtp } from "../controllers/auth.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
 
 
@@ -14,6 +14,8 @@ router.post("/login/send-otp", sendLoginOtp);
 router.post("/login/verify-otp", verifyLoginOtp);
 
 router.get("/me", isAuth, getCurrentUser);
+router.get("/suggested-users", isAuth, getSuggestedUsers);
+router.get("/search-users", isAuth, searchUsers);
 
 
 export default router;
