@@ -130,6 +130,85 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
       }
     });
 
+      /**
+     * Listen for follow notification
+     * Emitted by backend when user A follows user B
+     * User B receives: "User A started following you"
+     */
+      socket.on("follow-notification", async (data: {
+        followedUserId: string;
+        followerUserId: string;
+        followerName: string;
+        followerAvatar?: string;
+      }) => {
+        try {
+          const { followedUserId, followerUserId, followerName, followerAvatar } = data;
+  
+          logger.info(
+            `[follow-notification] ${followerUserId} followed ${followedUserId}`
+          );
+  
+          // Get follower details
+          const follower = await User.findById(followerUserId)
+            .select('name avatarUrl handle')
+            .lean();
+  
+          // Emit to followed user's room
+          io.to(`user:${followedUserId}`).emit("notification", {
+            type: "follow",
+            id: `notif_${Date.now()}`,
+            message: `${follower?.name || 'A user'} started following you`,
+            fromUserId: followerUserId,
+            fromUserName: follower?.name,
+            fromUserHandle: follower?.handle,
+            fromUserAvatar: follower?.avatarUrl,
+            timestamp: new Date(),
+            actionUrl: `/profile/${follower?.handle || followerUserId}`,
+          });
+  
+          logger.debug(
+            `[follow-notification] Notification sent to ${followedUserId}`
+          );
+        } catch (error: any) {
+          logger.error(`[follow-notification] Error: ${error.message}`);
+          socket.emit("error", { message: error.message });
+        }
+      });
+  
+      /**
+       * Listen for unfollow notification (optional)
+       * When user unfollows, you can optionally notify
+       */
+      socket.on("unfollow-notification", async (data: {
+        unfollowedUserId: string;
+        unfollowerUserId: string;
+        unfollowerName: string;
+      }) => {
+        try {
+          const { unfollowedUserId, unfollowerUserId, unfollowerName } = data;
+  
+          logger.info(
+            `[unfollow-notification] ${unfollowerUserId} unfollowed ${unfollowedUserId}`
+          );
+  
+          // Optional: You can emit this if you want to show unfollows
+          // Most apps don't notify on unfollow
+          io.to(`user:${unfollowedUserId}`).emit("notification", {
+            type: "unfollow",
+            id: `notif_${Date.now()}`,
+            message: `${unfollowerName} unfollowed you`,
+            fromUserId: unfollowerUserId,
+            timestamp: new Date(),
+          });
+  
+          logger.debug(
+            `[unfollow-notification] Notification sent to ${unfollowedUserId}`
+          );
+        } catch (error: any) {
+          logger.error(`[unfollow-notification] Error: ${error.message}`);
+        }
+      });
+
     /**
      * Leave ride event chat
      */
@@ -575,7 +654,7 @@ export const sendNotificationToUser = (
   io: SocketIOServer | null,
   userId: string,
   notification: {
-    type: "like" | "comment" | "follow" | "ride" | "event" | "group" | "mentor";
+    type: "like" | "comment" | "follow" | "unfollow" | "ride" | "event" | "group" | "mentor" | "tag";
     message: string;
     fromUserId?: string;
     fromUserName?: string;
@@ -603,11 +682,34 @@ export const sendNotificationToUser = (
 /**
  * Broadcast notification to multiple users
  */
+// export const sendNotificationToUsers = (
+//   io: SocketIOServer | null,
+//   userIds: string[],
+//   notification: {
+//     type: "like" | "comment" | "follow" | "unfollow" | "ride" | "event" | "group" | "mentor";
+//     message: string;
+//   }
+// ) => {
+//   if (!io) {
+//     logger.warn(`[sendNotificationToUsers] Socket.io not available`);
+//     return;
+//   }
+
+//   userIds.forEach((userId) => {
+//     sendNotificationToUser(io, userId, notification);
+//   });
+
+//   logger.info(
+//     `[sendNotificationToUsers] Notifications sent to ${userIds.length} users`
+//   );
+// };
+
+
 export const sendNotificationToUsers = (
   io: SocketIOServer | null,
   userIds: string[],
   notification: {
-    type: "like" | "comment" | "follow" | "ride" | "event" | "group" | "mentor";
+    type: "like" | "comment" | "follow" | "unfollow" | "ride" | "event" | "group" | "mentor" | "tag";
     message: string;
   }
 ) => {
@@ -624,5 +726,7 @@ export const sendNotificationToUsers = (
     `[sendNotificationToUsers] Notifications sent to ${userIds.length} users`
   );
 };
+
+// export default initializeSocket;
 
 export default initializeSocket;

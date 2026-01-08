@@ -20,6 +20,7 @@ export interface IPost extends Document {
   likeCount: number;
   comments: mongoose.Types.ObjectId[];
   commentCount: number;
+  taggedUsers: mongoose.Types.ObjectId[];
   privacy: 'private' | 'friends' | 'public';
   createdAt: Date;
   updatedAt: Date;
@@ -99,6 +100,13 @@ const postSchema = new Schema<IPost>(
       default: 0
     },
 
+    taggedUsers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+
     privacy: {
       type: String,
       enum: ['private', 'friends', 'public'],
@@ -117,6 +125,7 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ rideId: 1 });
 postSchema.index({ likeCount: -1 });
 postSchema.index({ userId: 1, privacy: 1 });
+postSchema.index({ taggedUsers: 1 });
 
 const Post = mongoose.model<IPost>('Post', postSchema);
 export default Post;
