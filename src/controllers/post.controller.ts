@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import Post from "../models/post.model.js";
 import Comment from "../models/comment.model.js";
@@ -29,7 +28,13 @@ interface AuthRequest extends Request {
  */
 export const createPost = async (req: AuthRequest, res: Response) => {
   try {
-    const { caption, privacy = "friends", rideId, location, taggedUsers } = req.body;
+    const {
+      caption,
+      privacy = "friends",
+      rideId,
+      location,
+      taggedUsers,
+    } = req.body;
     const userId = req.userId;
     const files = req.files as Express.Multer.File[] | undefined;
 
@@ -124,24 +129,27 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     let parsedTaggedUsers: string[] = [];
     if (taggedUsers) {
       try {
-        parsedTaggedUsers = typeof taggedUsers === 'string' 
-          ? JSON.parse(taggedUsers) 
-          : Array.isArray(taggedUsers) 
-          ? taggedUsers 
-          : [];
-        
+        parsedTaggedUsers =
+          typeof taggedUsers === "string"
+            ? JSON.parse(taggedUsers)
+            : Array.isArray(taggedUsers)
+              ? taggedUsers
+              : [];
+
         // Validate all tagged users exist and remove duplicates
         if (parsedTaggedUsers.length > 0) {
           // Filter out current user and validate users exist
-          const filteredUserIds = parsedTaggedUsers.filter(id => id.toString() !== userId);
-          
-          const validUsers = await User.find({ 
-            _id: { $in: filteredUserIds }
-          }).select('_id');
-          
-          const validUserIds = validUsers.map(u => u._id.toString());
+          const filteredUserIds = parsedTaggedUsers.filter(
+            (id) => id.toString() !== userId
+          );
+
+          const validUsers = await User.find({
+            _id: { $in: filteredUserIds },
+          }).select("_id");
+
+          const validUserIds = validUsers.map((u) => u._id.toString());
           parsedTaggedUsers = [...new Set(validUserIds)]; // Remove duplicates
-          
+
           if (parsedTaggedUsers.length > 10) {
             return res.status(400).json({
               success: false,
@@ -178,7 +186,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     // Send notifications to tagged users
     if (parsedTaggedUsers.length > 0) {
       const poster = await User.findById(userId).select("name avatarUrl");
-      
+
       for (const taggedUserId of parsedTaggedUsers) {
         if (taggedUserId !== userId) {
           await postQueue.add("send-notification", {
@@ -219,53 +227,51 @@ export const createPost = async (req: AuthRequest, res: Response) => {
  * GET /api/v1/posts/feed
  * Get personalized feed - shows public posts from all users except current user
  */
-// export const getFeed = async (req: AuthRequest, res: Response) => {
-//   try {
-//     const userId = req.userId;
-//     const { page = 1, limit = 10 } = req.query;
+export const getFeed = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const { page = 1, limit = 10 } = req.query;
 
-//     const pageNum = Math.max(1, parseInt(page as string) || 1);
-//     const limitNum = Math.min(50, parseInt(limit as string) || 10);
-//     const skip = (pageNum - 1) * limitNum;
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, parseInt(limit as string) || 10);
+    const skip = (pageNum - 1) * limitNum;
 
-//     logger.info(`[getFeed] Fetching feed for user ${userId}`);
+    logger.info(`[getFeed] Fetching feed for user ${userId}`);
 
-//     // Get all public and friends posts from OTHER users (not current user)
-//     // Since followers/following isn't fully implemented, show all other users' public posts
-//     const posts = await Post.find({
-//       // userId: { $ne: userId }, // Exclude current user's posts
-//       privacy: "public", // Only public posts for now
-//     })
-//       .populate("userId", "name avatar handle")
-//       .populate("rideId", "distance duration avgSpeed maxSpeed")
-//       .populate("taggedUsers", "name avatarUrl handle")
-//       .sort({ createdAt: -1 })
-//       .skip(skip)
-//       .limit(limitNum)
-//       .lean();
+    // Get all public and friends posts from OTHER users (not current user)
+    // Since followers/following isn't fully implemented, show all other users' public posts
+    const posts = await Post.find({
+      // userId: { $ne: userId }, // Exclude current user's posts
+      privacy: "public", // Only public posts for now
+    })
+      .populate("userId", "name avatar handle")
+      .populate("rideId", "distance duration avgSpeed maxSpeed")
+      .populate("taggedUsers", "name avatarUrl handle")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
 
-//     const total = await Post.countDocuments({
-//       userId: { $ne: userId },
-//       privacy: "public",
-//     });
+    const total = await Post.countDocuments({
+      userId: { $ne: userId },
+      privacy: "public",
+    });
 
-//     return res.json({
-//       success: true,
-//       data: posts,
-//       pagination: {
-//         page: pageNum,
-//         limit: limitNum,
-//         total,
-//         pages: Math.ceil(total / limitNum),
-//       },
-//     });
-//   } catch (error: any) {
-//     logger.error(`[getFeed] Error: ${error.message}`);
-//     return res.status(500).json({ success: false, error: error.message });
-//   }
-// };
-
-
+    return res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getFeed] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
 
 /**
  * ============================================
@@ -273,119 +279,119 @@ export const createPost = async (req: AuthRequest, res: Response) => {
  * ============================================
  * Show ONLY posts from users that current user FOLLOWS
  */
-export const getFeed = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const userId = req.userId;
-    const { page = 1, limit = 10 } = req.query;
+// export const getFeed = async (
+//   req: AuthRequest,
+//   res: Response
+// ): Promise<void> => {
+//   try {
+//     const userId = req.userId;
+//     const { page = 1, limit = 10 } = req.query;
 
-    if (!userId) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-      return;
-    }
+//     if (!userId) {
+//       res.status(401).json({
+//         success: false,
+//         message: "Unauthorized",
+//       });
+//       return;
+//     }
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
-    const skip = (pageNum - 1) * limitNum;
+//     const pageNum = Math.max(1, parseInt(page as string) || 1);
+//     const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
+//     const skip = (pageNum - 1) * limitNum;
 
-    logger.info(`[getFeed] Fetching feed for user ${userId}`);
+//     logger.info(`[getFeed] Fetching feed for user ${userId}`);
 
-    // ============================================
-    // STEP 1: Get current user's following list
-    // ============================================
-    const currentUser = await User.findById(userId).select('following').lean();
+//     // ============================================
+//     // STEP 1: Get current user's following list
+//     // ============================================
+//     const currentUser = await User.findById(userId).select('following').lean();
 
-    if (!currentUser) {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
-    }
+//     if (!currentUser) {
+//       res.status(404).json({
+//         success: false,
+//         message: "User not found",
+//       });
+//       return;
+//     }
 
-    const followingList = currentUser.following || [];
+//     const followingList = currentUser.following || [];
 
-    logger.debug(
-      `[getFeed] User ${userId} is following ${followingList.length} users`
-    );
+//     logger.debug(
+//       `[getFeed] User ${userId} is following ${followingList.length} users`
+//     );
 
-    // ============================================
-    // STEP 2: If user follows nobody, return empty feed
-    // ============================================
-    if (followingList.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "No posts - start following users to see their posts!",
-        data: {
-          posts: [],
-          pagination: {
-            page: pageNum,
-            limit: limitNum,
-            total: 0,
-            pages: 0,
-          },
-        },
-      });
-      return;
-    }
+//     // ============================================
+//     // STEP 2: If user follows nobody, return empty feed
+//     // ============================================
+//     if (followingList.length === 0) {
+//       res.status(200).json({
+//         success: true,
+//         message: "No posts - start following users to see their posts!",
+//         data: {
+//           posts: [],
+//           pagination: {
+//             page: pageNum,
+//             limit: limitNum,
+//             total: 0,
+//             pages: 0,
+//           },
+//         },
+//       });
+//       return;
+//     }
 
-    // ============================================
-    // STEP 3: Query posts from following users
-    // Show: 
-    // - All public posts from people you follow
-    // - Friends posts from people you follow (since you follow them, you can see their friends posts)
-    // ============================================
-    const feedQuery = {
-      userId: { $in: followingList },  // Posts from users in following list
-      privacy: { $in: ['public', 'friends'] },  // Show public and friends posts
-    };
+//     // ============================================
+//     // STEP 3: Query posts from following users
+//     // Show:
+//     // - All public posts from people you follow
+//     // - Friends posts from people you follow (since you follow them, you can see their friends posts)
+//     // ============================================
+//     const feedQuery = {
+//       userId: { $in: followingList },  // Posts from users in following list
+//       privacy: { $in: ['public', 'friends'] },  // Show public and friends posts
+//     };
 
-    const posts = await Post.find(feedQuery)
-      .populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount')
-      .populate('rideId', 'title distance duration avgSpeed maxSpeed')
-      .populate('taggedUsers', 'name avatarUrl handle')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean();
+//     const posts = await Post.find(feedQuery)
+//       .populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount')
+//       .populate('rideId', 'title distance duration avgSpeed maxSpeed')
+//       .populate('taggedUsers', 'name avatarUrl handle')
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limitNum)
+//       .lean();
 
-    // ============================================
-    // STEP 5: Get total count for pagination
-    // ============================================
-    const total = await Post.countDocuments(feedQuery);
+//     // ============================================
+//     // STEP 5: Get total count for pagination
+//     // ============================================
+//     const total = await Post.countDocuments(feedQuery);
 
-    logger.info(
-      `[getFeed] Found ${posts.length} posts for user ${userId} (page ${pageNum})`
-    );
+//     logger.info(
+//       `[getFeed] Found ${posts.length} posts for user ${userId} (page ${pageNum})`
+//     );
 
-    res.status(200).json({
-      success: true,
-      message: "Feed fetched successfully",
-      data: {
-        posts: posts.map(formatPost),
-        followingCount: followingList.length,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          pages: Math.ceil(total / limitNum),
-        },
-      },
-    });
-  } catch (error: any) {
-    logger.error(`[getFeed] Error: ${error.message}`);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch feed",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "Feed fetched successfully",
+//       data: {
+//         posts: posts.map(formatPost),
+//         followingCount: followingList.length,
+//         pagination: {
+//           page: pageNum,
+//           limit: limitNum,
+//           total,
+//           pages: Math.ceil(total / limitNum),
+//         },
+//       },
+//     });
+//   } catch (error: any) {
+//     logger.error(`[getFeed] Error: ${error.message}`);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch feed",
+//       error: process.env.NODE_ENV === "development" ? error.message : undefined,
+//     });
+//   }
+// };
 
 /**
  * ============================================
@@ -412,14 +418,17 @@ export const getExploreFeed = async (
     // Show ALL public posts (excluding own posts)
     // ============================================
     const exploreQuery = {
-      userId: { $ne: userId },  // Exclude own posts
-      privacy: 'public',  // Only public posts
+      userId: { $ne: userId }, // Exclude own posts
+      privacy: "public", // Only public posts
     };
 
     const posts = await Post.find(exploreQuery)
-      .populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount')
-      .populate('rideId', 'title distance duration avgSpeed maxSpeed')
-      .populate('taggedUsers', 'name avatarUrl handle')
+      .populate(
+        "userId",
+        "name avatarUrl handle city ridingLevel isCreator followerCount"
+      )
+      .populate("rideId", "title distance duration avgSpeed maxSpeed")
+      .populate("taggedUsers", "name avatarUrl handle")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -459,9 +468,9 @@ export const getExploreFeed = async (
  * GET USER PROFILE POSTS
  * ============================================
  * Show posts from a specific user (viewed on their profile)
- * 
+ *
  * Endpoint: GET /api/posts/user/:userId
- * 
+ *
  * When someone clicks on a user's profile,
  * this API shows all their public/friends posts
  */
@@ -478,9 +487,7 @@ export const getUserPosts = async (
     const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
     const skip = (pageNum - 1) * limitNum;
 
-    logger.info(
-      `[getUserPosts] Fetching posts for user ${targetUserId}`
-    );
+    logger.info(`[getUserPosts] Fetching posts for user ${targetUserId}`);
 
     // Check if viewing own profile or someone else's
     const isOwnProfile = currentUserId === targetUserId;
@@ -492,14 +499,16 @@ export const getUserPosts = async (
     // ============================================
     // PRIVACY LOGIC:
     // - Own profile: Show ALL posts (public, friends, private)
-    // - Other's profile: 
+    // - Other's profile:
     //   - Always show: public posts
     //   - Show friends posts ONLY if YOU follow them
     //   - Never show: private posts
     // ============================================
     if (!isOwnProfile) {
       // Check if current user follows target user
-      const currentUser = await User.findById(currentUserId).select('following').lean();
+      const currentUser = await User.findById(currentUserId)
+        .select("following")
+        .lean();
 
       if (!currentUser) {
         res.status(404).json({
@@ -518,18 +527,21 @@ export const getUserPosts = async (
 
       if (isFollowing) {
         // You follow them: show public + friends posts
-        postQuery.privacy = { $in: ['public', 'friends'] };
+        postQuery.privacy = { $in: ["public", "friends"] };
       } else {
         // You don't follow them: only show public posts
-        postQuery.privacy = 'public';
+        postQuery.privacy = "public";
       }
     }
     // If isOwnProfile, show all posts (no privacy filter)
 
     const posts = await Post.find(postQuery)
-      .populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount')
-      .populate('rideId', 'title distance duration avgSpeed maxSpeed')
-      .populate('taggedUsers', 'name avatarUrl handle')
+      .populate(
+        "userId",
+        "name avatarUrl handle city ridingLevel isCreator followerCount"
+      )
+      .populate("rideId", "title distance duration avgSpeed maxSpeed")
+      .populate("taggedUsers", "name avatarUrl handle")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -566,7 +578,6 @@ export const getUserPosts = async (
   }
 };
 
-
 /**
  * ============================================
  * HELPER FUNCTION: Format Post
@@ -591,8 +602,6 @@ function formatPost(post: any) {
   };
 }
 
-
-
 /**
  * GET /api/v1/posts/:id
  * Get a single post by ID
@@ -607,9 +616,12 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
 
     // Find the post
     const post = await Post.findById(postId)
-      .populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount')
-      .populate('rideId', 'title distance duration avgSpeed maxSpeed')
-      .populate('taggedUsers', 'name avatarUrl handle')
+      .populate(
+        "userId",
+        "name avatarUrl handle city ridingLevel isCreator followerCount"
+      )
+      .populate("rideId", "title distance duration avgSpeed maxSpeed")
+      .populate("taggedUsers", "name avatarUrl handle")
       .lean();
 
     if (!post) {
@@ -630,17 +642,19 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
     // - Private post: Only post owner can see
     // ============================================
     if (!isOwnPost) {
-      if (post.privacy === 'private') {
+      if (post.privacy === "private") {
         return res.status(403).json({
           success: false,
           message: "This post is private",
         });
       }
 
-      if (post.privacy === 'friends') {
+      if (post.privacy === "friends") {
         // Check if current user follows the post owner
-        const currentUser = await User.findById(userId).select('following').lean();
-        
+        const currentUser = await User.findById(userId)
+          .select("following")
+          .lean();
+
         if (!currentUser) {
           return res.status(404).json({
             success: false,
@@ -650,7 +664,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
 
         const currentUserFollowing = currentUser.following || [];
         const postOwnerId = post.userId._id.toString();
-        
+
         const isFollowing = currentUserFollowing.some(
           (id: any) => id.toString() === postOwnerId
         );
@@ -902,7 +916,7 @@ export const getComments = async (req: AuthRequest, res: Response) => {
 /**
  * POST /api/v1/posts/:id/tag
  * Tag users in a post
- * 
+ *
  * Body: { "userIds": ["userId1", "userId2", ...] }
  */
 export const tagUsers = async (req: AuthRequest, res: Response) => {
@@ -938,14 +952,13 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
 
     // Check if user owns the post or is tagged (can add more tags)
     const isOwner = post.userId.toString() === userId;
-    const isTagged = post.taggedUsers.some(
-      (id) => id.toString() === userId
-    );
+    const isTagged = post.taggedUsers.some((id) => id.toString() === userId);
 
     if (!isOwner && !isTagged) {
       return res.status(403).json({
         success: false,
-        error: "You can only tag users in your own posts or posts you're tagged in",
+        error:
+          "You can only tag users in your own posts or posts you're tagged in",
       });
     }
 
@@ -968,9 +981,7 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
 
     // Remove duplicates and exclude the post owner
     const newTaggedUsers = [
-      ...new Set(
-        validUserIds.filter((id) => id !== post.userId.toString())
-      ),
+      ...new Set(validUserIds.filter((id) => id !== post.userId.toString())),
     ];
 
     // Get currently tagged users
@@ -1044,7 +1055,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     // Find the post
     const post = await Post.findOne({ _id: postId, userId });
-    
+
     if (!post) {
       return res.status(404).json({
         success: false,
@@ -1071,7 +1082,8 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
       if (!["private", "friends", "public"].includes(privacy)) {
         return res.status(400).json({
           success: false,
-          error: "Invalid privacy setting. Must be 'private', 'friends', or 'public'",
+          error:
+            "Invalid privacy setting. Must be 'private', 'friends', or 'public'",
         });
       }
       updates.privacy = privacy;
@@ -1080,11 +1092,10 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     // Update location if provided
     if (location !== undefined) {
       try {
-        const parsedLocation = typeof location === 'string' 
-          ? JSON.parse(location) 
-          : location;
-        
-        if (parsedLocation && typeof parsedLocation === 'object') {
+        const parsedLocation =
+          typeof location === "string" ? JSON.parse(location) : location;
+
+        if (parsedLocation && typeof parsedLocation === "object") {
           updates.location = {
             lat: parsedLocation.lat,
             lng: parsedLocation.lng,
@@ -1103,7 +1114,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     // Update rideId if provided
     if (rideId !== undefined) {
-      if (rideId === null || rideId === '') {
+      if (rideId === null || rideId === "") {
         updates.rideId = null;
       } else {
         // Verify ride belongs to user
@@ -1131,11 +1142,17 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     await post.save();
 
     // Populate fields for response
-    await post.populate('userId', 'name avatarUrl handle city ridingLevel isCreator followerCount');
+    await post.populate(
+      "userId",
+      "name avatarUrl handle city ridingLevel isCreator followerCount"
+    );
     if (post.rideId) {
-      await post.populate('rideId', 'title distance duration avgSpeed maxSpeed');
+      await post.populate(
+        "rideId",
+        "title distance duration avgSpeed maxSpeed"
+      );
     }
-    await post.populate('taggedUsers', 'name avatarUrl handle');
+    await post.populate("taggedUsers", "name avatarUrl handle");
 
     logger.info(`[updatePost] Post ${postId} updated successfully`);
 
@@ -1220,5 +1237,3 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ success: false, error: error.message });
   }
 };
-
-
