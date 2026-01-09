@@ -244,7 +244,7 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
       // userId: { $ne: userId }, // Exclude current user's posts
       privacy: "public", // Only public posts for now
     })
-      .populate("userId", "name avatar handle")
+      .populate("userId", "name avatarUrl handle")
       .populate("rideId", "distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
       .sort({ createdAt: -1 })
