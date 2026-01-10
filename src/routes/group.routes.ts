@@ -5,6 +5,7 @@ import {
   getGroupDetail,
   joinGroup,
   approveJoinRequest,
+  rejectJoinRequest,
   leaveGroup,
   getGroupMembers,
   deleteGroup,
@@ -21,6 +22,7 @@ router.get("/", isAuth, searchGroups as any);
 router.get("/:id", isAuth, getGroupDetail as any);
 router.post("/:id/join", isAuth, joinGroup as any);
 router.post("/:id/approve/:requestUserId", isAuth, approveJoinRequest as any);
+router.post("/:id/reject/:requestUserId", isAuth, rejectJoinRequest as any);
 router.post("/:id/leave", isAuth, leaveGroup as any);
 router.get("/:id/members", isAuth, getGroupMembers as any);
 router.get("/:id/messages", isAuth, getGroupMessages as any);
