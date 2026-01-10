@@ -227,6 +227,9 @@ export const createPost = async (req: AuthRequest, res: Response) => {
  * GET /api/v1/posts/feed
  * Get personalized feed - shows public posts from all users except current user
  */
+<<<<<<< HEAD
+
+
 export const getFeed = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
@@ -238,19 +241,60 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 
     logger.info(`[getFeed] Fetching feed for user ${userId}`);
 
+=======
+export const getFeed = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, parseInt(limit as string) || 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    logger.info(`[getFeed] Fetching feed for user ${userId}`);
+
+>>>>>>> 3848631b3c78790d0e14ab4e44abbc4d8c55fa74
     // Get all public and friends posts from OTHER users (not current user)
     // Since followers/following isn't fully implemented, show all other users' public posts
     const posts = await Post.find({
       // userId: { $ne: userId }, // Exclude current user's posts
       privacy: "public", // Only public posts for now
     })
+<<<<<<< HEAD
+      .populate("userId", "name avatar handle")
+=======
       .populate("userId", "name avatarUrl handle")
+>>>>>>> 3848631b3c78790d0e14ab4e44abbc4d8c55fa74
       .populate("rideId", "distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean();
+<<<<<<< HEAD
+
+    const total = await Post.countDocuments({
+      userId: { $ne: userId },
+      privacy: "public",
+    });
+
+    return res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getFeed] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+=======
+>>>>>>> 3848631b3c78790d0e14ab4e44abbc4d8c55fa74
 
     const total = await Post.countDocuments({
       userId: { $ne: userId },
@@ -342,7 +386,11 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 
 //     // ============================================
 //     // STEP 3: Query posts from following users
+<<<<<<< HEAD
+//     // Show: 
+=======
 //     // Show:
+>>>>>>> 3848631b3c78790d0e14ab4e44abbc4d8c55fa74
 //     // - All public posts from people you follow
 //     // - Friends posts from people you follow (since you follow them, you can see their friends posts)
 //     // ============================================

@@ -1,24 +1,11 @@
 import { Response } from 'express';
 import User from '../models/user.model.js';
+import Notification from '../models/notification.model.js';
 import { AuthRequest } from '../types/auth.types.js';
 import { IApiResponse } from '../types/index.js';
 import logger from '../config/logger.js';
 import { sendNotificationToUser } from '../config/socket.js';
-import { Server as SocketIOServer } from 'socket.io';  
-
-
-// import User from '../models/User';
-// import { AuthRequest, IApiResponse } from '../types';
-// import logger from '../utils/logger';
-// import { sendNotificationToUser } from '../config/socket';
-// import { SocketIOServer } from 'socket.io';
-
-// Get Socket.io instance (you'll pass this from app.ts)
-let io: SocketIOServer | null = null;
-
-export const setSocketIO = (socketIO: SocketIOServer) => {
-  io = socketIO;
-};
+import { Server as SocketIOServer } from 'socket.io';
 
 /**
  * ============================================
@@ -93,7 +80,29 @@ export const followUser = async (
     userToFollow.followerCount = userToFollow.followers.length;
     await userToFollow.save();
 
-    // STEP 3: Send real-time notification via Socket.io
+    // STEP 3: Save notification to database
+    try {
+      const notification = new Notification({
+        userId: userIdToFollow,
+        type: 'follow',
+        fromUserId: currentUserId,
+        fromUserName: currentUser.name,
+        message: `${currentUser.name || 'A user'} started following you`,
+        read: false,
+      });
+      await notification.save();
+      logger.info(`[followUser] Notification saved to database for user ${userIdToFollow}`);
+    } catch (notifError: any) {
+      logger.error(`[followUser] Failed to save notification: ${notifError.message}`);
+      // Don't fail the follow operation if notification save fails
+    }
+
+    // STEP 4: Send real-time notification via Socket.io
+    const io = (req.app as any).io as SocketIOServer | null;
+    logger.info(`[followUser] Socket.io instance available: ${io ? 'YES' : 'NO'}`);
+    if (io) {
+      logger.info(`[followUser] Sending socket notification to user: ${userIdToFollow}`);
+    }
     sendNotificationToUser(io, userIdToFollow, {
       type: 'follow',
       message: `${currentUser.name || 'A user'} started following you`,
@@ -409,7 +418,10 @@ export const checkFollowStatus = async (
       return;
     }
 
-    const isFollowing = currentUser.following.includes(userIdToCheck);
+    // Check if following (handle both ObjectId and string comparisons)
+    const isFollowing = currentUser.following.some(
+      (id: any) => id.toString() === userIdToCheck.toString()
+    );
 
     const response: IApiResponse = {
       success: true,
