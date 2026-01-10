@@ -1,5 +1,3 @@
-
-
 import { Response } from "express";
 import logger from "../config/logger.js";
 import {
@@ -13,7 +11,11 @@ import {
 import { IApiResponse } from "../types/index.js";
 import { UserRole } from "../types/index.js";
 import User from "../models/user.model.js";
-import { signUserAccessToken, signUserRefreshToken, verifyUserRefreshToken } from "../utils/jwt.js";
+import {
+  signUserAccessToken,
+  signUserRefreshToken,
+  verifyUserRefreshToken,
+} from "../utils/jwt.js";
 import { sendLoginOtpEmail, sendSignupOtpEmail } from "../config/mail.js";
 // import { sendLoginOtpEmail, sendSignupOtpEmail } from "../config/mail.js";
 
@@ -42,7 +44,10 @@ function formatAuthUser(user: any): IAuthUser {
 }
 
 // In-memory OTP storage (use Redis in production)
-const otpStore = new Map<string, { otp: string; expiresAt: number; phone: string }>();
+const otpStore = new Map<
+  string,
+  { otp: string; expiresAt: number; phone: string }
+>();
 
 // ============================================
 // SIGNUP FLOW - Email & Phone Required
@@ -92,12 +97,13 @@ export const sendSignupOtp = async (
 
     // Check if user already exists (by email or phone)
     const existingUser = await User.findOne({
-      $or: [{ email }, { phone }]
+      $or: [{ email }, { phone }],
     });
     if (existingUser) {
       res.status(400).json({
         success: false,
-        message: "Email or phone number already registered. Please login instead.",
+        message:
+          "Email or phone number already registered. Please login instead.",
       });
       return;
     }
@@ -114,7 +120,8 @@ export const sendSignupOtp = async (
       logger.error(`Failed to send email to ${email}: ${emailError.message}`);
       res.status(500).json({
         success: false,
-        message: "Failed to send OTP email. Please check your email address and try again.",
+        message:
+          "Failed to send OTP email. Please check your email address and try again.",
         error: emailError.message,
       });
       return;
@@ -134,7 +141,6 @@ export const sendSignupOtp = async (
         otpExpiresIn: "10 minutes",
       },
     });
-
   } catch (error: any) {
     logger.error(`Signup OTP error: ${error.message}`);
     res.status(500).json({
@@ -262,7 +268,6 @@ export const verifySignupOtp = async (
         refreshToken,
       },
     });
-
   } catch (error: any) {
     logger.error(`Verify signup OTP error: ${error.message}`);
     res.status(500).json({
@@ -364,7 +369,6 @@ export const sendLoginOtp = async (
         otpExpiresIn: "10 minutes",
       },
     });
-
   } catch (error: any) {
     logger.error(`Login OTP error: ${error.message}`);
     res.status(500).json({
@@ -488,7 +492,6 @@ export const verifyLoginOtp = async (
         refreshToken,
       },
     });
-
   } catch (error: any) {
     logger.error(`Verify login OTP error: ${error.message}`);
     res.status(500).json({
@@ -545,7 +548,6 @@ export const verifyLoginOtp = async (
 //   }
 // };
 
-
 // /**
 //  * Get Current User Profile
 //  * GET /api/v1/auth/me
@@ -594,6 +596,47 @@ export const getCurrentUser = async (
 };
 
 /**
+ * Logout User
+ * POST /api/v1/auth/logout
+ * Updates lastLogoutAt timestamp
+ */
+export const logout = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    // Update user's last logout timestamp
+    await User.findByIdAndUpdate(userId, {
+      lastLogoutAt: new Date(),
+    });
+
+    logger.info(`✅ User logged out: ${userId}`);
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error: any) {
+    logger.error(`Logout error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Logout failed",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
  * Search users by name, handle, or city
  * Supports pagination and filtering
  */
@@ -602,10 +645,10 @@ export const searchUsers = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { query, limit = 20, page = 1, filter = 'all' } = req.query;
+    const { query, limit = 20, page = 1, filter = "all" } = req.query;
     const userId = req.userId;
 
-    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+    if (!query || typeof query !== "string" || query.trim().length === 0) {
       res.status(400).json({
         success: false,
         message: "Search query is required",
@@ -631,19 +674,19 @@ export const searchUsers = async (
     const searchFilter: any = {
       verified: true,
       isSuspended: false,
-      verificationStatus: 'approved',
+      verificationStatus: "approved",
       $or: [
-        { name: { $regex: searchQuery, $options: 'i' } },
-        { handle: { $regex: searchQuery, $options: 'i' } },
-        { city: { $regex: searchQuery, $options: 'i' } },
+        { name: { $regex: searchQuery, $options: "i" } },
+        { handle: { $regex: searchQuery, $options: "i" } },
+        { city: { $regex: searchQuery, $options: "i" } },
       ],
     };
 
     // Apply additional filters
-    if (filter === 'creators') {
+    if (filter === "creators") {
       searchFilter.isCreator = true;
-    } else if (filter === 'experts') {
-      searchFilter.ridingLevel = 'Expert';
+    } else if (filter === "experts") {
+      searchFilter.ridingLevel = "Expert";
     }
 
     // Exclude current user
@@ -655,7 +698,7 @@ export const searchUsers = async (
     const totalUsers = await User.countDocuments(searchFilter);
     const users = await User.find(searchFilter)
       .select(
-        'name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance'
+        "name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance"
       )
       .limit(limitNum)
       .skip(skip)
@@ -716,7 +759,7 @@ export const getSuggestedUsers = async (
 
     // Fetch current user
     const currentUser = await User.findById(userId).select(
-      'following city ridingLevel ridingStyle'
+      "following city ridingLevel ridingStyle"
     );
 
     if (!currentUser) {
@@ -732,7 +775,7 @@ export const getSuggestedUsers = async (
       _id: { $ne: userId },
       verified: true,
       isSuspended: false,
-      verificationStatus: 'approved',
+      verificationStatus: "approved",
       following: { $nin: [userId] }, // Users who don't follow current user
     };
 
@@ -743,7 +786,7 @@ export const getSuggestedUsers = async (
       ridingStyle: { $in: currentUser.ridingStyle },
     })
       .select(
-        'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+        "name handle avatarUrl bio city ridingLevel isCreator followerCount"
       )
       .limit(Math.ceil(limitNum / 2))
       .sort({ followerCount: -1 })
@@ -760,7 +803,7 @@ export const getSuggestedUsers = async (
         },
       })
         .select(
-          'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+          "name handle avatarUrl bio city ridingLevel isCreator followerCount"
         )
         .limit(Math.ceil(limitNum / 3))
         .sort({ followerCount: -1 })
@@ -779,7 +822,7 @@ export const getSuggestedUsers = async (
       },
     })
       .select(
-        'name handle avatarUrl bio city ridingLevel isCreator followerCount'
+        "name handle avatarUrl bio city ridingLevel isCreator followerCount"
       )
       .limit(limitNum - sameStyleUsers.length - sameCityUsers.length)
       .sort({ followerCount: -1 })
@@ -819,7 +862,7 @@ export const getSuggestedUsers = async (
 function formatUserCard(user: any) {
   return {
     _id: user._id,
-    name: user.name || 'Anonymous',
+    name: user.name || "Anonymous",
     handle: user.handle,
     avatarUrl: user.avatarUrl,
     bio: user.bio,
