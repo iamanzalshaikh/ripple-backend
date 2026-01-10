@@ -12,6 +12,7 @@ import notificationRoutes from "./notification.routes.js";
 import rideEventRoutes from "./rideEvent.routes.js";
 import groupRoutes from "./group.routes.js";
 import chatRoutes from "./chat.routes.js";
+import followRoutes from "./follow.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -64,5 +65,6 @@ router.use("/notifications", notificationRoutes);
 router.use("/rideevents", rideEventRoutes);
 router.use("/groups", groupRoutes);
 router.use("/chat", chatRoutes);
+router.use("/users", followRoutes);
 
 export default router;

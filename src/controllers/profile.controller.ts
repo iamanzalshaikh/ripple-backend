@@ -22,6 +22,41 @@ export const getMyProfile = async (req: AuthRequest, res: Response) => {
   });
 };
 
+/**
+ * Get public profile of any user
+ * GET /api/v1/profile/:userId
+ */
+export const getUserProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId: targetUserId } = req.params;
+    const currentUserId = req.userId;
+
+    const user = await User.findById(targetUserId).select(
+      "name avatarUrl handle bio city state country ridingLevel ridingStyle yearsOfExperience followerCount followingCount totalRides totalDistance verified isCreator createdAt"
+    ).lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return public profile data
+    return res.json({
+      success: true,
+      data: { user },
+    });
+  } catch (error: any) {
+    logger.error(`[getUserProfile] Error: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user profile",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
 export const updateMyProfile = async (req: AuthRequest, res: Response) => {
     const allowedFields = [
       "name",
