@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import Group from '../models/group.model.js';
-import User from '../models/user.model.js';
-import Notification from '../models/notification.model.js';
-import logger from '../config/logger.js';
-import { v4 as uuidv4 } from 'uuid';
+import { Request, Response } from "express";
+import Group from "../models/group.model.js";
+import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
+import ChatMessage from "../models/chatMessage.model.js";
+import logger from "../config/logger.js";
+import { v4 as uuidv4 } from "uuid";
 
 interface AuthRequest extends Request {
   userId: string;
@@ -13,27 +14,39 @@ interface AuthRequest extends Request {
  * POST /api/v1/groups
  * Create a new group (verified users only)
  */
-export const createGroup = async (req: AuthRequest, res: Response): Promise<void> => {
+export const createGroup = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-    const { name, description, location, privacy = 'public', tags = [], avatarUrl } = req.body;
+    const {
+      name,
+      description,
+      location,
+      privacy = "public",
+      tags = [],
+      avatarUrl,
+    } = req.body;
     const creatorId = req.userId;
 
     logger.info(`[createGroup] User ${creatorId} creating group: ${name}`);
 
     if (!name || name.trim().length === 0) {
-      res.status(400).json({ success: false, error: 'Group name required' });
+      res.status(400).json({ success: false, error: "Group name required" });
       return;
     }
 
     // Verify user is verified
     const creator = await User.findById(creatorId);
     if (!creator) {
-      res.status(404).json({ success: false, error: 'User not found' });
+      res.status(404).json({ success: false, error: "User not found" });
       return;
     }
 
     if (!creator.verified) {
-      res.status(403).json({ success: false, error: 'Must be verified to create group' });
+      res
+        .status(403)
+        .json({ success: false, error: "Must be verified to create group" });
       return;
     }
 
@@ -51,14 +64,14 @@ export const createGroup = async (req: AuthRequest, res: Response): Promise<void
       members: [
         {
           userId: creatorId,
-          role: 'admin',
-          joinedAt: new Date()
-        }
+          role: "admin",
+          joinedAt: new Date(),
+        },
       ],
       stats: {
         totalMembers: 1,
-        totalRides: 0
-      }
+        totalRides: 0,
+      },
     });
 
     await group.save();
@@ -70,8 +83,8 @@ export const createGroup = async (req: AuthRequest, res: Response): Promise<void
         groupId: group._id,
         name: group.name,
         privacy: group.privacy,
-        chatRoomId: group.chatRoomId
-      }
+        chatRoomId: group.chatRoomId,
+      },
     });
   } catch (error: any) {
     logger.error(`[createGroup] Error: ${error.message}`);
@@ -83,9 +96,12 @@ export const createGroup = async (req: AuthRequest, res: Response): Promise<void
  * GET /api/v1/groups
  * Search groups with text search
  */
-export const searchGroups = async (req: AuthRequest, res: Response): Promise<void> => {
+export const searchGroups = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
-    const { search = '', privacy, page = 1, limit = 10 } = req.query;
+    const { search = "", privacy, page = 1, limit = 10 } = req.query;
 
     let query: any = {};
 
@@ -102,7 +118,7 @@ export const searchGroups = async (req: AuthRequest, res: Response): Promise<voi
     const skip = (pageNum - 1) * limitNum;
 
     const groups = await Group.find(query)
-      .populate('createdBy', 'name avatarUrl verified')
+      .populate("createdBy", "name avatarUrl verified")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -113,7 +129,7 @@ export const searchGroups = async (req: AuthRequest, res: Response): Promise<voi
     const enriched = groups.map((group: any) => ({
       ...group,
       memberCount: group.members?.length || 0,
-      requestCount: group.joinRequests?.length || 0
+      requestCount: group.joinRequests?.length || 0,
     }));
 
     logger.info(`[searchGroups] Found ${groups.length} groups`);
@@ -125,8 +141,8 @@ export const searchGroups = async (req: AuthRequest, res: Response): Promise<voi
         page: pageNum,
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: any) {
     logger.error(`[searchGroups] Error: ${error.message}`);
@@ -138,25 +154,34 @@ export const searchGroups = async (req: AuthRequest, res: Response): Promise<voi
  * GET /api/v1/groups/:id
  * Get group details
  */
-export const getGroupDetail = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getGroupDetail = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = req.userId;
 
     const group = await Group.findById(id)
-      .populate('createdBy', 'name avatarUrl verified')
-      .populate('members.userId', 'name avatarUrl')
-      .populate('joinRequests.userId', 'name avatarUrl')
+      .populate("createdBy", "name avatarUrl verified")
+      .populate("members.userId", "name avatarUrl")
+      .populate("joinRequests.userId", "name avatarUrl")
       .lean();
 
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
-    const isMember = group.members.some((m: any) => m.userId._id.toString() === userId);
-    const isAdmin = group.members.some((m: any) => m.userId._id.toString() === userId && m.role === 'admin');
-    const hasRequestPending = group.joinRequests.some((r: any) => r.userId._id.toString() === userId);
+    const isMember = group.members.some(
+      (m: any) => m.userId._id.toString() === userId
+    );
+    const isAdmin = group.members.some(
+      (m: any) => m.userId._id.toString() === userId && m.role === "admin"
+    );
+    const hasRequestPending = group.joinRequests.some(
+      (r: any) => r.userId._id.toString() === userId
+    );
 
     res.json({
       success: true,
@@ -166,8 +191,8 @@ export const getGroupDetail = async (req: AuthRequest, res: Response): Promise<v
         isAdmin,
         hasRequestPending,
         memberCount: group.members.length,
-        requestCount: group.joinRequests.length
-      }
+        requestCount: group.joinRequests.length,
+      },
     });
   } catch (error: any) {
     logger.error(`[getGroupDetail] Error: ${error.message}`);
@@ -179,7 +204,10 @@ export const getGroupDetail = async (req: AuthRequest, res: Response): Promise<v
  * POST /api/v1/groups/:id/join
  * Join a group or request to join
  */
-export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> => {
+export const joinGroup = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = req.userId;
@@ -188,36 +216,42 @@ export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> 
 
     const group = await Group.findById(id);
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ success: false, error: 'User not found' });
+      res.status(404).json({ success: false, error: "User not found" });
       return;
     }
 
     // Check if already a member
-    const alreadyMember = group.members.some((m: any) => m.userId.toString() === userId);
+    const alreadyMember = group.members.some(
+      (m: any) => m.userId.toString() === userId
+    );
     if (alreadyMember) {
-      res.status(400).json({ success: false, error: 'Already a member' });
+      res.status(400).json({ success: false, error: "Already a member" });
       return;
     }
 
     // Check if request pending
-    const hasPendingRequest = group.joinRequests.some((r: any) => r.userId.toString() === userId);
+    const hasPendingRequest = group.joinRequests.some(
+      (r: any) => r.userId.toString() === userId
+    );
     if (hasPendingRequest) {
-      res.status(400).json({ success: false, error: 'Join request already pending' });
+      res
+        .status(400)
+        .json({ success: false, error: "Join request already pending" });
       return;
     }
 
     // If public, auto-join
-    if (group.privacy === 'public') {
+    if (group.privacy === "public") {
       group.members.push({
         userId: userId as any,
-        role: 'member',
-        joinedAt: new Date()
+        role: "member",
+        joinedAt: new Date(),
       });
       group.stats.totalMembers = group.members.length;
 
@@ -229,9 +263,9 @@ export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> 
         success: true,
         data: {
           groupId: group._id,
-          status: 'joined',
-          message: 'Successfully joined group!'
-        }
+          status: "joined",
+          message: "Successfully joined group!",
+        },
       });
       return;
     }
@@ -239,20 +273,20 @@ export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> 
     // If private/friends, request
     group.joinRequests.push({
       userId: userId as any,
-      requestedAt: new Date()
+      requestedAt: new Date(),
     });
 
     await group.save();
 
     // Notify admins
-    const admins = group.members.filter((m: any) => m.role === 'admin');
+    const admins = group.members.filter((m: any) => m.role === "admin");
     for (const admin of admins) {
       await Notification.create({
         userId: admin.userId,
-        type: 'group',
+        type: "group",
         message: `${user.name} requested to join ${group.name}`,
         read: false,
-        relatedId: group._id
+        relatedId: group._id,
       });
     }
 
@@ -262,9 +296,9 @@ export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> 
       success: true,
       data: {
         groupId: group._id,
-        status: 'pending',
-        message: 'Join request sent to admins!'
-      }
+        status: "pending",
+        message: "Join request sent to admins!",
+      },
     });
   } catch (error: any) {
     logger.error(`[joinGroup] Error: ${error.message}`);
@@ -276,36 +310,47 @@ export const joinGroup = async (req: AuthRequest, res: Response): Promise<void> 
  * POST /api/v1/groups/:id/approve/:requestUserId
  * Admin approves join request
  */
-export const approveJoinRequest = async (req: AuthRequest, res: Response): Promise<void> => {
+export const approveJoinRequest = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id, requestUserId } = req.params;
     const adminId = req.userId;
 
-    logger.info(`[approveJoinRequest] Admin ${adminId} approving ${requestUserId} for group ${id}`);
+    logger.info(
+      `[approveJoinRequest] Admin ${adminId} approving ${requestUserId} for group ${id}`
+    );
 
     const group = await Group.findById(id);
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
     // Verify user is admin
-    const isAdmin = group.members.some((m: any) => m.userId.toString() === adminId && m.role === 'admin');
+    const isAdmin = group.members.some(
+      (m: any) => m.userId.toString() === adminId && m.role === "admin"
+    );
     if (!isAdmin) {
-      res.status(403).json({ success: false, error: 'Only admin can approve' });
+      res.status(403).json({ success: false, error: "Only admin can approve" });
       return;
     }
 
     // Remove from requests
-    group.joinRequests = group.joinRequests.filter((r: any) => r.userId.toString() !== requestUserId);
+    group.joinRequests = group.joinRequests.filter(
+      (r: any) => r.userId.toString() !== requestUserId
+    );
 
     // Add to members
-    const alreadyMember = group.members.some((m: any) => m.userId.toString() === requestUserId);
+    const alreadyMember = group.members.some(
+      (m: any) => m.userId.toString() === requestUserId
+    );
     if (!alreadyMember) {
       group.members.push({
         userId: requestUserId as any,
-        role: 'member',
-        joinedAt: new Date()
+        role: "member",
+        joinedAt: new Date(),
       });
       group.stats.totalMembers = group.members.length;
     }
@@ -315,17 +360,19 @@ export const approveJoinRequest = async (req: AuthRequest, res: Response): Promi
     // Notify user
     await Notification.create({
       userId: requestUserId,
-      type: 'group',
+      type: "group",
       message: `You were approved to join ${group.name}!`,
       read: false,
-      relatedId: group._id
+      relatedId: group._id,
     });
 
-    logger.info(`[approveJoinRequest] User ${requestUserId} approved for group ${id}`);
+    logger.info(
+      `[approveJoinRequest] User ${requestUserId} approved for group ${id}`
+    );
 
     res.json({
       success: true,
-      data: { message: 'User approved' }
+      data: { message: "User approved" },
     });
   } catch (error: any) {
     logger.error(`[approveJoinRequest] Error: ${error.message}`);
@@ -337,7 +384,10 @@ export const approveJoinRequest = async (req: AuthRequest, res: Response): Promi
  * POST /api/v1/groups/:id/leave
  * Leave a group
  */
-export const leaveGroup = async (req: AuthRequest, res: Response): Promise<void> => {
+export const leaveGroup = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = req.userId;
@@ -346,21 +396,29 @@ export const leaveGroup = async (req: AuthRequest, res: Response): Promise<void>
 
     const group = await Group.findById(id);
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
-    const memberIndex = group.members.findIndex((m: any) => m.userId.toString() === userId);
+    const memberIndex = group.members.findIndex(
+      (m: any) => m.userId.toString() === userId
+    );
     if (memberIndex === -1) {
-      res.status(400).json({ success: false, error: 'Not a member' });
+      res.status(400).json({ success: false, error: "Not a member" });
       return;
     }
 
     // Prevent last admin from leaving
-    const isLastAdmin = group.members[memberIndex].role === 'admin' && 
-                        group.members.filter((m: any) => m.role === 'admin').length === 1;
+    const isLastAdmin =
+      group.members[memberIndex].role === "admin" &&
+      group.members.filter((m: any) => m.role === "admin").length === 1;
     if (isLastAdmin) {
-      res.status(400).json({ success: false, error: 'Cannot leave: you are the only admin' });
+      res
+        .status(400)
+        .json({
+          success: false,
+          error: "Cannot leave: you are the only admin",
+        });
       return;
     }
 
@@ -373,7 +431,7 @@ export const leaveGroup = async (req: AuthRequest, res: Response): Promise<void>
 
     res.json({
       success: true,
-      data: { message: 'Left group' }
+      data: { message: "Left group" },
     });
   } catch (error: any) {
     logger.error(`[leaveGroup] Error: ${error.message}`);
@@ -385,7 +443,10 @@ export const leaveGroup = async (req: AuthRequest, res: Response): Promise<void>
  * GET /api/v1/groups/:id/members
  * Get all group members with pagination
  */
-export const getGroupMembers = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getGroupMembers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const { page = 1, limit = 20 } = req.query;
@@ -396,14 +457,14 @@ export const getGroupMembers = async (req: AuthRequest, res: Response): Promise<
 
     const group = await Group.findById(id)
       .populate({
-        path: 'members.userId',
-        select: 'name avatarUrl verified ridingHours',
-        options: { skip, limit: limitNum }
+        path: "members.userId",
+        select: "name avatarUrl verified ridingHours",
+        options: { skip, limit: limitNum },
       })
       .lean();
 
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
@@ -416,8 +477,8 @@ export const getGroupMembers = async (req: AuthRequest, res: Response): Promise<
         page: pageNum,
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error: any) {
     logger.error(`[getGroupMembers] Error: ${error.message}`);
@@ -429,7 +490,10 @@ export const getGroupMembers = async (req: AuthRequest, res: Response): Promise<
  * DELETE /api/v1/groups/:id
  * Delete group (admin only)
  */
-export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void> => {
+export const deleteGroup = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = req.userId;
@@ -438,13 +502,15 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 
     const group = await Group.findById(id);
     if (!group) {
-      res.status(404).json({ success: false, error: 'Group not found' });
+      res.status(404).json({ success: false, error: "Group not found" });
       return;
     }
 
-    const isAdmin = group.members.some((m: any) => m.userId.toString() === userId && m.role === 'admin');
+    const isAdmin = group.members.some(
+      (m: any) => m.userId.toString() === userId && m.role === "admin"
+    );
     if (!isAdmin) {
-      res.status(403).json({ success: false, error: 'Only admin can delete' });
+      res.status(403).json({ success: false, error: "Only admin can delete" });
       return;
     }
 
@@ -454,14 +520,13 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 
     res.json({
       success: true,
-      data: { message: 'Group deleted' }
+      data: { message: "Group deleted" },
     });
   } catch (error: any) {
     logger.error(`[deleteGroup] Error: ${error.message}`);
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
 
 // import { Request, Response } from 'express';
 // import Group from '../models/group.model';
@@ -602,7 +667,6 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 //     }
 //   })();
 // };
-
 
 // /**
 //  * GET /api/v1/groups/:id
@@ -834,7 +898,7 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 //       }
 
 //       // Prevent last admin from leaving
-//       const isLastAdmin = group.members[memberIndex].role === 'admin' && 
+//       const isLastAdmin = group.members[memberIndex].role === 'admin' &&
 //                           group.members.filter((m: any) => m.role === 'admin').length === 1;
 //       if (isLastAdmin) {
 //         res.status(400).json({ success: false, error: 'Cannot leave: you are the only admin' });
@@ -943,3 +1007,68 @@ export const deleteGroup = async (req: AuthRequest, res: Response): Promise<void
 //     }
 //   })();
 // };
+/**
+ * GET /api/v1/groups/:id/messages
+ * Get group chat message history with pagination
+ */
+export const getGroupMessages = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    const { page = 1, limit = 50 } = req.query;
+
+    logger.info(`[getGroupMessages] Fetching messages for group ${id}`);
+
+    // Verify group exists and user is member
+    const group = await Group.findById(id);
+    if (!group) {
+      res.status(404).json({ success: false, error: "Group not found" });
+      return;
+    }
+
+    const isMember = group.members.some(
+      (m: any) => m.userId.toString() === userId
+    );
+    if (!isMember) {
+      res.status(403).json({ success: false, error: "Not a group member" });
+      return;
+    }
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(100, parseInt(limit as string) || 50);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Fetch messages
+    const messages = await ChatMessage.find({
+      groupId: id,
+      roomType: "group",
+    })
+      .populate("senderId", "name avatarUrl")
+      .sort({ timestamp: -1 }) // Most recent first
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await ChatMessage.countDocuments({
+      groupId: id,
+      roomType: "group",
+    });
+
+    res.json({
+      success: true,
+      data: messages.reverse(), // Reverse to show oldest first
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getGroupMessages] Error: ${error.message}`);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
