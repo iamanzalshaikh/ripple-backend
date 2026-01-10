@@ -27,6 +27,7 @@ export const addBike = async (
       registrationNumber,
       primary,
       notes,
+      imageUrl,
     } = req.body;
 
     const parsedYear = typeof year === "string" ? parseInt(year, 10) : year;
@@ -54,11 +55,11 @@ export const addBike = async (
       { session }
     );
 
-    if (bikeCount >= 10) {
+    if (bikeCount >= 5) {
       await session.abortTransaction();
       res.status(400).json({
         success: false,
-        message: "Maximum 10 bikes allowed",
+        message: "Maximum 5 bikes allowed",
       });
       return;
     }
@@ -73,6 +74,7 @@ export const addBike = async (
       registrationNumber,
       primary: primary || false,
       notes,
+      imageUrl: imageUrl || undefined,
     });
 
     if (bikeCount === 0 || primary === true) {
