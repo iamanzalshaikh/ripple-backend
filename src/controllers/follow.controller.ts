@@ -508,3 +508,4 @@ function formatUserCard(user: any) {
     totalDistance: user.totalDistance || 0,
   };
 }
+

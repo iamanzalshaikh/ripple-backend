@@ -1099,6 +1099,7 @@ export const getRideEventSummary = (req: AuthRequest, res: Response): void => {
   })();
 };
 
+
 /**
  * POST /api/v1/ride-events/:id/end
  * End group ride (Organizer only)
