@@ -1,5 +1,3 @@
-
-
 /**
  * File: src/config/socket.ts
  * Complete Socket.io server with:
@@ -18,6 +16,7 @@ import ChatMessage from "../models/chatMessage.model.js";
 import RideEvent from "../models/rideEvent.model.js";
 import Group from "../models/group.model.js";
 import User from "../models/user.model.js";
+import PrivateChatRoom from "../models/private.model.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {
@@ -76,9 +75,12 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
   io.on("connection", (socket: AuthenticatedSocket) => {
     const userId = socket.data.userId;
 
-    // Join user-specific room for notifications
+    // Join user-specific room for direct notifications (e.g., unread count updates)
     socket.join(`user:${userId}`);
-    logger.info(`[Socket] User ${userId} connected. Socket ID: ${socket.id}`);
+
+    logger.info(`[Socket] User ${userId} connected`);
+
+    // ==================== NOTIFICATIONS ====================
 
     // ==================== HEARTBEAT ====================
     socket.on("ping", () => {
@@ -130,34 +132,41 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
       }
     });
 
-      /**
+    /**
      * Listen for follow notification
      * Emitted by backend when user A follows user B
      * User B receives: "User A started following you"
      */
-      socket.on("follow-notification", async (data: {
+    socket.on(
+      "follow-notification",
+      async (data: {
         followedUserId: string;
         followerUserId: string;
         followerName: string;
         followerAvatar?: string;
       }) => {
         try {
-          const { followedUserId, followerUserId, followerName, followerAvatar } = data;
-  
+          const {
+            followedUserId,
+            followerUserId,
+            followerName,
+            followerAvatar,
+          } = data;
+
           logger.info(
             `[follow-notification] ${followerUserId} followed ${followedUserId}`
           );
-  
+
           // Get follower details
           const follower = await User.findById(followerUserId)
-            .select('name avatarUrl handle')
+            .select("name avatarUrl handle")
             .lean();
-  
+
           // Emit to followed user's room
           io.to(`user:${followedUserId}`).emit("notification", {
             type: "follow",
             id: `notif_${Date.now()}`,
-            message: `${follower?.name || 'A user'} started following you`,
+            message: `${follower?.name || "A user"} started following you`,
             fromUserId: followerUserId,
             fromUserName: follower?.name,
             fromUserHandle: follower?.handle,
@@ -165,7 +174,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             timestamp: new Date(),
             actionUrl: `/profile/${follower?.handle || followerUserId}`,
           });
-  
+
           logger.debug(
             `[follow-notification] Notification sent to ${followedUserId}`
           );
@@ -173,24 +182,27 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           logger.error(`[follow-notification] Error: ${error.message}`);
           socket.emit("error", { message: error.message });
         }
-      });
-  
-      /**
-       * Listen for unfollow notification (optional)
-       * When user unfollows, you can optionally notify
-       */
-      socket.on("unfollow-notification", async (data: {
+      }
+    );
+
+    /**
+     * Listen for unfollow notification (optional)
+     * When user unfollows, you can optionally notify
+     */
+    socket.on(
+      "unfollow-notification",
+      async (data: {
         unfollowedUserId: string;
         unfollowerUserId: string;
         unfollowerName: string;
       }) => {
         try {
           const { unfollowedUserId, unfollowerUserId, unfollowerName } = data;
-  
+
           logger.info(
             `[unfollow-notification] ${unfollowerUserId} unfollowed ${unfollowedUserId}`
           );
-  
+
           // Optional: You can emit this if you want to show unfollows
           // Most apps don't notify on unfollow
           io.to(`user:${unfollowedUserId}`).emit("notification", {
@@ -200,14 +212,15 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             fromUserId: unfollowerUserId,
             timestamp: new Date(),
           });
-  
+
           logger.debug(
             `[unfollow-notification] Notification sent to ${unfollowedUserId}`
           );
         } catch (error: any) {
           logger.error(`[unfollow-notification] Error: ${error.message}`);
         }
-      });
+      }
+    );
 
     /**
      * Leave ride event chat
@@ -232,70 +245,82 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     /**
      * Send message in ride chat
      */
-    socket.on("send-message-ride", async (data: { rideEventId: string; text: string }) => {
-      try {
-        const { rideEventId, text } = data;
+    socket.on(
+      "send-message-ride",
+      async (data: { rideEventId: string; text: string }) => {
+        try {
+          const { rideEventId, text } = data;
 
-        if (!text || text.trim().length === 0) {
-          socket.emit("error", { message: "Message cannot be empty" });
-          return;
+          if (!text || text.trim().length === 0) {
+            socket.emit("error", { message: "Message cannot be empty" });
+            return;
+          }
+
+          if (text.length > 500) {
+            socket.emit("error", {
+              message: "Message too long (max 500 chars)",
+            });
+            return;
+          }
+
+          // Verify user is participant
+          const ride = await RideEvent.findById(rideEventId);
+          if (!ride) {
+            socket.emit("error", { message: "Ride not found" });
+            return;
+          }
+
+          const isParticipant = ride.participants.some(
+            (p: any) => p.userId.toString() === userId
+          );
+          if (!isParticipant) {
+            socket.emit("error", { message: "Not a participant" });
+            return;
+          }
+
+          // Get sender info
+          const sender = await User.findById(userId)
+            .select("name avatarUrl")
+            .lean();
+
+          // Save to database
+          const message = await ChatMessage.create({
+            rideEventId,
+            roomType: "ride",
+            senderId: userId,
+            text: text.trim(),
+            timestamp: new Date(),
+          });
+
+          // Broadcast to all in ride
+          io.to(`ride:${rideEventId}`).emit("new-message-ride", {
+            _id: message._id,
+            senderId: userId,
+            senderName: sender?.name,
+            senderAvatar: sender?.avatarUrl,
+            text: message.text,
+            timestamp: new Date(),
+          });
+
+          logger.debug(`[send-message-ride] Message in ride ${rideEventId}`);
+        } catch (error: any) {
+          logger.error(`[send-message-ride] Error: ${error.message}`);
+          socket.emit("error", { message: error.message });
         }
-
-        if (text.length > 500) {
-          socket.emit("error", { message: "Message too long (max 500 chars)" });
-          return;
-        }
-
-        // Verify user is participant
-        const ride = await RideEvent.findById(rideEventId);
-        if (!ride) {
-          socket.emit("error", { message: "Ride not found" });
-          return;
-        }
-
-        const isParticipant = ride.participants.some(
-          (p: any) => p.userId.toString() === userId
-        );
-        if (!isParticipant) {
-          socket.emit("error", { message: "Not a participant" });
-          return;
-        }
-
-        // Get sender info
-        const sender = await User.findById(userId).select("name avatarUrl").lean();
-
-        // Save to database
-        const message = await ChatMessage.create({
-          rideEventId,
-          roomType: "ride",
-          senderId: userId,
-          text: text.trim(),
-          timestamp: new Date(),
-        });
-
-        // Broadcast to all in ride
-        io.to(`ride:${rideEventId}`).emit("new-message-ride", {
-          _id: message._id,
-          senderId: userId,
-          senderName: sender?.name,
-          senderAvatar: sender?.avatarUrl,
-          text: message.text,
-          timestamp: new Date(),
-        });
-
-        logger.debug(`[send-message-ride] Message in ride ${rideEventId}`);
-      } catch (error: any) {
-        logger.error(`[send-message-ride] Error: ${error.message}`);
-        socket.emit("error", { message: error.message });
       }
-    });
+    );
 
     /**
      * Stream GPS location during ride
      */
     socket.on(
       "location-update",
-      (data: { rideEventId: string; lat: number; lng: number; speed: number }) => {
+      (data: {
+        rideEventId: string;
+        lat: number;
+        lng: number;
+        speed: number;
+      }) => {
         try {
           const { rideEventId, lat, lng, speed } = data;
 
@@ -324,27 +349,34 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     /**
      * SOS emergency alert
      */
-    socket.on("sos-triggered", async (data: { rideEventId: string; lat: number; lng: number }) => {
-      try {
-        const { rideEventId, lat, lng } = data;
+    socket.on(
+      "sos-triggered",
+      async (data: { rideEventId: string; lat: number; lng: number }) => {
+        try {
+          const { rideEventId, lat, lng } = data;
 
-        const user = await User.findById(userId).select("name avatarUrl").lean();
+          const user = await User.findById(userId)
+            .select("name avatarUrl")
+            .lean();
 
-        io.to(`ride:${rideEventId}`).emit("sos-alert", {
-          userId,
-          userName: user?.name,
-          userAvatar: user?.avatarUrl,
-          lat,
-          lng,
-          message: `🚨 SOS triggered by ${user?.name}!`,
-          timestamp: new Date(),
-        });
+          io.to(`ride:${rideEventId}`).emit("sos-alert", {
+            userId,
+            userName: user?.name,
+            userAvatar: user?.avatarUrl,
+            lat,
+            lng,
+            message: `🚨 SOS triggered by ${user?.name}!`,
+            timestamp: new Date(),
+          });
 
-        logger.warn(`[sos-triggered] SOS from ${userId} in ride ${rideEventId}`);
-      } catch (error: any) {
-        logger.error(`[sos-triggered] Error: ${error.message}`);
+          logger.warn(
+            `[sos-triggered] SOS from ${userId} in ride ${rideEventId}`
+          );
+        } catch (error: any) {
+          logger.error(`[sos-triggered] Error: ${error.message}`);
+        }
       }
-    });
+    );
 
     /**
      * Ride typing indicator
@@ -360,7 +392,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
     socket.on("stop-typing-ride", (data: { rideEventId: string }) => {
       try {
-        socket.to(`ride:${data.rideEventId}`).emit("user-stop-typing", { userId });
+        socket
+          .to(`ride:${data.rideEventId}`)
+          .emit("user-stop-typing", { userId });
       } catch (error: any) {
         logger.error(`[stop-typing-ride] Error: ${error.message}`);
       }
@@ -369,14 +403,16 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     socket.on("host-started-ride", (data: { rideEventId: string }) => {
       try {
         const { rideEventId } = data;
-        
+
         socket.to(`ride:${rideEventId}`).emit("ride-started-notification", {
           message: "🚴 Ride has started! Tap START MY RIDE when ready.",
           rideEventId,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
-        
-        logger.debug(`[host-started-ride] Notification sent for ride ${rideEventId}`);
+
+        logger.debug(
+          `[host-started-ride] Notification sent for ride ${rideEventId}`
+        );
       } catch (error: any) {
         logger.error(`[host-started-ride] Error: ${error.message}`);
       }
@@ -398,7 +434,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           return;
         }
 
-        const isMember = group.members.some((m: any) => m.userId.toString() === userId);
+        const isMember = group.members.some(
+          (m: any) => m.userId.toString() === userId
+        );
         if (!isMember) {
           socket.emit("error", { message: "Not a group member" });
           return;
@@ -447,68 +485,79 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     /**
      * Send message in group chat
      */
-    socket.on("send-message-group", async (data: { groupId: string; text: string }) => {
-      try {
-        const { groupId, text } = data;
+    socket.on(
+      "send-message-group",
+      async (data: { groupId: string; text: string }) => {
+        try {
+          const { groupId, text } = data;
 
-        if (!text || text.trim().length === 0) {
-          socket.emit("error", { message: "Message cannot be empty" });
-          return;
+          if (!text || text.trim().length === 0) {
+            socket.emit("error", { message: "Message cannot be empty" });
+            return;
+          }
+
+          if (text.length > 500) {
+            socket.emit("error", {
+              message: "Message too long (max 500 chars)",
+            });
+            return;
+          }
+
+          // Verify user is member
+          const group = await Group.findById(groupId);
+          if (!group) {
+            socket.emit("error", { message: "Group not found" });
+            return;
+          }
+
+          const isMember = group.members.some(
+            (m: any) => m.userId.toString() === userId
+          );
+          if (!isMember) {
+            socket.emit("error", { message: "Not a member" });
+            return;
+          }
+
+          // Get sender info
+          const sender = await User.findById(userId)
+            .select("name avatarUrl")
+            .lean();
+
+          // Save to database
+          const message = await ChatMessage.create({
+            groupId,
+            roomType: "group",
+            senderId: userId,
+            text: text.trim(),
+            timestamp: new Date(),
+          });
+
+          // Broadcast to all in group
+          io.to(`group:${groupId}`).emit("new-message-group", {
+            _id: message._id,
+            senderId: userId,
+            senderName: sender?.name,
+            senderAvatar: sender?.avatarUrl,
+            text: message.text,
+            timestamp: new Date(),
+          });
+
+          logger.debug(`[send-message-group] Message in group ${groupId}`);
+        } catch (error: any) {
+          logger.error(`[send-message-group] Error: ${error.message}`);
+          socket.emit("error", { message: error.message });
         }
-
-        if (text.length > 500) {
-          socket.emit("error", { message: "Message too long (max 500 chars)" });
-          return;
-        }
-
-        // Verify user is member
-        const group = await Group.findById(groupId);
-        if (!group) {
-          socket.emit("error", { message: "Group not found" });
-          return;
-        }
-
-        const isMember = group.members.some((m: any) => m.userId.toString() === userId);
-        if (!isMember) {
-          socket.emit("error", { message: "Not a member" });
-          return;
-        }
-
-        // Get sender info
-        const sender = await User.findById(userId).select("name avatarUrl").lean();
-
-        // Save to database
-        const message = await ChatMessage.create({
-          groupId,
-          roomType: "group",
-          senderId: userId,
-          text: text.trim(),
-          timestamp: new Date(),
-        });
-
-        // Broadcast to all in group
-        io.to(`group:${groupId}`).emit("new-message-group", {
-          _id: message._id,
-          senderId: userId,
-          senderName: sender?.name,
-          senderAvatar: sender?.avatarUrl,
-          text: message.text,
-          timestamp: new Date(),
-        });
-
-        logger.debug(`[send-message-group] Message in group ${groupId}`);
-      } catch (error: any) {
-        logger.error(`[send-message-group] Error: ${error.message}`);
-        socket.emit("error", { message: error.message });
       }
-    });
+    );
 
     /**
      * Group typing indicator
      */
     socket.on("typing-group", (data: { groupId: string }) => {
       try {
-        socket.to(`group:${data.groupId}`).emit("user-typing-group", { userId });
+        socket
+          .to(`group:${data.groupId}`)
+          .emit("user-typing-group", { userId });
         logger.debug(`[typing-group] ${userId} typing in group`);
       } catch (error: any) {
         logger.error(`[typing-group] Error: ${error.message}`);
@@ -517,7 +566,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
     socket.on("stop-typing-group", (data: { groupId: string }) => {
       try {
-        socket.to(`group:${data.groupId}`).emit("user-stop-typing-group", { userId });
+        socket
+          .to(`group:${data.groupId}`)
+          .emit("user-stop-typing-group", { userId });
       } catch (error: any) {
         logger.error(`[stop-typing-group] Error: ${error.message}`);
       }
@@ -561,56 +612,113 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     /**
      * Send message in private chat
      */
-    socket.on("send-message-private", async (data: { roomId: string; text: string }) => {
-      try {
-        const { roomId, text } = data;
+    socket.on(
+      "send-message-private",
+      async (data: { roomId: string; text: string }) => {
+        try {
+          const { roomId, text } = data;
 
-        if (!text || text.trim().length === 0) {
-          socket.emit("error", { message: "Message cannot be empty" });
-          return;
+          if (!text || text.trim().length === 0) {
+            socket.emit("error", {
+              message: "Message cannot be empty",
+            });
+            return;
+          }
+
+          if (text.length > 500) {
+            socket.emit("error", {
+              message: "Message too long (max 500 chars)",
+            });
+            return;
+          }
+
+          // Get chat room to find receiver
+          const chatRoom = await PrivateChatRoom.findOne({ roomId });
+          if (!chatRoom) {
+            socket.emit("error", { message: "Chat room not found" });
+            return;
+          }
+
+          // Determine receiver (the other user in the room)
+          const receiverId =
+            chatRoom.user1.toString() === userId
+              ? chatRoom.user2.toString()
+              : chatRoom.user1.toString();
+
+          // Get sender info
+          const sender = await User.findById(userId)
+            .select("name avatarUrl")
+            .lean();
+
+          // Save to database
+          const message = await ChatMessage.create({
+            privateRoomId: roomId,
+            roomType: "private",
+            senderId: userId,
+            text: text.trim(),
+            timestamp: new Date(),
+          });
+
+          // Update PrivateChatRoom with last message AND increment unread for receiver
+          await PrivateChatRoom.updateOne(
+            { roomId },
+            {
+              lastMessage: text.trim(),
+              lastMessageAt: new Date(),
+              $inc: { [`unreadCount.${receiverId}`]: 1 }, // Increment receiver's unread count
+            }
+          );
+
+          // Get updated unread count for receiver
+          const updatedRoom = await PrivateChatRoom.findOne({ roomId }).lean();
+          const receiverUnreadCount =
+            (updatedRoom?.unreadCount as any)?.get?.(receiverId) || 0;
+
+          // Calculate total unread for receiver
+          const receiverConversations = await PrivateChatRoom.find({
+            $or: [{ user1: receiverId }, { user2: receiverId }],
+          }).lean();
+
+          let receiverTotalUnread = 0;
+          for (const conv of receiverConversations) {
+            receiverTotalUnread +=
+              (conv.unreadCount as any)?.get?.(receiverId) || 0;
+          }
+
+          // Broadcast to both users
+          io.to(`private:${roomId}`).emit("new-message-private", {
+            _id: message._id,
+            roomId,
+            senderId: userId,
+            senderName: sender?.name,
+            senderAvatar: sender?.avatarUrl,
+            text: message.text,
+            timestamp: new Date(),
+          });
+
+          // Emit unread count update to receiver only (not sender)
+          io.to(`user:${receiverId}`).emit("unread-count-updated", {
+            roomId,
+            unreadCount: receiverUnreadCount,
+            totalUnread: receiverTotalUnread,
+          });
+
+          logger.debug(`[send-message-private] Message in room ${roomId}`);
+        } catch (error: any) {
+          logger.error(`[send-message-private] Error: ${error.message}`);
+          socket.emit("error", { message: error.message });
         }
-
-        if (text.length > 500) {
-          socket.emit("error", { message: "Message too long (max 500 chars)" });
-          return;
-        }
-
-        // Get sender info
-        const sender = await User.findById(userId).select("name avatarUrl").lean();
-
-        // Save to database
-        const message = await ChatMessage.create({
-          privateRoomId: roomId,
-          roomType: "private",
-          senderId: userId,
-          text: text.trim(),
-          timestamp: new Date(),
-        });
-
-        // Broadcast to both users
-        io.to(`private:${roomId}`).emit("new-message-private", {
-          _id: message._id,
-          roomId,
-          senderId: userId,
-          senderName: sender?.name,
-          senderAvatar: sender?.avatarUrl,
-          text: message.text,
-          timestamp: new Date(),
-        });
-
-        logger.debug(`[send-message-private] Message in room ${roomId}`);
-      } catch (error: any) {
-        logger.error(`[send-message-private] Error: ${error.message}`);
-        socket.emit("error", { message: error.message });
       }
-    });
+    );
 
     /**
      * Private chat typing indicator
      */
     socket.on("typing-private", (data: { roomId: string }) => {
       try {
-        socket.to(`private:${data.roomId}`).emit("user-typing-private", { userId });
+        socket
+          .to(`private:${data.roomId}`)
+          .emit("user-typing-private", { userId });
         logger.debug(`[typing-private] ${userId} typing in private chat`);
       } catch (error: any) {
         logger.error(`[typing-private] Error: ${error.message}`);
@@ -619,9 +727,66 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
     socket.on("stop-typing-private", (data: { roomId: string }) => {
       try {
-        socket.to(`private:${data.roomId}`).emit("user-stop-typing-private", { userId });
+        socket
+          .to(`private:${data.roomId}`)
+          .emit("user-stop-typing-private", { userId });
       } catch (error: any) {
         logger.error(`[stop-typing-private] Error: ${error.message}`);
+      }
+    });
+
+    /**
+     * Mark messages as read in a private chat
+     */
+    socket.on("mark-messages-read", async (data: { roomId: string }) => {
+      try {
+        const { roomId } = data;
+
+        logger.debug(
+          `[mark-messages-read] User ${userId} marking room ${roomId} as read`
+        );
+
+        const chatRoom = await PrivateChatRoom.findOne({ roomId });
+        if (!chatRoom) {
+          socket.emit("error", { message: "Chat room not found" });
+          return;
+        }
+
+        // Verify user is participant
+        const isParticipant =
+          chatRoom.user1.toString() === userId ||
+          chatRoom.user2.toString() === userId;
+        if (!isParticipant) {
+          socket.emit("error", { message: "Not a participant" });
+          return;
+        }
+
+        // Reset unread count for this user
+        await PrivateChatRoom.updateOne(
+          { roomId },
+          { $set: { [`unreadCount.${userId}`]: 0 } }
+        );
+
+        // Calculate new total unread for this user
+        const allConversations = await PrivateChatRoom.find({
+          $or: [{ user1: userId }, { user2: userId }],
+        }).lean();
+
+        let totalUnread = 0;
+        for (const conv of allConversations) {
+          if (conv.roomId === roomId) continue; // Skip current room (already 0)
+          totalUnread += (conv.unreadCount as any)?.get?.(userId) || 0;
+        }
+
+        // Emit updated total unread to this user
+        socket.emit("total-unread-updated", { totalUnread });
+
+        logger.debug(
+          `[mark-messages-read] Room ${roomId} marked as read, total unread: ${totalUnread}`
+        );
+      } catch (error: any) {
+        logger.error(`[mark-messages-read] Error: ${error.message}`);
+        socket.emit("error", { message: error.message });
       }
     });
 
@@ -645,8 +810,6 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
   return io;
 };
 
-
-
 /**
  * Send notification to specific user via Socket.io
  */
@@ -654,7 +817,16 @@ export const sendNotificationToUser = (
   io: SocketIOServer | null,
   userId: string,
   notification: {
-    type: "like" | "comment" | "follow" | "unfollow" | "ride" | "event" | "group" | "mentor" | "tag";
+    type:
+      | "like"
+      | "comment"
+      | "follow"
+      | "unfollow"
+      | "ride"
+      | "event"
+      | "group"
+      | "mentor"
+      | "tag";
     message: string;
     fromUserId?: string;
     fromUserName?: string;
@@ -704,12 +876,20 @@ export const sendNotificationToUser = (
 //   );
 // };
 
-
 export const sendNotificationToUsers = (
   io: SocketIOServer | null,
   userIds: string[],
   notification: {
-    type: "like" | "comment" | "follow" | "unfollow" | "ride" | "event" | "group" | "mentor" | "tag";
+    type:
+      | "like"
+      | "comment"
+      | "follow"
+      | "unfollow"
+      | "ride"
+      | "event"
+      | "group"
+      | "mentor"
+      | "tag";
     message: string;
   }
 ) => {
