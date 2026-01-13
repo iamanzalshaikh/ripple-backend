@@ -563,14 +563,31 @@ export const getPrivateConversations = (
         $or: [{ user1: userId }, { user2: userId }],
       });
 
-      const enriched = conversations.map((conv: any) => {
-        const otherUser =
-          conv.user1._id.toString() === userId ? conv.user2 : conv.user1;
-        return {
-          ...conv,
-          otherUser,
-        };
-      });
+      // Enrich conversations with last message from ChatMessage collection
+      const enriched = await Promise.all(
+        conversations.map(async (conv: any) => {
+          const otherUser =
+            conv.user1._id.toString() === userId ? conv.user2 : conv.user1;
+
+          // Fetch the latest message for this room from ChatMessage collection
+          const lastMessage = await ChatMessage.findOne({
+            privateRoomId: conv.roomId,
+            roomType: "private",
+          })
+            .sort({ timestamp: -1 })
+            .select("text timestamp")
+            .lean();
+
+          // Use fetched lastMessage if available, otherwise use what's in PrivateChatRoom
+          return {
+            ...conv,
+            otherUser,
+            lastMessage: lastMessage?.text || conv.lastMessage || null,
+            lastMessageAt: lastMessage?.timestamp || conv.lastMessageAt || null,
+            unreadCount: (conv.unreadCount as any)?.get?.(userId) || 0,
+          };
+        })
+      );
 
       res.json({
         success: true,
@@ -624,6 +641,92 @@ export const deletePrivateChat = (req: AuthRequest, res: Response): void => {
       });
     } catch (error: any) {
       logger.error(`[deletePrivateChat] Error: ${error.message}`);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  })();
+};
+
+/**
+ * GET /api/v1/chat/private/unread-count
+ * Get total unread message count across all conversations
+ */
+export const getTotalUnreadCount = (req: AuthRequest, res: Response): void => {
+  (async () => {
+    try {
+      const userId = req.userId!;
+
+      logger.info(`[getTotalUnreadCount] Fetching for user ${userId}`);
+
+      const conversations = await PrivateChatRoom.find({
+        $or: [{ user1: userId }, { user2: userId }],
+      }).lean();
+
+      let totalUnread = 0;
+      for (const conv of conversations) {
+        const unread = (conv.unreadCount as any)?.get?.(userId) || 0;
+        totalUnread += unread;
+      }
+
+      res.json({
+        success: true,
+        data: { totalUnread },
+      });
+    } catch (error: any) {
+      logger.error(`[getTotalUnreadCount] Error: ${error.message}`);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  })();
+};
+
+/**
+ * POST /api/v1/chat/private/:roomId/mark-read
+ * Mark all messages in a room as read for current user
+ */
+export const markMessagesAsRead = (req: AuthRequest, res: Response): void => {
+  (async () => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.userId!;
+
+      logger.info(
+        `[markMessagesAsRead] User ${userId} marking room ${roomId} as read`
+      );
+
+      const chatRoom = await PrivateChatRoom.findOne({ roomId });
+      if (!chatRoom) {
+        res.status(404).json({ success: false, error: "Chat room not found" });
+        return;
+      }
+
+      const isParticipant =
+        chatRoom.user1.toString() === userId ||
+        chatRoom.user2.toString() === userId;
+      if (!isParticipant) {
+        res.status(403).json({ success: false, error: "Not a participant" });
+        return;
+      }
+
+      await PrivateChatRoom.updateOne(
+        { roomId },
+        { $set: { [`unreadCount.${userId}`]: 0 } }
+      );
+
+      const allConversations = await PrivateChatRoom.find({
+        $or: [{ user1: userId }, { user2: userId }],
+      }).lean();
+
+      let totalUnread = 0;
+      for (const conv of allConversations) {
+        if (conv.roomId === roomId) continue;
+        totalUnread += (conv.unreadCount as any)?.get?.(userId) || 0;
+      }
+
+      res.json({
+        success: true,
+        data: { totalUnread },
+      });
+    } catch (error: any) {
+      logger.error(`[markMessagesAsRead] Error: ${error.message}`);
       res.status(500).json({ success: false, error: error.message });
     }
   })();

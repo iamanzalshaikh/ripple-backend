@@ -1,14 +1,15 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPrivateChatRoom extends Document {
   _id: mongoose.Types.ObjectId;
   roomId: string; // user1_user2 format (sorted)
   user1: mongoose.Types.ObjectId;
   user2: mongoose.Types.ObjectId;
-  context?: 'marketplace' | 'mentor' | 'general';
+  context?: "marketplace" | "mentor" | "general";
   contextId?: mongoose.Types.ObjectId; // For item/mentor reference
   lastMessage?: string;
   lastMessageAt?: Date;
+  unreadCount?: Map<string, number>; // { userId: unreadCount }
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,37 +20,42 @@ const PrivateChatRoomSchema = new Schema<IPrivateChatRoom>(
       type: String,
       unique: true,
       index: true,
-      required: true
+      required: true,
     },
     user1: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: "User",
+      required: true,
     },
     user2: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: "User",
+      required: true,
     },
     context: {
       type: String,
-      enum: ['marketplace', 'mentor', 'general'],
-      default: 'general'
+      enum: ["marketplace", "mentor", "general"],
+      default: "general",
     },
     contextId: {
       type: Schema.Types.ObjectId,
-      sparse: true
+      sparse: true,
     },
     lastMessage: String,
     lastMessageAt: Date,
+    unreadCount: {
+      type: Map,
+      of: Number,
+      default: () => new Map(),
+    },
     createdAt: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
     updatedAt: {
       type: Date,
-      default: Date.now
-    }
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );
@@ -57,4 +63,7 @@ const PrivateChatRoomSchema = new Schema<IPrivateChatRoom>(
 PrivateChatRoomSchema.index({ user1: 1, user2: 1 });
 PrivateChatRoomSchema.index({ roomId: 1 });
 
-export default mongoose.model<IPrivateChatRoom>('PrivateChatRoom', PrivateChatRoomSchema);
+export default mongoose.model<IPrivateChatRoom>(
+  "PrivateChatRoom",
+  PrivateChatRoomSchema
+);
