@@ -49,26 +49,30 @@
 
 // export default router;
 
-
-
-import express, { Router } from 'express';
+import express, { Router } from "express";
 import {
   startPrivateChat,
   getPrivateChatMessages,
   sendPrivateMessage,
   getPrivateConversations,
-  deletePrivateChat
-} from '../controllers/private.controller.js';
-import isAuth from '../middlewares/auth.middleware.js';
+  deletePrivateChat,
+  getTotalUnreadCount,
+  markMessagesAsRead,
+} from "../controllers/private.controller.js";
+import isAuth from "../middlewares/auth.middleware.js";
 
 const router: Router = express.Router();
 
 // router.use(isAuth);
 
-router.post('/private/start/:targetUserId', isAuth, startPrivateChat as any);
-router.get('/private/:roomId/messages', isAuth, getPrivateChatMessages as any);
-router.post('/private/:roomId/send', isAuth, sendPrivateMessage as any);
-router.get('/private/conversations', isAuth, getPrivateConversations as any);
-router.delete('/private/:roomId', isAuth, deletePrivateChat as any);
+router.post("/private/start/:targetUserId", isAuth, startPrivateChat as any);
+router.get("/private/:roomId/messages", isAuth, getPrivateChatMessages as any);
+router.post("/private/:roomId/send", isAuth, sendPrivateMessage as any);
+router.get("/private/conversations", isAuth, getPrivateConversations as any);
+router.delete("/private/:roomId", isAuth, deletePrivateChat as any);
+
+// Unread count routes
+router.get("/private/unread-count", isAuth, getTotalUnreadCount as any);
+router.post("/private/:roomId/mark-read", isAuth, markMessagesAsRead as any);
 
 export default router;
