@@ -84,12 +84,12 @@ const listingSchema = new Schema<
       type: [String],
       default: [],
       validate: {
-        validator: function (arr: string[]) {
+        validator: function (this: IListingDocument, arr: string[]) {
           return arr.length <= 5;
         },
         message: "Cannot upload more than 5 images",
       },
-    },
+    } as any,
     status: {
       type: String,
       enum: {
@@ -146,9 +146,12 @@ listingSchema.index({ location: 1, status: 1 }, { name: "location_status" });
 // METHODS
 // ============================================
 
-listingSchema.methods.toJSON = function () {
+listingSchema.methods.toJSON = function (): Partial<IListing> {
   const obj = this.toObject();
-  return obj;
+  return {
+    ...obj,
+    _id: obj._id.toString(),
+  } as Partial<IListing>;
 };
 
 // ============================================
