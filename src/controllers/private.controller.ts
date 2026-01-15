@@ -395,15 +395,17 @@ export const getPrivateChatMessages = (
         `[getPrivateChatMessages] Fetching messages for room ${roomId}`
       );
 
-      const chatRoom = await PrivateChatRoom.findOne({ roomId });
+      const chatRoom = await PrivateChatRoom.findOne({ roomId })
+        .populate("user1", "name avatarUrl verified handle")
+        .populate("user2", "name avatarUrl verified handle");
       if (!chatRoom) {
         res.status(404).json({ success: false, error: "Chat room not found" });
         return;
       }
 
       const isParticipant =
-        chatRoom.user1.toString() === userId ||
-        chatRoom.user2.toString() === userId;
+        (chatRoom.user1 as any)._id.toString() === userId ||
+        (chatRoom.user2 as any)._id.toString() === userId;
       if (!isParticipant) {
         res
           .status(403)
