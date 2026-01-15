@@ -13,6 +13,7 @@ import rideEventRoutes from "./rideEvent.routes.js";
 import groupRoutes from "./group.routes.js";
 import chatRoutes from "./chat.routes.js";
 import followRoutes from "./follow.routes.js";
+import marketplaceRoutes from "./marketplace.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -66,5 +67,6 @@ router.use("/rideevents", rideEventRoutes);
 router.use("/groups", groupRoutes);
 router.use("/chat", chatRoutes);
 router.use("/users", followRoutes);
+router.use("/marketplace", marketplaceRoutes);
 
 export default router;
