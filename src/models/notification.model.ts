@@ -1,11 +1,22 @@
 // ==========================================
 // File: src/models/notification.model.ts
 // ==========================================
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'like' | 'comment' | 'follow' | 'ride' | 'event' | 'group' | 'mentor' | 'ride_share' | 'tag';
+  type:
+    | "like"
+    | "comment"
+    | "follow"
+    | "ride"
+    | "event"
+    | "group"
+    | "mentor"
+    | "ride_share"
+    | "tag"
+    | "sos"
+    | "chat";
   fromUserId?: mongoose.Types.ObjectId;
   fromUserName?: string;
   postId?: mongoose.Types.ObjectId;
@@ -24,78 +35,90 @@ const notificationSchema = new Schema<INotification>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
-      index: true
+      index: true,
     },
 
     type: {
       type: String,
-      enum: ['like', 'comment', 'follow', 'ride', 'event', 'group', 'mentor', 'ride_share', 'tag'],
-      required: true
+      enum: [
+        "like",
+        "comment",
+        "follow",
+        "ride",
+        "event",
+        "group",
+        "mentor",
+        "ride_share",
+        "tag",
+        "sos",
+        "chat",
+      ],
+      required: true,
     },
 
     fromUserId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      index: true
+      ref: "User",
+      index: true,
     },
 
     fromUserName: {
       type: String,
-      sparse: true
+      sparse: true,
     },
 
     postId: {
       type: Schema.Types.ObjectId,
-      ref: 'Post',
-      sparse: true
+      ref: "Post",
+      sparse: true,
     },
 
     commentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Comment',
-      sparse: true
+      ref: "Comment",
+      sparse: true,
     },
 
     commentText: {
       type: String,
       maxlength: 500,
-      sparse: true
+      sparse: true,
     },
 
     rideEventId: {
       type: Schema.Types.ObjectId,
-      ref: 'RideEvent',
-      sparse: true
+      ref: "RideEvent",
+      sparse: true,
     },
 
     groupId: {
       type: Schema.Types.ObjectId,
-      ref: 'Group',
-      sparse: true
+      ref: "Group",
+      sparse: true,
     },
 
     message: {
       type: String,
       maxlength: 500,
-      required: true
+      required: true,
     },
 
     read: {
       type: Boolean,
       default: false,
-      index: true
+      index: true,
     },
 
     readAt: {
       type: Date,
-      default: null
-    }
+      default: null,
+    },
   },
   {
     timestamps: true,
-    collection: 'notifications'
+    collection: "notifications",
   }
 );
 
@@ -105,5 +128,8 @@ notificationSchema.index({ userId: 1, read: 1, createdAt: -1 });
 notificationSchema.index({ userId: 1, type: 1 });
 notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 }); // 30 days TTL
 
-const Notification = mongoose.model<INotification>('Notification', notificationSchema);
+const Notification = mongoose.model<INotification>(
+  "Notification",
+  notificationSchema
+);
 export default Notification;

@@ -162,7 +162,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             .select("name avatarUrl handle")
             .lean();
 
-          // Emit to followed user's room
+          // Emit to followed user's room (in-app notification)
           io.to(`user:${followedUserId}`).emit("notification", {
             type: "follow",
             id: `notif_${Date.now()}`,
@@ -173,6 +173,23 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             fromUserAvatar: follower?.avatarUrl,
             timestamp: new Date(),
             actionUrl: `/profile/${follower?.handle || followerUserId}`,
+          });
+
+          // Send push notification
+          const { sendPushNotificationToUser } =
+            await import("../services/push-notification.service.js");
+          await sendPushNotificationToUser(followedUserId, {
+            title: "New Follower",
+            body: `${follower?.name || "A user"} started following you`,
+            data: {
+              type: "follow",
+              userId: followerUserId,
+              userName: follower?.name,
+              userHandle: follower?.handle,
+              actionUrl: `/profile/${follower?.handle || followerUserId}`,
+            },
+            sound: "default",
+            badge: 1,
           });
 
           logger.debug(
@@ -359,6 +376,16 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             .select("name avatarUrl")
             .lean();
 
+          // Get ride event to notify all participants
+          const ride = await RideEvent.findById(rideEventId)
+            .select("participants")
+            .lean();
+          const participantIds =
+            ride?.participants
+              .map((p: any) => p.userId.toString())
+              .filter((id: string) => id !== userId) || [];
+
+          // Emit to ride room (in-app notification)
           io.to(`ride:${rideEventId}`).emit("sos-alert", {
             userId,
             userName: user?.name,
@@ -367,6 +394,26 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             lng,
             message: `🚨 SOS triggered by ${user?.name}!`,
             timestamp: new Date(),
+          });
+
+          // Send HIGH PRIORITY push notifications to all participants
+          const { sendPushNotificationToUsers } =
+            await import("../services/push-notification.service.js");
+          await sendPushNotificationToUsers(participantIds, {
+            title: "🚨 SOS ALERT",
+            body: `${user?.name || "A rider"} triggered an emergency alert!`,
+            data: {
+              type: "sos",
+              rideEventId,
+              userId,
+              userName: user?.name,
+              lat,
+              lng,
+              actionUrl: `/rides/live?rideId=${rideEventId}`,
+            },
+            sound: "default",
+            priority: "high", // HIGH PRIORITY for emergencies
+            badge: 1,
           });
 
           logger.warn(
@@ -532,7 +579,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             timestamp: new Date(),
           });
 
-          // Broadcast to all in group
+          // Broadcast to all in group (in-app notification)
           io.to(`group:${groupId}`).emit("new-message-group", {
             _id: message._id,
             senderId: userId,
@@ -541,6 +588,47 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             text: message.text,
             timestamp: new Date(),
           });
+
+          // Send push notifications to all members except sender with batching
+          const memberIds = group.members
+            .map((m: any) => m.userId.toString())
+            .filter((id: string) => id !== userId);
+
+          if (memberIds.length > 0) {
+            const { sendNotification } =
+              await import("../services/notification.service.js");
+
+            // Send to each member individually with batching enabled
+            for (const memberId of memberIds) {
+              try {
+                await sendNotification({
+                  userId: memberId,
+                  type: "chat",
+                  fromUserId: userId,
+                  fromUserName: sender?.name || "Someone",
+                  message: text.trim(),
+                  data: {
+                    groupId,
+                    groupName: group.name,
+                    messageId: message._id.toString(),
+                    actionUrl: `/groups/chat?groupId=${groupId}`,
+                  },
+                  io,
+                  priority: "default",
+                  batching: {
+                    enabled: true,
+                    windowMs: 5000, // 5 second batching window
+                    threadId: `group:${groupId}`,
+                  },
+                });
+              } catch (notifError: any) {
+                logger.error(
+                  `[send-message-group] Failed to send notification to ${memberId}: ${notifError.message}`
+                );
+                // Continue sending to other members
+              }
+            }
+          }
 
           logger.debug(`[send-message-group] Message in group ${groupId}`);
         } catch (error: any) {

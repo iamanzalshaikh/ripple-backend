@@ -5,7 +5,10 @@ import Notification from "../models/notification.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import logger from "../config/logger.js";
 import { v4 as uuidv4 } from "uuid";
-import { sendNotificationToUser, sendNotificationToUsers } from "../config/socket.js";
+import {
+  sendNotificationToUser,
+  sendNotificationToUsers,
+} from "../config/socket.js";
 import { Server as SocketIOServer } from "socket.io";
 
 interface AuthRequest extends Request {
@@ -104,6 +107,7 @@ export const searchGroups = async (
 ): Promise<void> => {
   try {
     const { search = "", privacy, page = 1, limit = 10 } = req.query;
+    const userId = req.userId; // Get current user ID for membership check
 
     let query: any = {};
 
@@ -128,11 +132,21 @@ export const searchGroups = async (
 
     const total = await Group.countDocuments(query);
 
-    const enriched = groups.map((group: any) => ({
-      ...group,
-      memberCount: group.members?.length || 0,
-      requestCount: group.joinRequests?.length || 0,
-    }));
+    // Enhanced enrichment with isMember check for current user
+    const enriched = groups.map((group: any) => {
+      // Check if current user is a member of this group
+      const isMember =
+        group.members?.some(
+          (m: any) => m.userId?.toString() === userId || m.userId === userId
+        ) || false;
+
+      return {
+        ...group,
+        memberCount: group.members?.length || 0,
+        requestCount: group.joinRequests?.length || 0,
+        isMember, // Include membership status for frontend routing
+      };
+    });
 
     logger.info(`[searchGroups] Found ${groups.length} groups`);
 
@@ -286,16 +300,16 @@ export const joinGroup = async (
     // Notify admins via database notifications AND real-time socket
     const admins = group.members.filter((m: any) => m.role === "admin");
     const adminIds: string[] = [];
-    
+
     for (const admin of admins) {
       const adminId = admin.userId.toString();
       adminIds.push(adminId);
-      
+
       // Database notification
       await Notification.create({
         userId: adminId,
         type: "group",
-        message: `${user.name || user.handle || 'A user'} requested to join ${group.name}`,
+        message: `${user.name || user.handle || "A user"} requested to join ${group.name}`,
         read: false,
         relatedId: group._id,
       });
@@ -305,14 +319,14 @@ export const joinGroup = async (
     if (io && adminIds.length > 0) {
       sendNotificationToUsers(io, adminIds, {
         type: "group",
-        message: `${user.name || user.handle || 'A user'} requested to join ${group.name}`,
+        message: `${user.name || user.handle || "A user"} requested to join ${group.name}`,
       });
-      
+
       // Also emit to group room for admins who are in the group chat
       io.to(`group:${id}`).emit("group-join-request", {
         groupId: id,
         requestUserId: userId,
-        requestUserName: user.name || user.handle || 'A user',
+        requestUserName: user.name || user.handle || "A user",
         requestUserAvatar: user.avatarUrl,
         timestamp: new Date(),
       });
@@ -389,7 +403,9 @@ export const approveJoinRequest = async (
     const io = (req.app as any).io as SocketIOServer | null;
 
     // Get requester user details for notification
-    const requesterUser = await User.findById(requestUserId).select("name handle avatarUrl").lean();
+    const requesterUser = await User.findById(requestUserId)
+      .select("name handle avatarUrl")
+      .lean();
 
     // Notify requester via database notification
     await Notification.create({
@@ -412,12 +428,13 @@ export const approveJoinRequest = async (
       const adminIds = group.members
         .filter((m: any) => m.role === "admin")
         .map((m: any) => m.userId.toString());
-      
+
       if (adminIds.length > 0) {
         io.to(`group:${id}`).emit("group-join-request-approved", {
           groupId: id,
           requestUserId,
-          requestUserName: requesterUser?.name || requesterUser?.handle || 'User',
+          requestUserName:
+            requesterUser?.name || requesterUser?.handle || "User",
           approvedBy: adminId,
           timestamp: new Date(),
         });
@@ -489,7 +506,9 @@ export const rejectJoinRequest = async (
     const io = (req.app as any).io as SocketIOServer | null;
 
     // Get requester user details for notification
-    const requesterUser = await User.findById(requestUserId).select("name handle avatarUrl").lean();
+    const requesterUser = await User.findById(requestUserId)
+      .select("name handle avatarUrl")
+      .lean();
 
     // Notify requester via database notification
     await Notification.create({
@@ -512,12 +531,13 @@ export const rejectJoinRequest = async (
       const adminIds = group.members
         .filter((m: any) => m.role === "admin")
         .map((m: any) => m.userId.toString());
-      
+
       if (adminIds.length > 0) {
         io.to(`group:${id}`).emit("group-join-request-rejected", {
           groupId: id,
           requestUserId,
-          requestUserName: requesterUser?.name || requesterUser?.handle || 'User',
+          requestUserName:
+            requesterUser?.name || requesterUser?.handle || "User",
           rejectedBy: adminId,
           timestamp: new Date(),
         });
@@ -571,12 +591,10 @@ export const leaveGroup = async (
       group.members[memberIndex].role === "admin" &&
       group.members.filter((m: any) => m.role === "admin").length === 1;
     if (isLastAdmin) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          error: "Cannot leave: you are the only admin",
-        });
+      res.status(400).json({
+        success: false,
+        error: "Cannot leave: you are the only admin",
+      });
       return;
     }
 
