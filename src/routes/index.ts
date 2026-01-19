@@ -14,6 +14,8 @@ import groupRoutes from "./group.routes.js";
 import chatRoutes from "./chat.routes.js";
 import followRoutes from "./follow.routes.js";
 import marketplaceRoutes from "./marketplace.routes.js";
+import adminAuthRoutes from "./admin.auth.routes.js";
+import adminDashboardRoutes from "./admin.dashboard.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -68,5 +70,9 @@ router.use("/groups", groupRoutes);
 router.use("/chat", chatRoutes);
 router.use("/users", followRoutes);
 router.use("/marketplace", marketplaceRoutes);
+
+// Admin Routes
+router.use("/admin/auth", adminAuthRoutes);
+router.use("/admin/dashboard", adminDashboardRoutes);
 
 export default router;
