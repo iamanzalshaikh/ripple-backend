@@ -914,7 +914,9 @@ export const sendNotificationToUser = (
       | "event"
       | "group"
       | "mentor"
-      | "tag";
+      | "tag"
+      | "sos"
+      | "chat";
     message: string;
     fromUserId?: string;
     fromUserName?: string;

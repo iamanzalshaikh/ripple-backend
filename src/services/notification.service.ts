@@ -25,12 +25,15 @@ export interface SendNotificationOptions {
   userId: string; // Recipient user ID
   type:
     | "follow"
+    | "unfollow"
     | "like"
     | "comment"
     | "tag"
     | "sos"
     | "ride"
+    | "event"
     | "group"
+    | "mentor"
     | "chat";
   fromUserId?: string; // Sender user ID
   fromUserName?: string; // Sender name
@@ -250,7 +253,7 @@ const sendNotificationImmediately = async (
     if (io) {
       try {
         sendSocketNotification(io, userId, {
-          type,
+          type: type as any,
           message,
           fromUserId,
           fromUserName,
