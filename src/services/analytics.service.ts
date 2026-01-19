@@ -208,7 +208,7 @@ export async function getGeographyMetrics(): Promise<GeographyMetrics> {
 
       // Group by state (filter out null/undefined)
       User.aggregate([
-        { $match: { state: { $exists: true, $ne: null, $ne: "" } } },
+        { $match: { state: { $exists: true, $nin: [null, ""] } } },
         {
           $group: {
             _id: "$state",
@@ -220,7 +220,7 @@ export async function getGeographyMetrics(): Promise<GeographyMetrics> {
 
       // Group by city (filter out null/undefined)
       User.aggregate([
-        { $match: { city: { $exists: true, $ne: null, $ne: "" } } },
+        { $match: { city: { $exists: true, $nin: [null, ""] } } },
         {
           $group: {
             _id: "$city",
@@ -232,7 +232,7 @@ export async function getGeographyMetrics(): Promise<GeographyMetrics> {
 
       // Top 10 cities
       User.aggregate([
-        { $match: { city: { $exists: true, $ne: null, $ne: "" } } },
+        { $match: { city: { $exists: true, $nin: [null, ""] } } },
         {
           $group: {
             _id: "$city",
