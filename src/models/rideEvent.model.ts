@@ -212,9 +212,28 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IRideEvent extends Document {
+  // Core metadata
   title: string;
   description?: string;
   organizerId: mongoose.Types.ObjectId;
+
+  // Events & Tours specific metadata
+  sponsor?: string; // Brand / partner
+  banner?: string; // Hero image URL
+  itinerary?: string; // Detailed schedule/plan
+  inclusions?: string; // What's included in ticket
+
+  // Monetization
+  privacy: "public" | "private"; // public = free, private = paid
+  price: number; // 0 for free events
+
+  // Categorisation & discovery
+  location?: string; // City / place name (for text search)
+  category?: "city" | "state" | "national" | "brand";
+
+  // Chat/group link
+  chatRoomId?: string;
+
   route: {
     startPoint: {
       type: 'Point';
@@ -241,6 +260,7 @@ export interface IRideEvent extends Document {
   minRidingHours: number;
   bikeTypes?: string[];
   maxParticipants: number;
+
   participants: Array<{
     userId: mongoose.Types.ObjectId;
     status: 'JOINED' | 'ACTIVE' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED';
@@ -260,6 +280,11 @@ export interface IRideEvent extends Document {
     lateJoinReason?: string;
     isNoShow?: boolean;
     noShowReason?: string;
+
+    // Ticketing (paid / private events)
+    ticketId?: string; // Unique ticket/order id
+    qrCode?: string; // QR payload or data URL
+    paymentId?: mongoose.Types.ObjectId; // Reference to Payment document
   }>;
   status: 'SCHEDULED' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
   liveStartedAt?: Date;
@@ -293,6 +318,56 @@ const rideEventSchema = new Schema<IRideEvent>(
       ref: 'User',
       required: true,
       index: true
+    },
+
+    // Events & Tours specific metadata
+    sponsor: {
+      type: String,
+      maxlength: 200,
+      default: null
+    },
+    banner: {
+      type: String,
+      default: null
+    },
+    itinerary: {
+      type: String,
+      default: null
+    },
+    inclusions: {
+      type: String,
+      default: null
+    },
+
+    // Monetization
+    privacy: {
+      type: String,
+      enum: ['public', 'private'],
+      default: 'public',
+      index: true
+    },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+
+    // Categorisation & discovery
+    location: {
+      type: String,
+      index: true,
+      default: null
+    },
+    category: {
+      type: String,
+      enum: ['city', 'state', 'national', 'brand'],
+      default: undefined
+    },
+
+    // Chat / group linkage
+    chatRoomId: {
+      type: String,
+      default: null
     },
 
     // Route details
@@ -395,7 +470,7 @@ const rideEventSchema = new Schema<IRideEvent>(
       max: 200
     },
 
-    // Participants - UPDATED with new fields
+    // Participants - UPDATED with new fields & ticketing
     participants: [
       {
         userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -423,6 +498,11 @@ const rideEventSchema = new Schema<IRideEvent>(
         lateJoinReason: String,
         isNoShow: { type: Boolean, default: false },
         noShowReason: String,
+
+        // Ticketing (paid events)
+        ticketId: { type: String, default: null },
+        qrCode: { type: String, default: null },
+        paymentId: { type: Schema.Types.ObjectId, ref: 'Payment', default: null },
         _id: false
       }
     ],

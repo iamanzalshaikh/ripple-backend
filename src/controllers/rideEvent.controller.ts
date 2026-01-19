@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import RideEvent from "../models/rideEvent.model.js";
+import Payment from "../models/payment.model.js";
 import RideEventParticipant from "../models/rideEventParticipant.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import User from "../models/user.model.js";
@@ -45,6 +46,7 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         timezone,
         eventType = "ride",
         privacy = "public",
+        price,
       } = req.body;
       const organizerId = req.userId;
 
@@ -86,6 +88,14 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         });
       }
 
+      // Enforce: all private events must have a positive price
+      if (privacy === "private" && (!price || price <= 0)) {
+        return res.status(400).json({
+          success: false,
+          error: "Private events must have a price greater than 0",
+        });
+      }
+
       // ==================== CALCULATE DISTANCE & STATS USING YOUR UTILS ====================
       const totalDistance = calculateDistance(route.polyline);
       const elevation = estimateElevationGain(route.polyline);
@@ -118,6 +128,7 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         timezone: timezone || "Asia/Kolkata",
         eventType,
         privacy,
+        price: privacy === "private" ? price : 0,
         status: "SCHEDULED", // ✅ CHANGED: Auto-scheduled instead of draft
         safetyLevel: "high",
         chatRoomId: `event-${Date.now()}`,
@@ -418,6 +429,14 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
         return res.status(400).json({ success: false, error: "Ride is full" });
       }
 
+      // If event is private, ALWAYS block normal RSVP and force booking flow
+      if (ride.privacy === "private") {
+        return res.status(400).json({
+          success: false,
+          error: "Private event – use booking flow instead",
+        });
+      }
+
       // ride.participants.push({
       //   userId: userId as any,
       //   status: 'rsvp',
@@ -467,6 +486,177 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
       });
     } catch (error: any) {
       logger.error(`[rsvpRideEvent] Error: ${error.message}`);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  })();
+};
+
+/**
+ * POST /api/v1/rideevents/:id/book
+ * Book a seat for a (possibly paid) event.
+ * For now this acts as a mock payment: immediately marks as PAID,
+ * creates ticket + QR payload, and joins the event.
+ */
+export const bookRideEvent = (req: AuthRequest, res: Response): void => {
+  (async () => {
+    try {
+      const { id } = req.params;
+      const userId = req.userId;
+      const { bikeId } = req.body || {};
+
+      logger.info(`[bookRideEvent] User ${userId} booking event ${id}`);
+
+      const ride = await RideEvent.findById(id);
+      if (!ride) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Event not found" });
+      }
+
+      if (ride.status !== "SCHEDULED") {
+        return res.status(400).json({
+          success: false,
+          error: `Event is ${ride.status}, booking closed`,
+        });
+      }
+
+      if (ride.participants.length >= ride.maxParticipants) {
+        return res.status(400).json({
+          success: false,
+          error: "Event is full",
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, error: "User not found" });
+      }
+
+      // Eligibility: verified rider
+      if (!user.verified) {
+        return res
+          .status(403)
+          .json({ success: false, error: "Verification required to join" });
+      }
+
+      const alreadyParticipant = ride.participants.some(
+        (p: any) => p.userId.toString() === userId
+      );
+      if (alreadyParticipant) {
+        return res.status(400).json({
+          success: false,
+          error: "Already joined this event",
+        });
+      }
+
+      const amount = ride.price || 0;
+
+      // Create mock payment marked as PAID immediately (can be replaced with real gateway)
+      const ticketId = `TCKT-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
+      const qrPayload = `event:${ride._id}:user:${userId}:ticket:${ticketId}`;
+
+      const payment = await Payment.create({
+        userId,
+        rideEventId: ride._id,
+        amount,
+        status: "paid",
+        provider: "mock",
+        metadata: {
+          ticketId,
+        },
+      });
+
+      // Join as participant with ticket + QR
+      ride.participants.push({
+        userId: userId as any,
+        status: "JOINED",
+        joinedAt: new Date(),
+        bikeId: bikeId ? (bikeId as any) : undefined,
+        ticketId,
+        qrCode: qrPayload,
+        paymentId: payment._id,
+      } as any);
+
+      await ride.save();
+
+      logger.info(
+        `[bookRideEvent] Booking successful for user ${userId} on event ${id}`
+      );
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          rideEventId: ride._id,
+          ticketId,
+          qrPayload,
+          amount,
+          paymentStatus: payment.status,
+        },
+      });
+    } catch (error: any) {
+      logger.error(`[bookRideEvent] Error: ${error.message}`);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  })();
+};
+
+/**
+ * GET /api/v1/rideevents/:id/pass
+ * Get the current user's event pass (ticket + QR)
+ */
+export const getRideEventPass = (req: AuthRequest, res: Response): void => {
+  (async () => {
+    try {
+      const { id } = req.params;
+      const userId = req.userId;
+
+      const ride = await RideEvent.findById(id).lean();
+      if (!ride) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Event not found" });
+      }
+
+      const participant = ride.participants.find(
+        (p: any) => p.userId.toString() === userId
+      );
+
+      if (!participant) {
+        return res.status(404).json({
+          success: false,
+          error: "You are not a participant in this event",
+        });
+      }
+
+      if (!participant.ticketId || !participant.qrCode) {
+        return res.status(400).json({
+          success: false,
+          error: "No ticket found for this event",
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          event: {
+            id: ride._id,
+            title: ride.title,
+            scheduledAt: ride.scheduledAt,
+            location: (ride as any).location || null,
+          },
+          pass: {
+            ticketId: participant.ticketId,
+            qrPayload: participant.qrCode,
+            status: participant.status,
+          },
+        },
+      });
+    } catch (error: any) {
+      logger.error(`[getRideEventPass] Error: ${error.message}`);
       return res.status(500).json({ success: false, error: error.message });
     }
   })();
