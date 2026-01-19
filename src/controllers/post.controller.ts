@@ -779,14 +779,19 @@ export const likePost = async (req: AuthRequest, res: Response) => {
       if (post.userId.toString() !== userId) {
         const liker = await User.findById(userId).select("name avatar");
 
-        await postQueue.add("send-notification", {
+        const { sendNotification } =
+          await import("../services/notification.service.js");
+        await sendNotification({
+          userId: post.userId.toString(),
           type: "like",
-          userId: post.userId,
-          fromUserId: userId,
+          fromUserId: userId!,
           fromUserName: liker?.name || "Someone",
-          fromUserAvatar: liker?.avatarUrl,
-          postId: post._id,
           message: `${liker?.name || "Someone"} liked your post`,
+          data: {
+            postId: post._id.toString(),
+            actionUrl: `/posts/${post._id}`,
+          },
+          io: (req.app as any).io,
         });
       }
 
@@ -852,16 +857,21 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
     if (post.userId.toString() !== userId) {
       const commenter = await User.findById(userId).select("name avatar");
 
-      await postQueue.add("send-notification", {
+      const { sendNotification } =
+        await import("../services/notification.service.js");
+      await sendNotification({
+        userId: post.userId.toString(),
         type: "comment",
-        userId: post.userId,
-        fromUserId: userId,
+        fromUserId: userId!,
         fromUserName: commenter?.name || "Someone",
-        fromUserAvatar: commenter?.avatarUrl,
-        postId: post._id,
-        commentId: comment._id,
-        commentText: comment.text, // Include actual comment text
         message: `${commenter?.name || "Someone"} commented on your post`,
+        data: {
+          postId: post._id.toString(),
+          commentId: comment._id.toString(),
+          commentText: comment.text,
+          actionUrl: `/posts/${post._id}`,
+        },
+        io: (req.app as any).io,
       });
     }
 
@@ -1003,16 +1013,21 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
     // Send notifications to newly tagged users
     if (newlyTaggedUsers.length > 0) {
       const tagger = await User.findById(userId).select("name avatarUrl");
+      const { sendNotification } =
+        await import("../services/notification.service.js");
 
       for (const taggedUserId of newlyTaggedUsers) {
-        await postQueue.add("send-notification", {
-          type: "tag",
+        await sendNotification({
           userId: taggedUserId,
-          fromUserId: userId,
+          type: "tag",
+          fromUserId: userId!,
           fromUserName: tagger?.name || "Someone",
-          fromUserAvatar: tagger?.avatarUrl,
-          postId: post._id,
           message: `${tagger?.name || "Someone"} tagged you in a post`,
+          data: {
+            postId: post._id.toString(),
+            actionUrl: `/posts/${post._id}`,
+          },
+          io: (req.app as any).io,
         });
       }
     }
