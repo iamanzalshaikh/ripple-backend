@@ -1,11 +1,11 @@
-import { Response } from 'express';
-import User from '../models/user.model.js';
-import Notification from '../models/notification.model.js';
-import { AuthRequest } from '../types/auth.types.js';
-import { IApiResponse } from '../types/index.js';
-import logger from '../config/logger.js';
-import { sendNotificationToUser } from '../config/socket.js';
-import { Server as SocketIOServer } from 'socket.io';
+import { Response } from "express";
+import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
+import { AuthRequest } from "../types/auth.types.js";
+import { IApiResponse } from "../types/index.js";
+import logger from "../config/logger.js";
+import { sendNotificationToUser } from "../config/socket.js";
+import { Server as SocketIOServer } from "socket.io";
 
 /**
  * ============================================
@@ -80,39 +80,31 @@ export const followUser = async (
     userToFollow.followerCount = userToFollow.followers.length;
     await userToFollow.save();
 
-    // STEP 3: Save notification to database
+    // STEP 3: Send notification via unified service
     try {
-      const notification = new Notification({
+      const { sendNotification } =
+        await import("../services/notification.service.js");
+      await sendNotification({
         userId: userIdToFollow,
-        type: 'follow',
+        type: "follow",
         fromUserId: currentUserId,
         fromUserName: currentUser.name,
-        message: `${currentUser.name || 'A user'} started following you`,
-        read: false,
+        message: `${currentUser.name} started following you`,
+        data: {
+          userHandle: currentUser.handle,
+          actionUrl: `/profile/${currentUser.handle || currentUserId}`,
+        },
+        io: (req.app as any).io,
       });
-      await notification.save();
-      logger.info(`[followUser] Notification saved to database for user ${userIdToFollow}`);
+      logger.info(`[followUser] Notification sent via unified service`);
     } catch (notifError: any) {
-      logger.error(`[followUser] Failed to save notification: ${notifError.message}`);
-      // Don't fail the follow operation if notification save fails
+      logger.error(
+        `[followUser] Failed to send notification: ${notifError.message}`
+      );
+      // Don't fail the follow operation if notification fails
     }
 
-    // STEP 4: Send real-time notification via Socket.io
-    const io = (req.app as any).io as SocketIOServer | null;
-    logger.info(`[followUser] Socket.io instance available: ${io ? 'YES' : 'NO'}`);
-    if (io) {
-      logger.info(`[followUser] Sending socket notification to user: ${userIdToFollow}`);
-    }
-    sendNotificationToUser(io, userIdToFollow, {
-      type: 'follow',
-      message: `${currentUser.name || 'A user'} started following you`,
-      fromUserId: currentUserId,
-      fromUserName: currentUser.name,
-    });
-
-    logger.info(
-      `[followUser] ${currentUserId} followed ${userIdToFollow}`
-    );
+    logger.info(`[followUser] ${currentUserId} followed ${userIdToFollow}`);
 
     const response: IApiResponse = {
       success: true,
@@ -249,11 +241,16 @@ export const getFollowers = async (
     const { page = 1, limit = 20 } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string) || 20));
+    const limitNum = Math.min(
+      100,
+      Math.max(1, parseInt(limit as string) || 20)
+    );
     const skip = (pageNum - 1) * limitNum;
 
     // Check if user exists
-    const user = await User.findById(userId).select('followers followerCount name');
+    const user = await User.findById(userId).select(
+      "followers followerCount name"
+    );
     if (!user) {
       res.status(404).json({
         success: false,
@@ -265,11 +262,9 @@ export const getFollowers = async (
     const totalFollowers = user.followerCount || 0;
 
     // Get follower details with pagination
-    const followers = await User.find(
-      { _id: { $in: user.followers } }
-    )
+    const followers = await User.find({ _id: { $in: user.followers } })
       .select(
-        'name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance'
+        "name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance"
       )
       .limit(limitNum)
       .skip(skip)
@@ -326,11 +321,16 @@ export const getFollowing = async (
     const { page = 1, limit = 20 } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string) || 20));
+    const limitNum = Math.min(
+      100,
+      Math.max(1, parseInt(limit as string) || 20)
+    );
     const skip = (pageNum - 1) * limitNum;
 
     // Check if user exists
-    const user = await User.findById(userId).select('following followingCount name');
+    const user = await User.findById(userId).select(
+      "following followingCount name"
+    );
     if (!user) {
       res.status(404).json({
         success: false,
@@ -342,11 +342,9 @@ export const getFollowing = async (
     const totalFollowing = user.followingCount || 0;
 
     // Get following details with pagination
-    const following = await User.find(
-      { _id: { $in: user.following } }
-    )
+    const following = await User.find({ _id: { $in: user.following } })
       .select(
-        'name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance'
+        "name handle avatarUrl bio city ridingLevel isCreator followerCount totalDistance"
       )
       .limit(limitNum)
       .skip(skip)
@@ -409,7 +407,9 @@ export const checkFollowStatus = async (
       return;
     }
 
-    const currentUser = await User.findById(currentUserId).select('following').lean();
+    const currentUser = await User.findById(currentUserId)
+      .select("following")
+      .lean();
     if (!currentUser) {
       res.status(404).json({
         success: false,
@@ -458,7 +458,7 @@ export const getFollowCounts = async (
     const { userId } = req.params;
 
     const user = await User.findById(userId)
-      .select('followerCount followingCount name')
+      .select("followerCount followingCount name")
       .lean();
 
     if (!user) {
@@ -497,7 +497,7 @@ export const getFollowCounts = async (
 function formatUserCard(user: any) {
   return {
     _id: user._id,
-    name: user.name || 'Anonymous',
+    name: user.name || "Anonymous",
     handle: user.handle,
     avatarUrl: user.avatarUrl,
     bio: user.bio,
@@ -508,4 +508,3 @@ function formatUserCard(user: any) {
     totalDistance: user.totalDistance || 0,
   };
 }
-

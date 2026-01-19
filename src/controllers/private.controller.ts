@@ -515,6 +515,40 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         }
       );
 
+      // Send notification with batching
+      const receiverId =
+        chatRoom.user1.toString() === userId
+          ? chatRoom.user2.toString()
+          : chatRoom.user1.toString();
+
+      try {
+        const { sendNotification } =
+          await import("../services/notification.service.js");
+        await sendNotification({
+          userId: receiverId,
+          type: "chat",
+          fromUserId: userId!,
+          fromUserName: sender?.name || "Someone",
+          message: text.trim(),
+          data: {
+            roomId,
+            messageId: message._id.toString(),
+            actionUrl: `/chat/private/${roomId}`,
+          },
+          io: (req.app as any).io,
+          batching: {
+            enabled: true,
+            windowMs: 5000, // 5 second batching window
+            threadId: `private:${roomId}`,
+          },
+        });
+      } catch (notifError: any) {
+        logger.error(
+          `[sendPrivateMessage] Failed to send notification: ${notifError.message}`
+        );
+        // Don't fail the message send if notification fails
+      }
+
       res.status(201).json({
         success: true,
         data: {
