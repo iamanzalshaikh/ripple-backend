@@ -97,6 +97,8 @@ import {
   getMyRideEvents,
   getRideEventDetail,
   rsvpRideEvent,
+  bookRideEvent,
+  getRideEventPass,
   startRideEvent,
   streamRideEventLocation,
   getRideEventLive,
@@ -119,6 +121,8 @@ router.get("/", isAuth, listRideEvents as any);
 router.get("/me", isAuth, getMyRideEvents as any); // Must be before /:id
 router.get("/:id", isAuth, getRideEventDetail as any);
 router.post("/:id/rsvp", isAuth, rsvpRideEvent as any);
+router.post("/:id/book", isAuth, bookRideEvent as any);
+router.get("/:id/pass", isAuth, getRideEventPass as any);
 
 router.post("/:id/start", isAuth, startRideEvent as any);
 router.post("/:id/rider-start", isAuth, riderStartsRide as any); // ← ADD THIS ROUTE
