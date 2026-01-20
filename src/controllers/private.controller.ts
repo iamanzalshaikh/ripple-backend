@@ -515,7 +515,7 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         }
       );
 
-      // Send notification with batching
+      // Send notification (for chat we want it to be as real-time as possible)
       const receiverId =
         chatRoom.user1.toString() === userId
           ? chatRoom.user2.toString()
@@ -536,10 +536,9 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
             actionUrl: `/chat/private/${roomId}`,
           },
           io: (req.app as any).io,
+          // For direct chat, send instantly (no batching delay)
           batching: {
-            enabled: true,
-            windowMs: 5000, // 5 second batching window
-            threadId: `private:${roomId}`,
+            enabled: false,
           },
         });
       } catch (notifError: any) {
