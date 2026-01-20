@@ -2,7 +2,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config/config.js";
 import { AdminRole } from "../models/adminUser.model.js";
 
-const ADMIN_ACCESS_EXPIRES_IN = "1h";
+const ADMIN_ACCESS_EXPIRES_IN = "24h";
 const ADMIN_REFRESH_EXPIRES_IN = "7d";
 
 export interface AdminTokenPayload extends JwtPayload {
@@ -21,7 +21,7 @@ export function signAdminAccessToken(adminId: string, role: AdminRole): string {
 
 export function signAdminRefreshToken(
   adminId: string,
-  role: AdminRole
+  role: AdminRole,
 ): string {
   const payload: AdminTokenPayload = { adminId, role, type: "admin" };
 
@@ -31,12 +31,12 @@ export function signAdminRefreshToken(
 }
 
 export function verifyAdminAccessToken(
-  token: string
+  token: string,
 ): AdminTokenPayload | null {
   try {
     const decoded = jwt.verify(
       token,
-      config.JWT_ADMIN_ACCESS_SECRET!
+      config.JWT_ADMIN_ACCESS_SECRET!,
     ) as AdminTokenPayload;
     if (decoded.type !== "admin" || !decoded.adminId) {
       return null;
@@ -48,12 +48,12 @@ export function verifyAdminAccessToken(
 }
 
 export function verifyAdminRefreshToken(
-  token: string
+  token: string,
 ): AdminTokenPayload | null {
   try {
     const decoded = jwt.verify(
       token,
-      config.JWT_ADMIN_REFRESH_SECRET!
+      config.JWT_ADMIN_REFRESH_SECRET!,
     ) as AdminTokenPayload;
     if (decoded.type !== "admin" || !decoded.adminId) {
       return null;
