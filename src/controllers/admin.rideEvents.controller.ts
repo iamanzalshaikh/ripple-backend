@@ -1,0 +1,269 @@
+import { Response } from "express";
+import { AdminAuthRequest } from "../types/adminAuth.types.js";
+import RideEvent from "../models/rideEvent.model.js";
+import User from "../models/user.model.js";
+import logger from "../config/logger.js";
+
+/**
+ * @route   GET /api/v1/admin/ride-events
+ * @desc    Get all ride events with pagination and filtering
+ * @access  Admin
+ */
+export const getAllRideEvents = async (
+  req: AdminAuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const {
+      page = "1",
+      limit = "10",
+      search = "",
+      status = "",
+      category = "",
+      privacy = "",
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
+
+    logger.info(
+      `[Admin] getAllRideEvents - search: ${search}, status: ${status}`,
+    );
+
+    // Build query
+    const query: any = {};
+
+    // Search by title or location
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by category
+    if (category) {
+      query.category = category;
+    }
+
+    // Filter by privacy
+    if (privacy) {
+      query.privacy = privacy;
+    }
+
+    // Pagination
+    const pageNum = Math.max(1, parseInt(page as string));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string)));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Sorting
+    const sortOptions: any = {};
+    sortOptions[sortBy as string] = sortOrder === "asc" ? 1 : -1;
+
+    // Execute queries in parallel
+    const [rideEvents, total] = await Promise.all([
+      RideEvent.find(query)
+        .populate("organizerId", "name email avatarUrl verified")
+        .select(
+          "title description organizerId route.startPoint route.endPoint route.distance route.difficulty status scheduledAt location category privacy price participants maxParticipants createdAt",
+        )
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      RideEvent.countDocuments(query),
+    ]);
+
+    // Enrich with participant count
+    const enrichedEvents = rideEvents.map((event: any) => ({
+      ...event,
+      participantCount: event.participants.length,
+      spotsAvailable: event.maxParticipants - event.participants.length,
+    }));
+
+    logger.info(
+      `[Admin] getAllRideEvents - Retrieved ${rideEvents.length} of ${total} events`,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        rideEvents: enrichedEvents,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      },
+    });
+  } catch (error: any) {
+    logger.error(`getAllRideEvents error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch ride events",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @route   GET /api/v1/admin/ride-events/:id
+ * @desc    Get ride event by ID with all details
+ * @access  Admin
+ */
+export const getRideEventById = async (
+  req: AdminAuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const rideEvent = await RideEvent.findById(id)
+      .populate(
+        "organizerId",
+        "name email phone avatarUrl verified ridingHours",
+      )
+      .populate("participants.userId", "name email avatarUrl verified")
+      .lean();
+
+    if (!rideEvent) {
+      res.status(404).json({
+        success: false,
+        message: "Ride event not found",
+      });
+      return;
+    }
+
+    // Enrich with additional data
+    const enrichedEvent = {
+      ...rideEvent,
+      participantCount: rideEvent.participants.length,
+      spotsAvailable: rideEvent.maxParticipants - rideEvent.participants.length,
+    };
+
+    res.status(200).json({
+      success: true,
+      data: enrichedEvent,
+    });
+  } catch (error: any) {
+    logger.error(`getRideEventById error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch ride event details",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @route   PATCH /api/v1/admin/ride-events/:id/cancel
+ * @desc    Cancel a ride event
+ * @access  Admin
+ */
+export const cancelRideEvent = async (
+  req: AdminAuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    logger.info(`[Admin] Cancelling ride event ${id}`);
+
+    const rideEvent = await RideEvent.findById(id);
+
+    if (!rideEvent) {
+      res.status(404).json({
+        success: false,
+        message: "Ride event not found",
+      });
+      return;
+    }
+
+    if (rideEvent.status === "CANCELLED") {
+      res.status(400).json({
+        success: false,
+        message: "Ride event is already cancelled",
+      });
+      return;
+    }
+
+    if (rideEvent.status === "COMPLETED") {
+      res.status(400).json({
+        success: false,
+        message: "Cannot cancel a completed ride event",
+      });
+      return;
+    }
+
+    rideEvent.status = "CANCELLED";
+    await rideEvent.save();
+
+    // TODO: Notify all participants about cancellation
+    // TODO: Process refunds if it's a paid event
+
+    logger.info(`[Admin] Ride event ${id} cancelled successfully`);
+
+    res.status(200).json({
+      success: true,
+      message: "Ride event cancelled successfully",
+      data: rideEvent,
+    });
+  } catch (error: any) {
+    logger.error(`cancelRideEvent error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to cancel ride event",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @route   GET /api/v1/admin/ride-events/stats
+ * @desc    Get ride events statistics
+ * @access  Admin
+ */
+export const getRideEventsStats = async (
+  req: AdminAuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const [
+      totalEvents,
+      scheduledEvents,
+      liveEvents,
+      completedEvents,
+      cancelledEvents,
+    ] = await Promise.all([
+      RideEvent.countDocuments(),
+      RideEvent.countDocuments({ status: "SCHEDULED" }),
+      RideEvent.countDocuments({ status: "LIVE" }),
+      RideEvent.countDocuments({ status: "COMPLETED" }),
+      RideEvent.countDocuments({ status: "CANCELLED" }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalEvents,
+        scheduledEvents,
+        liveEvents,
+        completedEvents,
+        cancelledEvents,
+      },
+    });
+  } catch (error: any) {
+    logger.error(`getRideEventsStats error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch ride events statistics",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
