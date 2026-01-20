@@ -16,6 +16,8 @@ import followRoutes from "./follow.routes.js";
 import marketplaceRoutes from "./marketplace.routes.js";
 import adminAuthRoutes from "./admin.auth.routes.js";
 import adminDashboardRoutes from "./admin.dashboard.routes.js";
+import adminUserRoutes from "./admin.users.routes.js";
+import adminRideEventRoutes from "./admin.rideEvents.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -74,5 +76,7 @@ router.use("/marketplace", marketplaceRoutes);
 // Admin Routes
 router.use("/admin/auth", adminAuthRoutes);
 router.use("/admin/dashboard", adminDashboardRoutes);
+router.use("/admin/users", adminUserRoutes);
+router.use("/admin/ride-events", adminRideEventRoutes);
 
 export default router;

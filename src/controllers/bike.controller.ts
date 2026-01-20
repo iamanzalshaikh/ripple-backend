@@ -4,6 +4,7 @@ import { AuthRequest } from "../types/auth.types.js";
 import User from "../models/user.model.js";
 import Bike, { IBike } from "../models/bike.model.js";
 import logger from "../config/logger.js";
+import { uploadOnCloudinary } from "../config/cloudinary.js";
 
 /**
  * POST /api/v1/bikes
@@ -11,7 +12,7 @@ import logger from "../config/logger.js";
  */
 export const addBike = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -52,7 +53,7 @@ export const addBike = async (
 
     const bikeCount = await Bike.countDocuments(
       { userId, status: "active" },
-      { session }
+      { session },
     );
 
     if (bikeCount >= 5) {
@@ -62,6 +63,28 @@ export const addBike = async (
         message: "Maximum 5 bikes allowed",
       });
       return;
+    }
+
+    // Handle image upload if file is provided
+    let uploadedImageUrl: string | undefined;
+    if (req.file) {
+      logger.info(`Uploading bike image to Cloudinary`);
+      try {
+        uploadedImageUrl = await uploadOnCloudinary(
+          req.file.buffer,
+          "bike-images",
+        );
+        logger.info(`✅ Bike image uploaded successfully: ${uploadedImageUrl}`);
+      } catch (uploadError: any) {
+        logger.error(`❌ Cloudinary upload failed: ${uploadError.message}`);
+        await session.abortTransaction();
+        res.status(500).json({
+          success: false,
+          message: "Failed to upload bike image",
+          error: uploadError.message,
+        });
+        return;
+      }
     }
 
     const newBike = new Bike({
@@ -74,7 +97,7 @@ export const addBike = async (
       registrationNumber,
       primary: primary || false,
       notes,
-      imageUrl: imageUrl || undefined,
+      imageUrl: uploadedImageUrl || imageUrl || undefined,
     });
 
     if (bikeCount === 0 || primary === true) {
@@ -82,7 +105,7 @@ export const addBike = async (
       await Bike.updateMany(
         { userId, _id: { $ne: newBike._id } },
         { primary: false },
-        { session }
+        { session },
       );
     }
 
@@ -91,7 +114,7 @@ export const addBike = async (
     await User.findByIdAndUpdate(
       userId,
       { $push: { bikes: newBike._id } },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -119,7 +142,7 @@ export const addBike = async (
  */
 export const getBikes = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -152,7 +175,7 @@ export const getBikes = async (
  */
 export const getBikeById = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -187,10 +210,11 @@ export const getBikeById = async (
 /**
  * Update bike details
  * PATCH /api/v1/bikes/:id
+ * Supports image upload via multipart/form-data
  */
 export const updateBike = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -205,7 +229,6 @@ export const updateBike = async (
       primary,
       mileage,
       notes,
-      imageUrl,
     } = req.body;
 
     logger.info(`Updating bike ${id} for user ${userId}`);
@@ -230,7 +253,27 @@ export const updateBike = async (
     if (registrationNumber) updates.registrationNumber = registrationNumber;
     if (mileage !== undefined) updates.mileage = mileage;
     if (notes !== undefined) updates.notes = notes;
-    if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+
+    // Handle image upload if file is provided
+    if (req.file) {
+      logger.info(`Uploading bike image to Cloudinary for bike ${id}`);
+      try {
+        const imageUrl = await uploadOnCloudinary(
+          req.file.buffer,
+          "bike-images",
+        );
+        updates.imageUrl = imageUrl;
+        logger.info(`✅ Bike image uploaded successfully: ${imageUrl}`);
+      } catch (uploadError: any) {
+        logger.error(`❌ Cloudinary upload failed: ${uploadError.message}`);
+        res.status(500).json({
+          success: false,
+          message: "Failed to upload bike image",
+          error: uploadError.message,
+        });
+        return;
+      }
+    }
 
     // If setting as primary, unset others
     if (primary === true) {
@@ -266,7 +309,7 @@ export const updateBike = async (
  */
 export const setPrimaryBike = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -291,7 +334,7 @@ export const setPrimaryBike = async (
     const updatedBike = await Bike.findByIdAndUpdate(
       id,
       { primary: true },
-      { new: true }
+      { new: true },
     );
 
     logger.info(`✅ Primary bike set: ${id}`);
@@ -383,7 +426,7 @@ export const setPrimaryBike = async (
 
 export const deleteBike = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -409,7 +452,7 @@ export const deleteBike = async (
     const deletedBike = await Bike.findByIdAndUpdate(
       id,
       { status: "archived" },
-      { new: true, session }
+      { new: true, session },
     );
 
     // Remove from user's bikes array WITH SESSION
@@ -419,7 +462,7 @@ export const deleteBike = async (
     const primaryBike = await Bike.findOne(
       { userId, primary: true, status: "active" },
       null,
-      { session }
+      { session },
     );
 
     if (!primaryBike) {
@@ -463,7 +506,7 @@ export const deleteBike = async (
  */
 export const getPrimaryBike = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -504,7 +547,7 @@ export const getPrimaryBike = async (
  */
 export const getBikeCount = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;

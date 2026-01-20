@@ -325,7 +325,7 @@ export const startPrivateChat = (req: AuthRequest, res: Response): void => {
       const { context = "general", contextId } = req.body;
 
       logger.info(
-        `[startPrivateChat] User ${userId} starting chat with ${targetUserId}`
+        `[startPrivateChat] User ${userId} starting chat with ${targetUserId}`,
       );
 
       if (userId === targetUserId) {
@@ -383,7 +383,7 @@ export const startPrivateChat = (req: AuthRequest, res: Response): void => {
  */
 export const getPrivateChatMessages = (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): void => {
   (async () => {
     try {
@@ -392,7 +392,7 @@ export const getPrivateChatMessages = (
       const { page = 1, limit = 50 } = req.query;
 
       logger.info(
-        `[getPrivateChatMessages] Fetching messages for room ${roomId}`
+        `[getPrivateChatMessages] Fetching messages for room ${roomId}`,
       );
 
       const chatRoom = await PrivateChatRoom.findOne({ roomId })
@@ -433,9 +433,25 @@ export const getPrivateChatMessages = (
         roomType: "private",
       });
 
+      // Determine the opposite party (the other user in the conversation)
+      const oppositeParty =
+        (chatRoom.user1 as any)._id.toString() === userId
+          ? chatRoom.user2
+          : chatRoom.user1;
+
       res.json({
         success: true,
         data: messages.reverse(),
+        chatRoom: {
+          roomId: chatRoom.roomId,
+          oppositeParty: {
+            _id: (oppositeParty as any)._id,
+            name: (oppositeParty as any).name,
+            avatarUrl: (oppositeParty as any).avatarUrl,
+            verified: (oppositeParty as any).verified,
+            handle: (oppositeParty as any).handle,
+          },
+        },
         pagination: {
           page: pageNum,
           limit: limitNum,
@@ -512,7 +528,7 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         {
           lastMessage: text.trim(),
           lastMessageAt: new Date(),
-        }
+        },
       );
 
       // Send notification with batching
@@ -544,7 +560,7 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         });
       } catch (notifError: any) {
         logger.error(
-          `[sendPrivateMessage] Failed to send notification: ${notifError.message}`
+          `[sendPrivateMessage] Failed to send notification: ${notifError.message}`,
         );
         // Don't fail the message send if notification fails
       }
@@ -574,7 +590,7 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
  */
 export const getPrivateConversations = (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): void => {
   (async () => {
     try {
@@ -622,7 +638,7 @@ export const getPrivateConversations = (
             lastMessageAt: lastMessage?.timestamp || conv.lastMessageAt || null,
             unreadCount: (conv.unreadCount as any)?.get?.(userId) || 0,
           };
-        })
+        }),
       );
 
       res.json({
@@ -725,7 +741,7 @@ export const markMessagesAsRead = (req: AuthRequest, res: Response): void => {
       const userId = req.userId!;
 
       logger.info(
-        `[markMessagesAsRead] User ${userId} marking room ${roomId} as read`
+        `[markMessagesAsRead] User ${userId} marking room ${roomId} as read`,
       );
 
       const chatRoom = await PrivateChatRoom.findOne({ roomId });
@@ -744,7 +760,7 @@ export const markMessagesAsRead = (req: AuthRequest, res: Response): void => {
 
       await PrivateChatRoom.updateOne(
         { roomId },
-        { $set: { [`unreadCount.${userId}`]: 0 } }
+        { $set: { [`unreadCount.${userId}`]: 0 } },
       );
 
       const allConversations = await PrivateChatRoom.find({
