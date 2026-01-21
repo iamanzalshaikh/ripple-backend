@@ -66,7 +66,7 @@ export const addBike = async (
     }
 
     // Handle image upload if file is provided
-    let uploadedImageUrl: string | undefined;
+    let uploadedImageUrl: string | null = null;
     if (req.file) {
       logger.info(`Uploading bike image to Cloudinary`);
       try {
