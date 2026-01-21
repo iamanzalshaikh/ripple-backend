@@ -69,7 +69,7 @@ export const getAllRideEvents = async (
       RideEvent.find(query)
         .populate("organizerId", "name email avatarUrl verified")
         .select(
-          "title description organizerId route.startPoint route.endPoint route.distance route.difficulty status scheduledAt location category privacy price participants maxParticipants createdAt",
+          "title description organizerId route.startPoint route.endPoint route.distance route.difficulty status scheduledAt location category privacy price participants maxParticipants createdAt approved",
         )
         .sort(sortOptions)
         .skip(skip)
@@ -78,11 +78,13 @@ export const getAllRideEvents = async (
       RideEvent.countDocuments(query),
     ]);
 
-    // Enrich with participant count
+    // Enrich with participant count and payment info
     const enrichedEvents = rideEvents.map((event: any) => ({
       ...event,
       participantCount: event.participants.length,
       spotsAvailable: event.maxParticipants - event.participants.length,
+      isPaid: event.privacy === "private" && event.price > 0,
+      entryFee: event.privacy === "private" ? event.price : 0,
     }));
 
     logger.info(
@@ -155,6 +157,126 @@ export const getRideEventById = async (
     res.status(500).json({
       success: false,
       message: "Failed to fetch ride event details",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @route   PATCH /api/v1/admin/ride-events/:id/approve
+ * @desc    Approve a paid ride event
+ * @access  Admin
+ */
+export const approveRideEvent = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    logger.info(`[Admin] Approving ride event ${id}`);
+
+    const rideEvent = await RideEvent.findById(id);
+
+    if (!rideEvent) {
+      res.status(404).json({
+        success: false,
+        message: "Ride event not found",
+      });
+      return;
+    }
+
+    // Only paid events need approval
+    if (rideEvent.privacy !== "private" || rideEvent.price === 0) {
+      res.status(400).json({
+        success: false,
+        message: "Only paid events require approval",
+      });
+      return;
+    }
+
+    if (rideEvent.approved) {
+      res.status(400).json({
+        success: false,
+        message: "Ride event is already approved",
+      });
+      return;
+    }
+
+    rideEvent.approved = true;
+    await rideEvent.save();
+
+    // TODO: Notify organizer about approval
+
+    logger.info(`[Admin] Ride event ${id} approved successfully`);
+
+    res.status(200).json({
+      success: true,
+      message: "Ride event approved successfully",
+      data: rideEvent,
+    });
+  } catch (error: any) {
+    logger.error(`approveRideEvent error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to approve ride event",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @route   PATCH /api/v1/admin/ride-events/:id/reject
+ * @desc    Reject a paid ride event
+ * @access  Admin
+ */
+export const rejectRideEvent = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    logger.info(`[Admin] Rejecting ride event ${id}`);
+
+    const rideEvent = await RideEvent.findById(id);
+
+    if (!rideEvent) {
+      res.status(404).json({
+        success: false,
+        message: "Ride event not found",
+      });
+      return;
+    }
+
+    // Only paid events need approval/rejection
+    if (rideEvent.privacy !== "private" || rideEvent.price === 0) {
+      res.status(400).json({
+        success: false,
+        message: "Only paid events require approval",
+      });
+      return;
+    }
+
+    rideEvent.approved = false;
+    rideEvent.status = "CANCELLED";
+    await rideEvent.save();
+
+    // TODO: Notify organizer about rejection with reason
+
+    logger.info(`[Admin] Ride event ${id} rejected successfully`);
+
+    res.status(200).json({
+      success: true,
+      message: "Ride event rejected successfully",
+      data: rideEvent,
+    });
+  } catch (error: any) {
+    logger.error(`rejectRideEvent error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reject ride event",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
@@ -240,12 +362,20 @@ export const getRideEventsStats = async (
       liveEvents,
       completedEvents,
       cancelledEvents,
+      paidEvents,
+      pendingApproval,
     ] = await Promise.all([
       RideEvent.countDocuments(),
       RideEvent.countDocuments({ status: "SCHEDULED" }),
       RideEvent.countDocuments({ status: "LIVE" }),
       RideEvent.countDocuments({ status: "COMPLETED" }),
       RideEvent.countDocuments({ status: "CANCELLED" }),
+      RideEvent.countDocuments({ privacy: "private", price: { $gt: 0 } }),
+      RideEvent.countDocuments({
+        privacy: "private",
+        price: { $gt: 0 },
+        approved: false,
+      }),
     ]);
 
     res.status(200).json({
@@ -256,6 +386,8 @@ export const getRideEventsStats = async (
         liveEvents,
         completedEvents,
         cancelledEvents,
+        paidEvents,
+        pendingApproval,
       },
     });
   } catch (error: any) {
