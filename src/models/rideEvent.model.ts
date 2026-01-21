@@ -65,7 +65,7 @@
 //       required: true,
 //       index: true
 //     },
-    
+
 //     // Route details
 //     route: {
 //       startPoint: {
@@ -136,11 +136,11 @@
 //         default: 'intermediate'
 //       }
 //     },
-    
+
 //     // Schedule
 //     scheduledAt: { type: Date, required: true, index: true },
 //     timezone: { type: String, default: 'Asia/Kolkata' },
-    
+
 //     // Rules & Requirements
 //     rules: [{ type: String, default: 'Helmet mandatory' }],
 //     minRidingHours: { type: Number, default: 0 },
@@ -151,7 +151,7 @@
 //       min: 2,
 //       max: 200
 //     },
-    
+
 //     // Participants
 //     participants: [
 //       {
@@ -167,7 +167,7 @@
 //         _id: false
 //       }
 //     ],
-    
+
 //     // Status
 
 //     status: {
@@ -184,7 +184,7 @@
 //       lateJoinWindowMinutes: { type: Number, default: 15 },
 //       maxDistanceFromStartKm: { type: Number, default: 2 }
 //     },
-    
+
 //     // Safety & Engagement
 //     safetyLevel: {
 //       type: String,
@@ -205,11 +205,7 @@
 // const RideEvent = mongoose.model<IRideEvent>('RideEvent', rideEventSchema);
 // export default RideEvent;
 
-
-
-
-
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IRideEvent extends Document {
   // Core metadata
@@ -226,6 +222,7 @@ export interface IRideEvent extends Document {
   // Monetization
   privacy: "public" | "private"; // public = free, private = paid
   price: number; // 0 for free events
+  approved: boolean; // Admin approval for paid events
 
   // Categorisation & discovery
   location?: string; // City / place name (for text search)
@@ -236,15 +233,15 @@ export interface IRideEvent extends Document {
 
   route: {
     startPoint: {
-      type: 'Point';
+      type: "Point";
       coordinates: [number, number]; // [lng, lat]
     };
     endPoint: {
-      type: 'Point';
+      type: "Point";
       coordinates: [number, number];
     };
     waypoints?: Array<{
-      type: 'Point';
+      type: "Point";
       coordinates: [number, number];
       name?: string;
     }>;
@@ -252,7 +249,7 @@ export interface IRideEvent extends Document {
     distance: number;
     estimatedDuration: number;
     elevation?: number;
-    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    difficulty: "beginner" | "intermediate" | "advanced";
   };
   scheduledAt: Date;
   timezone: string;
@@ -263,7 +260,7 @@ export interface IRideEvent extends Document {
 
   participants: Array<{
     userId: mongoose.Types.ObjectId;
-    status: 'JOINED' | 'ACTIVE' | 'COMPLETED' | 'NO_SHOW' | 'CANCELLED';
+    status: "JOINED" | "ACTIVE" | "COMPLETED" | "NO_SHOW" | "CANCELLED";
     joinedAt: Date;
     leftAt?: Date;
     bikeId?: mongoose.Types.ObjectId;
@@ -286,7 +283,7 @@ export interface IRideEvent extends Document {
     qrCode?: string; // QR payload or data URL
     paymentId?: mongoose.Types.ObjectId; // Reference to Payment document
   }>;
-  status: 'SCHEDULED' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
+  status: "SCHEDULED" | "LIVE" | "COMPLETED" | "CANCELLED";
   liveStartedAt?: Date;
   liveEndedAt?: Date;
   lateJoinConfig: {
@@ -294,7 +291,7 @@ export interface IRideEvent extends Document {
     lateJoinWindowMinutes: number;
     maxDistanceFromStartKm: number;
   };
-  safetyLevel: 'low' | 'medium' | 'high';
+  safetyLevel: "low" | "medium" | "high";
   badgeRewards?: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -307,67 +304,72 @@ const rideEventSchema = new Schema<IRideEvent>(
       required: true,
       trim: true,
       maxlength: 100,
-      index: true
+      index: true,
     },
     description: {
       type: String,
-      maxlength: 1000
+      maxlength: 1000,
     },
     organizerId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
-      index: true
+      index: true,
     },
 
     // Events & Tours specific metadata
     sponsor: {
       type: String,
       maxlength: 200,
-      default: null
+      default: null,
     },
     banner: {
       type: String,
-      default: null
+      default: null,
     },
     itinerary: {
       type: String,
-      default: null
+      default: null,
     },
     inclusions: {
       type: String,
-      default: null
+      default: null,
     },
 
     // Monetization
     privacy: {
       type: String,
-      enum: ['public', 'private'],
-      default: 'public',
-      index: true
+      enum: ["public", "private"],
+      default: "public",
+      index: true,
     },
     price: {
       type: Number,
       default: 0,
-      min: 0
+      min: 0,
+    },
+    approved: {
+      type: Boolean,
+      default: true, // Public events are auto-approved, paid events need admin approval
+      index: true,
     },
 
     // Categorisation & discovery
     location: {
       type: String,
       index: true,
-      default: null
+      default: null,
     },
     category: {
       type: String,
-      enum: ['city', 'state', 'national', 'brand'],
-      default: undefined
+      enum: ["city", "state", "national", "brand"],
+      default: undefined,
     },
 
     // Chat / group linkage
     chatRoomId: {
       type: String,
-      default: null
+      default: null,
     },
 
     // Route details
@@ -375,9 +377,9 @@ const rideEventSchema = new Schema<IRideEvent>(
       startPoint: {
         type: {
           type: String,
-          enum: ['Point'],
+          enum: ["Point"],
           required: true,
-          default: 'Point'
+          default: "Point",
         },
         coordinates: {
           type: [Number], // [lng, lat]
@@ -393,16 +395,16 @@ const rideEventSchema = new Schema<IRideEvent>(
               );
             },
             message:
-              'Coordinates must be [longitude, latitude] with valid ranges'
-          }
-        }
+              "Coordinates must be [longitude, latitude] with valid ranges",
+          },
+        },
       },
       endPoint: {
         type: {
           type: String,
-          enum: ['Point'],
+          enum: ["Point"],
           required: true,
-          default: 'Point'
+          default: "Point",
         },
         coordinates: {
           type: [Number],
@@ -418,70 +420,70 @@ const rideEventSchema = new Schema<IRideEvent>(
               );
             },
             message:
-              'Coordinates must be [longitude, latitude] with valid ranges'
-          }
-        }
+              "Coordinates must be [longitude, latitude] with valid ranges",
+          },
+        },
       },
       waypoints: [
         {
           type: {
             type: String,
-            enum: ['Point'],
+            enum: ["Point"],
             required: true,
-            default: 'Point'
+            default: "Point",
           },
           coordinates: {
             type: [Number],
-            required: true
+            required: true,
           },
           name: String,
-          _id: false
-        }
+          _id: false,
+        },
       ],
       polyline: [
         {
           lat: { type: Number, required: true },
           lng: { type: Number, required: true },
-          _id: false
-        }
+          _id: false,
+        },
       ],
       distance: { type: Number, required: true },
       estimatedDuration: { type: Number, required: true },
       elevation: { type: Number },
       difficulty: {
         type: String,
-        enum: ['beginner', 'intermediate', 'advanced'],
-        default: 'intermediate'
-      }
+        enum: ["beginner", "intermediate", "advanced"],
+        default: "intermediate",
+      },
     },
 
     // Schedule
     scheduledAt: { type: Date, required: true, index: true },
-    timezone: { type: String, default: 'Asia/Kolkata' },
+    timezone: { type: String, default: "Asia/Kolkata" },
 
     // Rules & Requirements
-    rules: [{ type: String, default: 'Helmet mandatory' }],
+    rules: [{ type: String, default: "Helmet mandatory" }],
     minRidingHours: { type: Number, default: 0 },
     bikeTypes: [String],
     maxParticipants: {
       type: Number,
       default: 50,
       min: 2,
-      max: 200
+      max: 200,
     },
 
     // Participants - UPDATED with new fields & ticketing
     participants: [
       {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
         status: {
           type: String,
-          enum: ['JOINED', 'ACTIVE', 'COMPLETED', 'NO_SHOW', 'CANCELLED'],
-          default: 'JOINED'
+          enum: ["JOINED", "ACTIVE", "COMPLETED", "NO_SHOW", "CANCELLED"],
+          default: "JOINED",
         },
         joinedAt: { type: Date, default: Date.now },
         leftAt: Date,
-        bikeId: { type: Schema.Types.ObjectId, ref: 'Bike' },
+        bikeId: { type: Schema.Types.ObjectId, ref: "Bike" },
         personalStartTime: { type: Date, default: null },
         personalEndTime: { type: Date, default: null },
         liveLocationEnabled: { type: Boolean, default: false },
@@ -491,8 +493,8 @@ const rideEventSchema = new Schema<IRideEvent>(
             name: String,
             phone: String,
             notifiedAt: { type: Date, default: null },
-            _id: false
-          }
+            _id: false,
+          },
         ],
         wasLateJoin: { type: Boolean, default: false },
         lateJoinReason: String,
@@ -502,17 +504,21 @@ const rideEventSchema = new Schema<IRideEvent>(
         // Ticketing (paid events)
         ticketId: { type: String, default: null },
         qrCode: { type: String, default: null },
-        paymentId: { type: Schema.Types.ObjectId, ref: 'Payment', default: null },
-        _id: false
-      }
+        paymentId: {
+          type: Schema.Types.ObjectId,
+          ref: "Payment",
+          default: null,
+        },
+        _id: false,
+      },
     ],
 
     // Status - UPDATED
     status: {
       type: String,
-      enum: ['SCHEDULED', 'LIVE', 'COMPLETED', 'CANCELLED'],
-      default: 'SCHEDULED',
-      index: true
+      enum: ["SCHEDULED", "LIVE", "COMPLETED", "CANCELLED"],
+      default: "SCHEDULED",
+      index: true,
     },
     liveStartedAt: Date,
     liveEndedAt: Date,
@@ -521,25 +527,25 @@ const rideEventSchema = new Schema<IRideEvent>(
     lateJoinConfig: {
       allowLateJoin: { type: Boolean, default: true },
       lateJoinWindowMinutes: { type: Number, default: 15 },
-      maxDistanceFromStartKm: { type: Number, default: 2 }
+      maxDistanceFromStartKm: { type: Number, default: 2 },
     },
 
     // Safety & Engagement
     safetyLevel: {
       type: String,
-      enum: ['low', 'medium', 'high'],
-      default: 'high'
+      enum: ["low", "medium", "high"],
+      default: "high",
     },
-    badgeRewards: [{ type: Schema.Types.ObjectId, ref: 'Badge' }]
+    badgeRewards: [{ type: Schema.Types.ObjectId, ref: "Badge" }],
   },
-  { timestamps: true, collection: 'ride_events' }
+  { timestamps: true, collection: "ride_events" },
 );
 
 // Geospatial index on startPoint
-rideEventSchema.index({ 'route.startPoint': '2dsphere' });
+rideEventSchema.index({ "route.startPoint": "2dsphere" });
 rideEventSchema.index({ organizerId: 1, status: 1 });
 rideEventSchema.index({ scheduledAt: 1, status: 1 });
-rideEventSchema.index({ 'participants.userId': 1 });
+rideEventSchema.index({ "participants.userId": 1 });
 
-const RideEvent = mongoose.model<IRideEvent>('RideEvent', rideEventSchema);
+const RideEvent = mongoose.model<IRideEvent>("RideEvent", rideEventSchema);
 export default RideEvent;
