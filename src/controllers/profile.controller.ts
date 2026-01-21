@@ -57,6 +57,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 export const updateMyProfile = async (req: AuthRequest, res: Response) => {
   const allowedFields = [
     "name",
+    "email",
     "bio",
     "city",
     "state",
@@ -72,12 +73,21 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
   for (const key of allowedFields) {
     if (req.body?.[key] !== undefined) {
       if (key === "ridingStyle") {
-        // ✅ FORCE ARRAY
         updates[key] = Array.isArray(req.body[key])
           ? req.body[key]
           : [req.body[key]];
       } else if (key === "yearsOfExperience") {
         updates[key] = Number(req.body[key]);
+      } else if (key === "email") {
+        const email = String(req.body[key]).trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid email format",
+          });
+        }
+        updates[key] = email;
       } else {
         updates[key] = req.body[key];
       }

@@ -17,21 +17,25 @@ import upload from "../middlewares/upload.middleware.js";
 
 const router: express.Router = express.Router();
 
+// Current user profile
 router.get("/me", isAuth, getMyProfile);
 router.patch("/me", isAuth, updateMyProfile);
-router.get("/:userId", isAuth, getUserProfile);
+
+// Avatar and privacy
 router.patch("/avatar", isAuth, upload.single("avatar"), updateAvatar);
-// router.post("/emergency-contacts", isAuth, addEmergencyContact);
 router.patch("/privacy", isAuth, updatePrivacySettings);
 
 // Push notification token
 router.patch("/push-token", isAuth, updatePushToken);
 
-// Emergency contacts routes
+// Emergency contacts routes (must be before the :userId route)
 router.get("/emergency-contacts", isAuth, getEmergencyContacts);
 router.post("/emergency-contacts", isAuth, addEmergencyContact);
 router.patch("/emergency-contacts/:id", isAuth, updateEmergencyContact);
 router.delete("/emergency-contacts/:id", isAuth, deleteEmergencyContact);
 router.patch("/emergency-contacts-reorder", isAuth, reorderEmergencyContacts);
+
+// Other users' profiles (keep last to avoid catching specific paths)
+router.get("/:userId", isAuth, getUserProfile);
 
 export default router;
