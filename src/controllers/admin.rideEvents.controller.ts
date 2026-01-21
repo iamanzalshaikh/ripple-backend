@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { AdminAuthRequest } from "../types/adminAuth.types.js";
+import { AuthRequest } from "../types/auth.types.js";
 import RideEvent from "../models/rideEvent.model.js";
 import User from "../models/user.model.js";
 import logger from "../config/logger.js";
@@ -10,7 +10,7 @@ import logger from "../config/logger.js";
  * @access  Admin
  */
 export const getAllRideEvents = async (
-  req: AdminAuthRequest,
+  req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
@@ -117,7 +117,7 @@ export const getAllRideEvents = async (
  * @access  Admin
  */
 export const getRideEventById = async (
-  req: AdminAuthRequest,
+  req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
@@ -166,7 +166,7 @@ export const getRideEventById = async (
  * @access  Admin
  */
 export const cancelRideEvent = async (
-  req: AdminAuthRequest,
+  req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
@@ -230,7 +230,7 @@ export const cancelRideEvent = async (
  * @access  Admin
  */
 export const getRideEventsStats = async (
-  req: AdminAuthRequest,
+  req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
