@@ -1,5 +1,3 @@
-
-
 // import { Schema, Document, Model } from "mongoose";
 // import mongoose from "mongoose";
 
@@ -66,20 +64,20 @@
 //       validate: {
 //         async validator(this: IBike) {
 //           if (!this.registrationNumber) return true;
-    
+
 //           const existingBike = await mongoose.model("Bike").findOne({
 //             registrationNumber: this.registrationNumber,
 //             userId: this.userId,
 //             status: "active",
 //             _id: { $ne: this._id },
 //           });
-    
+
 //           return !existingBike;
 //         },
 //         message: "Registration number already exists for this user",
 //       },
 //     },
-    
+
 //     primary: {
 //       type: Boolean,
 //       default: false,
@@ -115,8 +113,8 @@
 // // Compound unique index: userId + registrationNumber (only for active bikes)
 // bikeSchema.index(
 //   { userId: 1, registrationNumber: 1, status: 1 },
-//   { 
-//     unique: true, 
+//   {
+//     unique: true,
 //     sparse: true,
 //     name: "unique_registration_per_user"
 //   }
@@ -143,13 +141,10 @@
 // const Bike = mongoose.model<IBike>("Bike", bikeSchema);
 // export default Bike;
 
-
-
-
 import { Schema, Document, Model } from "mongoose";
 import mongoose from "mongoose";
 
-export interface IBike extends Omit<Document, 'model'> {
+export interface IBike extends Omit<Document, "model"> {
   userId: string;
   brand: string;
   model: string;
@@ -159,7 +154,7 @@ export interface IBike extends Omit<Document, 'model'> {
   registrationNumber?: string;
   primary: boolean;
   mileage?: number;
-  imageUrl?: string;
+  imageUrl?: string | null;
   notes?: string;
   status: "active" | "archived";
   createdAt: Date;
@@ -211,20 +206,20 @@ const bikeSchema = new Schema<IBike>(
       validate: {
         async validator(this: IBike) {
           if (!this.registrationNumber) return true;
-    
+
           const existingBike = await mongoose.model("Bike").findOne({
             registrationNumber: this.registrationNumber,
             userId: this.userId,
             status: "active",
             _id: { $ne: this._id },
           });
-    
+
           return !existingBike;
         },
         message: "Registration number already exists for this user",
       },
     },
-    
+
     primary: {
       type: Boolean,
       default: false,
@@ -254,17 +249,17 @@ const bikeSchema = new Schema<IBike>(
   {
     timestamps: true,
     collection: "bikes",
-  }
+  },
 );
 
 // Compound unique index: userId + registrationNumber (only for active bikes)
 bikeSchema.index(
   { userId: 1, registrationNumber: 1, status: 1 },
-  { 
-    unique: true, 
+  {
+    unique: true,
     sparse: true,
-    name: "unique_registration_per_user"
-  }
+    name: "unique_registration_per_user",
+  },
 );
 
 // Indexes for fast queries
