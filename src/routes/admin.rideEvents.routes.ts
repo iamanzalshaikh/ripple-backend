@@ -2,6 +2,8 @@ import express, { Router } from "express";
 import {
   getAllRideEvents,
   getRideEventById,
+  approveRideEvent,
+  rejectRideEvent,
   cancelRideEvent,
   getRideEventsStats,
 } from "../controllers/admin.rideEvents.controller.js";
@@ -34,6 +36,20 @@ router.get("/", getAllRideEvents);
  * @access  Admin
  */
 router.get("/:id", getRideEventById);
+
+/**
+ * @route   PATCH /api/v1/admin/ride-events/:id/approve
+ * @desc    Approve a paid ride event
+ * @access  Admin
+ */
+router.patch("/:id/approve", approveRideEvent);
+
+/**
+ * @route   PATCH /api/v1/admin/ride-events/:id/reject
+ * @desc    Reject a paid ride event
+ * @access  Admin
+ */
+router.patch("/:id/reject", rejectRideEvent);
 
 /**
  * @route   PATCH /api/v1/admin/ride-events/:id/cancel

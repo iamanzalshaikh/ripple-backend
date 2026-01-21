@@ -18,6 +18,8 @@ import adminAuthRoutes from "./admin.auth.routes.js";
 import adminDashboardRoutes from "./admin.dashboard.routes.js";
 import adminUserRoutes from "./admin.users.routes.js";
 import adminRideEventRoutes from "./admin.rideEvents.routes.js";
+import adminPaymentRoutes from "./admin.payments.routes.js";
+import adminSOSRoutes from "./admin.sos.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -78,5 +80,7 @@ router.use("/admin/auth", adminAuthRoutes);
 router.use("/admin/dashboard", adminDashboardRoutes);
 router.use("/admin/users", adminUserRoutes);
 router.use("/admin/ride-events", adminRideEventRoutes);
+router.use("/admin/payments", adminPaymentRoutes);
+router.use("/admin/sos", adminSOSRoutes);
 
 export default router;
