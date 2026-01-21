@@ -4,9 +4,6 @@
 // import { deleteRide, endRide, getLiveRide, getMyRides, getRideById, pauseRide, resumeRide, startRide, streamChunk } from '../controllers/ride.controller';
 // import isAuth from '../middlewares/auth.middleware';
 
-
-
-
 // const router: Router = express.Router();
 
 // /**
@@ -16,14 +13,14 @@
 // /**
 //  * POST /api/v1/rides/start
 //  * Start a new ride
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
 //  * Body:
 //  * {
 //  *   "bikeId": "bike_id_here",
 //  *   "liveShare": true
 //  * }
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -40,7 +37,7 @@
 //  * PATCH /api/v1/rides/:id/stream
 //  * Stream GPS location chunks during ride
 //  * (Call every 10-30 seconds with new GPS points)
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
 //  * Body:
 //  * {
@@ -57,7 +54,7 @@
 //  *     { ... more points ... }
 //  *   ]
 //  * }
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -74,9 +71,9 @@
 //  * PATCH /api/v1/rides/:id/pause
 //  * Pause active ride
 //  * GPS streaming will be rejected while paused
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -89,9 +86,9 @@
 //  * PATCH /api/v1/rides/:id/resume
 //  * Resume paused ride
 //  * GPS streaming will be accepted again
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -103,13 +100,13 @@
 // /**
 //  * PATCH /api/v1/rides/:id/end
 //  * End ride, calculate stats, trigger background jobs
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
 //  * Body:
 //  * {
 //  *   "privacy": "friends"  // or "private" | "public"
 //  * }
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -133,14 +130,14 @@
 // /**
 //  * GET /api/v1/rides/me
 //  * Get all user rides with pagination
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
 //  * Query Parameters:
 //  * - page: number (default: 1)
 //  * - limit: number (default: 10, max: 50)
-//  * 
+//  *
 //  * Example: GET /api/v1/rides/me?page=1&limit=20
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -174,9 +171,9 @@
 // /**
 //  * GET /api/v1/rides/:id
 //  * Get single ride details (privacy-aware)
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -212,9 +209,9 @@
 //  * GET /api/v1/rides/live/:token
 //  * Public live ride tracking (NO AUTHENTICATION REQUIRED)
 //  * Token expires 24 hours after ride ends
-//  * 
+//  *
 //  * Example: GET /api/v1/rides/live/abc123xyz789
-//  * 
+//  *
 //  * Response (while ride active):
 //  * {
 //  *   "success": true,
@@ -230,7 +227,7 @@
 //  *     "updatedAt": "2024-01-01T13:00:00Z"
 //  *   }
 //  * }
-//  * 
+//  *
 //  * Response (if ride ended):
 //  * {
 //  *   "success": false,
@@ -247,9 +244,9 @@
 // /**
 //  * DELETE /api/v1/rides/:id
 //  * Delete a ride (completed rides only)
-//  * 
+//  *
 //  * Headers: Authorization: Bearer YOUR_TOKEN
-//  * 
+//  *
 //  * Response:
 //  * {
 //  *   "success": true,
@@ -258,17 +255,22 @@
 //  */
 // router.delete('/:id', isAuth, deleteRide);
 
-
-
-
 // export default router;
 
-
-
-
-import express, { Router } from 'express';
-import { deleteRide, endRide, getLiveRide, getMyRides, getRideById, pauseRide, resumeRide, startRide, streamChunk } from '../controllers/ride.controller.js';
-import isAuth from '../middlewares/auth.middleware.js';
+import express, { Router } from "express";
+import {
+  deleteRide,
+  endRide,
+  getActiveRide,
+  getLiveRide,
+  getMyRides,
+  getRideById,
+  pauseRide,
+  resumeRide,
+  startRide,
+  streamChunk,
+} from "../controllers/ride.controller.js";
+import isAuth from "../middlewares/auth.middleware.js";
 
 const router: Router = express.Router();
 
@@ -277,19 +279,20 @@ const wrappedStreamChunk: any = streamChunk;
 const wrappedPauseRide: any = pauseRide;
 const wrappedResumeRide: any = resumeRide;
 const wrappedEndRide: any = endRide;
+const wrappedGetActiveRide: any = getActiveRide;
 const wrappedGetMyRides: any = getMyRides;
 const wrappedGetRideById: any = getRideById;
 const wrappedDeleteRide: any = deleteRide;
 
-router.post('/start', isAuth, wrappedStartRide);
-router.patch('/:id/stream', isAuth, wrappedStreamChunk);
-router.patch('/:id/pause', isAuth, wrappedPauseRide);
-router.patch('/:id/resume', isAuth, wrappedResumeRide);
-router.patch('/:id/end', isAuth, wrappedEndRide);
-router.get('/me', isAuth, wrappedGetMyRides);
-router.get('/:id', isAuth, wrappedGetRideById);
-router.get('/live/:token', getLiveRide);
-router.delete('/:id', isAuth, wrappedDeleteRide);
+router.post("/start", isAuth, wrappedStartRide);
+router.patch("/:id/stream", isAuth, wrappedStreamChunk);
+router.patch("/:id/pause", isAuth, wrappedPauseRide);
+router.patch("/:id/resume", isAuth, wrappedResumeRide);
+router.patch("/:id/end", isAuth, wrappedEndRide);
+router.get("/active", isAuth, wrappedGetActiveRide); // Must be before /:id route
+router.get("/me", isAuth, wrappedGetMyRides);
+router.get("/:id", isAuth, wrappedGetRideById);
+router.get("/live/:token", getLiveRide);
+router.delete("/:id", isAuth, wrappedDeleteRide);
 
 export default router;
-
