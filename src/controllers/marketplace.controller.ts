@@ -4,6 +4,7 @@ import { AuthRequest } from "../types/auth.types.js";
 import Listing from "../models/listing.model.js";
 import User from "../models/user.model.js";
 import PrivateChatRoom from "../models/private.model.js";
+import ChatMessage from "../models/chatMessage.model.js";
 import logger from "../config/logger.js";
 import { uploadOnCloudinary } from "../config/cloudinary.js";
 
@@ -495,13 +496,16 @@ export const contactSeller = async (
       .populate("user2", "name avatarUrl verified handle");
 
     if (!chatRoom) {
-      // Create new private chat room
+      // Create new private chat room with product context
       chatRoom = new PrivateChatRoom({
         roomId,
         user1: new mongoose.Types.ObjectId([buyerId, sellerId].sort()[0]),
         user2: new mongoose.Types.ObjectId([buyerId, sellerId].sort()[1]),
         context: "marketplace",
         contextId: listing._id,
+        productTitle: listing.title,
+        productImage: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+        productPrice: listing.price,
       });
       await chatRoom.save();
 
@@ -510,6 +514,106 @@ export const contactSeller = async (
       await chatRoom.populate("user2", "name avatarUrl verified handle");
 
       logger.info(`New marketplace chat room created: ${roomId}`);
+
+      // Auto-send product card as first message
+      const existingMessages = await ChatMessage.countDocuments({
+        privateRoomId: roomId,
+        roomType: "private",
+      });
+
+      // Only send if room is empty (no messages yet)
+      if (existingMessages === 0) {
+        try {
+          const productCardMessage = new ChatMessage({
+            privateRoomId: roomId,
+            roomType: "private",
+            senderId: new mongoose.Types.ObjectId(buyerId),
+            receiverId: new mongoose.Types.ObjectId(sellerId),
+            text: "I'm interested in this product",
+            messageType: "product_card",
+            productData: {
+              listingId: listing._id.toString(),
+              title: listing.title,
+              image: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+              price: listing.price,
+            },
+            timestamp: new Date(),
+          });
+          await productCardMessage.save();
+
+          // Update chat room with last message
+          chatRoom.lastMessage = "I'm interested in this product";
+          chatRoom.lastMessageAt = new Date();
+          await chatRoom.save();
+
+          logger.info(`✅ Product card message sent in room: ${roomId}`);
+          logger.info(`   Message ID: ${productCardMessage._id}`);
+          logger.info(`   Product: ${listing.title} (₹${listing.price})`);
+        } catch (error: any) {
+          logger.error(`❌ Failed to send product card message: ${error.message}`);
+          logger.error(`   Error details:`, error);
+          // Don't fail the entire request if product card message fails
+        }
+      } else {
+        logger.info(`Room ${roomId} already has ${existingMessages} messages, skipping product card`);
+      }
+    } else {
+      // Room already exists - check if it needs product card for this listing
+      logger.info(`Room ${roomId} already exists, checking if product card needed...`);
+      
+      // Check if room already has a product card for this listing
+      const existingProductCard = await ChatMessage.findOne({
+        privateRoomId: roomId,
+        roomType: "private",
+        messageType: "product_card",
+        "productData.listingId": listing._id.toString(),
+      });
+
+      // If no product card exists for this listing, send one
+      if (!existingProductCard) {
+        try {
+          const productCardMessage = new ChatMessage({
+            privateRoomId: roomId,
+            roomType: "private",
+            senderId: new mongoose.Types.ObjectId(buyerId),
+            receiverId: new mongoose.Types.ObjectId(sellerId),
+            text: "I'm interested in this product",
+            messageType: "product_card",
+            productData: {
+              listingId: listing._id.toString(),
+              title: listing.title,
+              image: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+              price: listing.price,
+            },
+            timestamp: new Date(),
+          });
+          await productCardMessage.save();
+
+          // Update chat room with last message
+          chatRoom.lastMessage = "I'm interested in this product";
+          chatRoom.lastMessageAt = new Date();
+          await chatRoom.save();
+
+          logger.info(`✅ Product card message sent in existing room: ${roomId}`);
+          logger.info(`   Message ID: ${productCardMessage._id}`);
+          logger.info(`   Product: ${listing.title} (₹${listing.price})`);
+        } catch (error: any) {
+          logger.error(`❌ Failed to send product card message: ${error.message}`);
+          logger.error(`   Error details:`, error);
+        }
+      } else {
+        logger.info(`Product card already exists for listing ${listing._id} in room ${roomId}`);
+      }
+
+      // Update existing room with product context if not already set
+      if (chatRoom.context !== "marketplace" || !chatRoom.contextId) {
+        chatRoom.context = "marketplace";
+        chatRoom.contextId = listing._id;
+        chatRoom.productTitle = listing.title;
+        chatRoom.productImage = listing.media && listing.media.length > 0 ? listing.media[0] : undefined;
+        chatRoom.productPrice = listing.price;
+        await chatRoom.save();
+      }
     }
 
     // TODO: Send notification to seller
@@ -523,6 +627,8 @@ export const contactSeller = async (
         sellerId,
         listingId: listing._id,
         listingTitle: listing.title,
+        productImage: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+        productPrice: listing.price,
         chatRoom, // Include populated chat room data
       },
     });

@@ -417,11 +417,12 @@ export const getPrivateChatMessages = (
       const limitNum = Math.min(100, parseInt(limit as string) || 50);
       const skip = (pageNum - 1) * limitNum;
 
-      // Only fetch messages for this private room
+      // Only fetch messages for this private room (include messageType and productData)
       const messages = await ChatMessage.find({
         privateRoomId: roomId,
         roomType: "private",
       })
+        .select("_id senderId receiverId text messageType productData timestamp createdAt")
         .populate("senderId", "name avatarUrl")
         .sort({ timestamp: -1 })
         .skip(skip)
@@ -617,8 +618,17 @@ export const getPrivateConversations = (
       // Enrich conversations with last message from ChatMessage collection
       const enriched = await Promise.all(
         conversations.map(async (conv: any) => {
-          const otherUser =
+          const otherUserObj =
             conv.user1._id.toString() === userId ? conv.user2 : conv.user1;
+          
+          // Ensure otherUser has proper structure with _id
+          const otherUser = {
+            _id: otherUserObj._id?.toString() || otherUserObj.toString(),
+            name: otherUserObj.name || "Unknown User",
+            avatarUrl: otherUserObj.avatarUrl,
+            verified: otherUserObj.verified,
+            handle: otherUserObj.handle,
+          };
 
           // Fetch the latest message for this room from ChatMessage collection
           const lastMessage = await ChatMessage.findOne({
