@@ -100,6 +100,13 @@ export interface IChatMessage extends Document {
   receiverId?: mongoose.Types.ObjectId; // For private chats
   text: string;
   media?: string[];
+  messageType?: "text" | "product_card"; // Message type
+  productData?: {
+    listingId: string;
+    title: string;
+    image?: string;
+    price: number;
+  };
   timestamp: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -154,6 +161,20 @@ const chatMessageSchema = new Schema<IChatMessage>(
       trim: true,
     },
     media: [String],
+    messageType: {
+      type: String,
+      enum: ["text", "product_card"],
+      default: "text",
+    },
+    productData: {
+      type: {
+        listingId: String,
+        title: String,
+        image: String,
+        price: Number,
+      },
+      _id: false,
+    },
     timestamp: { type: Date, default: Date.now, index: true },
   },
   { timestamps: true, collection: "chat_messages" }
