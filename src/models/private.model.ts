@@ -7,6 +7,10 @@ export interface IPrivateChatRoom extends Document {
   user2: mongoose.Types.ObjectId;
   context?: "marketplace" | "mentor" | "general";
   contextId?: mongoose.Types.ObjectId; // For item/mentor reference
+  // Product context (for marketplace listings)
+  productTitle?: string;
+  productImage?: string;
+  productPrice?: number;
   lastMessage?: string;
   lastMessageAt?: Date;
   unreadCount?: Map<string, number>; // { userId: unreadCount }
@@ -39,6 +43,19 @@ const PrivateChatRoomSchema = new Schema<IPrivateChatRoom>(
     },
     contextId: {
       type: Schema.Types.ObjectId,
+      sparse: true,
+    },
+    // Product context (cached for quick access)
+    productTitle: {
+      type: String,
+      sparse: true,
+    },
+    productImage: {
+      type: String,
+      sparse: true,
+    },
+    productPrice: {
+      type: Number,
       sparse: true,
     },
     lastMessage: String,
