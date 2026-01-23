@@ -27,7 +27,7 @@ export interface PushNotificationPayload {
  * Send push notification to single or multiple users
  */
 export const sendPushNotification = async (
-  payload: PushNotificationPayload
+  payload: PushNotificationPayload,
 ): Promise<void> => {
   try {
     const tokens = Array.isArray(payload.to) ? payload.to : [payload.to];
@@ -98,7 +98,7 @@ export const sendPushNotification = async (
  */
 export const sendPushNotificationToUser = async (
   userId: string,
-  notification: Omit<PushNotificationPayload, "to">
+  notification: Omit<PushNotificationPayload, "to">,
 ): Promise<void> => {
   try {
     const user = await User.findById(userId).select("pushTokens").lean();
@@ -122,7 +122,7 @@ export const sendPushNotificationToUser = async (
  */
 export const sendPushNotificationToUsers = async (
   userIds: string[],
-  notification: Omit<PushNotificationPayload, "to">
+  notification: Omit<PushNotificationPayload, "to">,
 ): Promise<void> => {
   try {
     const users = await User.find({ _id: { $in: userIds } })
@@ -157,7 +157,7 @@ const removeInvalidPushToken = async (token: string): Promise<void> => {
   try {
     await User.updateMany(
       { pushTokens: token },
-      { $pull: { pushTokens: token } }
+      { $pull: { pushTokens: token } },
     );
     logger.info(`[Push] Removed invalid token: ${token}`);
   } catch (error: any) {
@@ -170,7 +170,7 @@ const removeInvalidPushToken = async (token: string): Promise<void> => {
  */
 export const formatNotification = (
   type: string,
-  data: any
+  data: any,
 ): Pick<PushNotificationPayload, "title" | "body"> => {
   switch (type) {
     case "follow":
@@ -187,6 +187,11 @@ export const formatNotification = (
       return {
         title: "New Comment",
         body: `${data.fromUserName} commented: "${data.commentText}"`,
+      };
+    case "tag":
+      return {
+        title: "Tagged in Post",
+        body: `${data.fromUserName} tagged you in a post`,
       };
     case "group":
       return {

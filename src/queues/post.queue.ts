@@ -1,104 +1,104 @@
-
-
-
-import { Queue, Worker } from 'bullmq';
-import Redis from 'ioredis';
-import { Server as SocketIOServer } from 'socket.io';
-import logger from '../config/logger.js';
-import Notification from '../models/notification.model.js';
-import User from '../models/user.model.js';
-import app from '../app.js';
+import { Queue, Worker } from "bullmq";
+import Redis from "ioredis";
+import { Server as SocketIOServer } from "socket.io";
+import logger from "../config/logger.js";
+import Notification from "../models/notification.model.js";
+import User from "../models/user.model.js";
+import app from "../app.js";
+import { sendNotification } from "../services/notification.service.js";
 
 const bullmqRedis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+  host: process.env.REDIS_HOST || "localhost",
+  port: parseInt(process.env.REDIS_PORT || "6379"),
   password: process.env.REDIS_PASSWORD,
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
   retryStrategy: (times) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
-  }
+  },
 });
 
-bullmqRedis.on('connect', () => {
-  logger.info('✅ Post Queue Redis connected');
+bullmqRedis.on("connect", () => {
+  logger.info("✅ Post Queue Redis connected");
 });
 
-bullmqRedis.on('error', (err) => {
-  logger.error('❌ Post Queue Redis error:', err);
+bullmqRedis.on("error", (err) => {
+  logger.error("❌ Post Queue Redis error:", err);
 });
 
-export const postQueue = new Queue('post-processing', {
+export const postQueue = new Queue("post-processing", {
   connection: bullmqRedis,
   defaultJobOptions: {
     attempts: 3,
-    backoff: { type: 'exponential', delay: 2000 },
+    backoff: { type: "exponential", delay: 2000 },
     removeOnComplete: true,
-    removeOnFail: false
-  }
+    removeOnFail: false,
+  },
 });
 
 export const postWorker = new Worker(
-  'post-processing',
+  "post-processing",
   async (job) => {
     logger.info(`[WORKER] Processing job: ${job.name} (ID: ${job.id})`);
 
     try {
       const io = (app as any).io as SocketIOServer | null;
 
-      if (job.name === 'send-notification') {
-        const { type, userId, fromUserId, fromUserName, fromUserAvatar, postId, commentId, commentText, message } = job.data;
+      if (job.name === "send-notification") {
+        const {
+          type,
+          userId,
+          fromUserId,
+          fromUserName,
+          fromUserAvatar,
+          postId,
+          commentId,
+          commentText,
+          message,
+        } = job.data;
 
-        logger.info(`[send-notification] Creating notification for user ${userId}`);
+        logger.info(
+          `[send-notification] Creating notification for user ${userId}`,
+        );
 
         if (userId === fromUserId) {
           logger.info(`[send-notification] Skipping self-notification`);
           return { skipped: true };
         }
 
-        const notification = await Notification.create({
+        // Use unified notification service for DB + Socket.io + Push notifications
+        await sendNotification({
           userId,
-          type,
+          type: type as any,
           fromUserId,
-          postId: postId || null,
-          commentId: commentId || null,
-          commentText: commentText || null, // Store comment text for comment notifications
-          message: message || 'New activity',
-          read: false
-        });
-
-        logger.info(`[send-notification] Notification ${notification._id} saved to DB`);
-
-        if (io) {
-          io.to(`user:${userId}`).emit('notification', {
-            _id: notification._id,
-            type,
-            fromUserId,
-            fromUserName,
-            fromUserAvatar,
+          fromUserName,
+          message: message || "New activity",
+          data: {
             postId,
             commentId,
-            commentText: commentText || null, // Include comment text in real-time notification
-            message,
-            timestamp: new Date(),
-            read: false
-          });
+            commentText,
+            fromUserAvatar,
+          },
+          io,
+          priority: type === "sos" ? "high" : "default",
+        });
 
-          logger.info(`[send-notification] Real-time notification sent to user ${userId}`);
-        } else {
-          logger.warn(`[send-notification] Socket.io not available, only saved to DB`);
-        }
+        logger.info(
+          `[send-notification] Unified notification sent to user ${userId} (DB + Socket + Push)`,
+        );
 
-        return { notified: true, realtime: !!io, dbSaved: true };
+        return { notified: true, unified: true };
       }
 
-      if (job.name === 'notify-followers') {
+      if (job.name === "notify-followers") {
         const { postId, userId, userName, userAvatar } = job.data;
 
-        logger.info(`[notify-followers] User ${userId} shared a post, notifying followers`);
+        logger.info(
+          `[notify-followers] User ${userId} shared a post, notifying followers`,
+        );
 
-        const user = await User.findById(userId).select('followers');
+        const user = await User.findById(userId).select("followers");
         if (!user || !user.followers || user.followers.length === 0) {
           logger.info(`[notify-followers] User ${userId} has no followers`);
           return { notified: 0 };
@@ -109,33 +109,39 @@ export const postWorker = new Worker(
 
         const notifications = followerIds.map((followerId) => ({
           userId: followerId,
-          type: 'ride_share',
+          type: "ride_share",
           fromUserId: userId,
           postId,
           message: `${userName} shared a new post`,
-          read: false
+          read: false,
         }));
 
         await Notification.insertMany(notifications);
-        logger.info(`[notify-followers] Created ${notifications.length} notifications in DB`);
+        logger.info(
+          `[notify-followers] Created ${notifications.length} notifications in DB`,
+        );
 
         if (io) {
           followerIds.forEach((followerId) => {
-            io.to(`user:${followerId}`).emit('notification', {
-              type: 'ride_share',
+            io.to(`user:${followerId}`).emit("notification", {
+              type: "ride_share",
               fromUserId: userId,
               fromUserName: userName,
               fromUserAvatar: userAvatar,
               postId,
               message: `${userName} shared a new post`,
               timestamp: new Date(),
-              read: false
+              read: false,
             });
           });
 
-          logger.info(`[notify-followers] Real-time notifications sent to ${followerIds.length} followers`);
+          logger.info(
+            `[notify-followers] Real-time notifications sent to ${followerIds.length} followers`,
+          );
         } else {
-          logger.warn(`[notify-followers] Socket.io not available, only saved to DB`);
+          logger.warn(
+            `[notify-followers] Socket.io not available, only saved to DB`,
+          );
         }
 
         return { notified: followerIds.length, realtime: !!io };
@@ -155,21 +161,21 @@ export const postWorker = new Worker(
       stalledInterval: 5000,
       maxRetriesPerSecond: 100,
       lockDuration: 30000,
-      lockRenewTime: 15000
-    } as any
-  }
+      lockRenewTime: 15000,
+    } as any,
+  },
 );
 
-postWorker.on('completed', (job) => {
+postWorker.on("completed", (job) => {
   logger.info(`✅ Job ${job.id} (${job.name}) completed`);
 });
 
-postWorker.on('failed', (job, err) => {
+postWorker.on("failed", (job, err) => {
   logger.error(`❌ Job ${job?.id} (${job?.name}) failed: ${err.message}`);
 });
 
-postWorker.on('error', (error) => {
-  logger.error('❌ Worker error:', error);
+postWorker.on("error", (error) => {
+  logger.error("❌ Worker error:", error);
 });
 
 export default postQueue;
