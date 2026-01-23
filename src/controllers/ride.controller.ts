@@ -150,12 +150,10 @@ export const streamChunk = async (req: AuthRequest, res: Response) => {
     const ride = await Ride.findOne({ _id: rideId, userId, status: "active" });
     if (!ride) {
       logger.warn(`[streamChunk] Ride ${rideId} not active for user ${userId}`);
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: "Ride is not active. Resume it first.",
-        });
+      return res.status(404).json({
+        success: false,
+        error: "Ride is not active. Resume it first.",
+      });
     }
 
     // ✅ Normalize and validate each point
@@ -489,21 +487,94 @@ export const endRide = async (req: AuthRequest, res: Response) => {
       `[endRide] Processing ${allPoints.length} GPS points for ride ${rideId}`,
     );
 
-    // ✅ Calculate stats
-    const polyline = allPoints.map((p: any) => ({ lat: p.lat, lng: p.lng }));
+    // ✅ FILTER GPS DRIFT - Remove stationary/inaccurate points
+    const MIN_SPEED_MS = 1.0; // m/s (~3.6 km/h) - filter stationary drift
+    const MAX_ACCURACY_M = 30; // meters - filter inaccurate points
+
+    const filteredPoints = allPoints.filter((p: any) => {
+      // Remove points with poor accuracy
+      if (p.accuracy && p.accuracy > MAX_ACCURACY_M) {
+        return false;
+      }
+      // Remove stationary points (prevent GPS drift from counting as movement)
+      if (p.speed < MIN_SPEED_MS) {
+        return false;
+      }
+      return true;
+    });
+
+    logger.info(
+      `[endRide] Filtered ${allPoints.length} → ${filteredPoints.length} points (removed ${allPoints.length - filteredPoints.length} stationary/inaccurate)`,
+    );
+
+    // Guard: insufficient GPS data after filtering
+    if (filteredPoints.length < 2) {
+      logger.warn(
+        `[endRide] Insufficient GPS data after filtering for ride ${rideId}`,
+      );
+      return res.status(400).json({
+        success: false,
+        error: "No GPS data recorded",
+      });
+    }
+
+    // ✅ Calculate stats USING FILTERED POINTS
+    const polyline = filteredPoints.map((p: any) => ({
+      lat: p.lat,
+      lng: p.lng,
+    }));
     const distanceKm = calculateDistance(polyline);
     const distanceMeters = Math.round(distanceKm * 1000);
     const duration = Math.round(
-      (allPoints[allPoints.length - 1].timestamp - allPoints[0].timestamp) /
+      (filteredPoints[filteredPoints.length - 1].timestamp -
+        filteredPoints[0].timestamp) /
         1000,
     );
-    const speeds = allPoints.map((p: any) => p.speed * 3.6);
-    const maxSpeed = Math.max(...speeds);
-    const avgSpeed =
-      speeds.reduce((a: number, b: number) => a + b, 0) / speeds.length;
+
+    // ✅ GEOMETRY-BASED SPEED CALCULATION (Don't trust client speed)
+    // Calculate speed from distance between consecutive points
+    const MIN_TIME_INTERVAL = 5; // seconds - ignore very short intervals
+    const MAX_REALISTIC_SPEED_KMH = 200; // km/h - sanity check for bikes
+
+    let maxSpeed = 0;
+    let totalWeightedSpeed = 0;
+    let totalTimeForAvg = 0;
+
+    for (let i = 1; i < filteredPoints.length; i++) {
+      const timeDelta =
+        (filteredPoints[i].timestamp - filteredPoints[i - 1].timestamp) / 1000;
+
+      // Skip very short intervals (unreliable)
+      if (timeDelta < MIN_TIME_INTERVAL) {
+        continue;
+      }
+
+      // Calculate distance between consecutive points
+      const segmentDistanceKm = calculateDistance([
+        { lat: filteredPoints[i - 1].lat, lng: filteredPoints[i - 1].lng },
+        { lat: filteredPoints[i].lat, lng: filteredPoints[i].lng },
+      ]);
+
+      // Calculate speed from distance/time
+      const speedKmh = segmentDistanceKm / (timeDelta / 3600);
+
+      // Apply sanity check
+      if (speedKmh <= MAX_REALISTIC_SPEED_KMH) {
+        maxSpeed = Math.max(maxSpeed, speedKmh);
+        totalWeightedSpeed += speedKmh * timeDelta;
+        totalTimeForAvg += timeDelta;
+      } else {
+        logger.warn(
+          `[endRide] Unrealistic speed detected: ${speedKmh.toFixed(1)} km/h, ignoring`,
+        );
+      }
+    }
+
+    // Calculate average speed from total distance/time (most accurate)
+    const avgSpeed = duration > 0 ? distanceKm / (duration / 3600) : 0;
 
     logger.info(
-      `[endRide] Stats - Distance: ${distanceKm}km, Duration: ${duration}s, Avg Speed: ${avgSpeed}km/h`,
+      `[endRide] Stats - Distance: ${distanceKm}km, Duration: ${duration}s, Avg: ${avgSpeed.toFixed(2)}km/h, Max: ${maxSpeed.toFixed(2)}km/h (geometry-based)`,
     );
 
     // Simplify polyline
