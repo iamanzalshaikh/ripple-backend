@@ -111,12 +111,13 @@ import {
   riderEndsRide,
 } from "../controllers/rideEvent.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/upload.middleware.js";
 
 const router: Router = express.Router();
 
 // router.use(isAuth);
 
-router.post("/", isAuth, createRideEvent as any);
+router.post("/", isAuth, upload.single("banner"), createRideEvent as any);
 router.get("/", isAuth, listRideEvents as any);
 router.get("/me", isAuth, getMyRideEvents as any); // Must be before /:id
 router.get("/:id", isAuth, getRideEventDetail as any);

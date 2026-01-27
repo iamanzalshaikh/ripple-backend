@@ -23,6 +23,7 @@ import {
   calculateRideDifficulty,
   getDifficultyLabel,
 } from "../utils/ride.js";
+import { uploadOnCloudinary } from "../config/cloudinary.js";
 
 // import rideEventQueue from '../queues/rideEvent.queue';
 // import rideEventQueue from '../queues/rideEvent.queue';
@@ -52,15 +53,28 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
 
       logger.info(`[createRideEvent] User ${organizerId} creating: ${title}`);
 
+      // Parse route if it's a string (from FormData)
+      let parsedRoute = route;
+      if (typeof route === "string") {
+        try {
+          parsedRoute = JSON.parse(route);
+        } catch (error) {
+          return res.status(400).json({
+            success: false,
+            error: "Invalid route format",
+          });
+        }
+      }
+
       // Validation
-      if (!title || !route || !scheduledAt) {
+      if (!title || !parsedRoute || !scheduledAt) {
         return res.status(400).json({
           success: false,
           error: "Title, route, and scheduledAt required",
         });
       }
 
-      if (!route.polyline || route.polyline.length < 2) {
+      if (!parsedRoute.polyline || parsedRoute.polyline.length < 2) {
         return res.status(400).json({
           success: false,
           error: "Route must have at least 2 points",
@@ -96,24 +110,46 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         });
       }
 
+      // ==================== HANDLE BANNER IMAGE UPLOAD ====================
+      let bannerUrl: string | null = null;
+      if ((req as any).file) {
+        try {
+          const fileBuffer = (req as any).file.buffer;
+          const uploadedUrl = await uploadOnCloudinary(
+            fileBuffer,
+            "heridez/events",
+          );
+          if (uploadedUrl) {
+            bannerUrl = uploadedUrl;
+            logger.info(`[createRideEvent] Banner uploaded: ${bannerUrl}`);
+          }
+        } catch (uploadError: any) {
+          logger.error(
+            `[createRideEvent] Banner upload failed: ${uploadError.message}`,
+          );
+          // Continue without banner - it's optional
+        }
+      }
+
       // ==================== CALCULATE DISTANCE & STATS USING YOUR UTILS ====================
-      const totalDistance = calculateDistance(route.polyline);
-      const elevation = estimateElevationGain(route.polyline);
+      const totalDistance = calculateDistance(parsedRoute.polyline);
+      const elevation = estimateElevationGain(parsedRoute.polyline);
       const estimatedDuration = calculateEstimatedDuration(totalDistance, 25);
       const difficulty = calculateRideDifficulty(totalDistance, elevation, 25);
 
       // Simplify polyline for storage (reduces data by ~80%)
-      const simplifiedPolyline = simplifyPolyline(route.polyline, 0.0001);
+      const simplifiedPolyline = simplifyPolyline(parsedRoute.polyline, 0.0001);
 
       // Create ride event
       const rideEvent = new RideEvent({
         title,
         description,
         organizerId,
+        banner: bannerUrl, // Banner image URL from Cloudinary
         route: {
-          startPoint: route.startPoint,
-          endPoint: route.endPoint,
-          waypoints: route.waypoints || [],
+          startPoint: parsedRoute.startPoint,
+          endPoint: parsedRoute.endPoint,
+          waypoints: parsedRoute.waypoints || [],
           polyline: simplifiedPolyline, // Use simplified polyline
           distance: totalDistance,
           estimatedDuration,
@@ -144,7 +180,7 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
       await rideEvent.save();
 
       logger.info(
-        `[createRideEvent] Ride ${rideEvent._id} created and SCHEDULED - Distance: ${totalDistance.toFixed(2)}km, Elevation: ${elevation}m`
+        `[createRideEvent] Ride ${rideEvent._id} created and SCHEDULED - Distance: ${totalDistance.toFixed(2)}km, Elevation: ${elevation}m`,
       );
 
       return res.status(201).json({
@@ -282,7 +318,7 @@ export const getMyRideEvents = (req: AuthRequest, res: Response): void => {
       const enriched = rides.map((ride: any) => {
         // Find user's participant record
         const userParticipant = ride.participants.find(
-          (p: any) => p.userId?.toString() === userId
+          (p: any) => p.userId?.toString() === userId,
         );
 
         // Check if user is the organizer
@@ -301,7 +337,7 @@ export const getMyRideEvents = (req: AuthRequest, res: Response): void => {
       });
 
       logger.info(
-        `[getMyRideEvents] Retrieved ${rides.length} events for user ${userId}`
+        `[getMyRideEvents] Retrieved ${rides.length} events for user ${userId}`,
       );
 
       return res.json({
@@ -344,7 +380,7 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
 
       const isOrganizer = (ride.organizerId as any)._id.toString() === userId;
       const userParticipant = ride.participants.find(
-        (p: any) => p.userId._id.toString() === userId
+        (p: any) => p.userId._id.toString() === userId,
       );
       const isParticipant = !!userParticipant;
 
@@ -417,7 +453,7 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
       }
 
       const alreadyJoined = ride.participants.some(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
       if (alreadyJoined) {
         return res
@@ -464,14 +500,14 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
             sosTriggered: false,
           },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
 
       // Update Redis
       await redisClient.setEx(
         `ride-event-${id}:participants`,
         3600,
-        JSON.stringify(ride.participants)
+        JSON.stringify(ride.participants),
       );
 
       logger.info(`[rsvpRideEvent] RSVP successful for ride ${id}`);
@@ -542,7 +578,7 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
       }
 
       const alreadyParticipant = ride.participants.some(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
       if (alreadyParticipant) {
         return res.status(400).json({
@@ -584,7 +620,7 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
       await ride.save();
 
       logger.info(
-        `[bookRideEvent] Booking successful for user ${userId} on event ${id}`
+        `[bookRideEvent] Booking successful for user ${userId} on event ${id}`,
       );
 
       return res.status(201).json({
@@ -622,7 +658,7 @@ export const getRideEventPass = (req: AuthRequest, res: Response): void => {
       }
 
       const participant = ride.participants.find(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
 
       if (!participant) {
@@ -767,7 +803,7 @@ export const startRideEvent = (req: AuthRequest, res: Response): void => {
       await redisClient.setEx(
         `ride-event-${id}:locations`,
         86400,
-        JSON.stringify({})
+        JSON.stringify({}),
       );
 
       await redisClient.setEx(
@@ -778,7 +814,7 @@ export const startRideEvent = (req: AuthRequest, res: Response): void => {
           totalDistance: 0,
           avgGroupSpeed: 0,
           maxSpeed: 0,
-        })
+        }),
       );
 
       // SEND NOTIFICATIONS TO ALL PARTICIPANTS
@@ -809,7 +845,7 @@ export const startRideEvent = (req: AuthRequest, res: Response): void => {
       if (notifications.length > 0) {
         await Notification.insertMany(notifications);
         logger.info(
-          `[startRideEvent] Created ${notifications.length} notifications`
+          `[startRideEvent] Created ${notifications.length} notifications`,
         );
       }
 
@@ -861,7 +897,7 @@ export const startRideEvent = (req: AuthRequest, res: Response): void => {
 
 export const streamRideEventLocation = (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): void => {
   (async () => {
     try {
@@ -879,7 +915,7 @@ export const streamRideEventLocation = (
       }
 
       const isParticipant = ride.participants.some(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
       if (!isParticipant) {
         return res
@@ -904,7 +940,7 @@ export const streamRideEventLocation = (
       await redisClient.setEx(
         locationsKey,
         86400,
-        JSON.stringify(locationData)
+        JSON.stringify(locationData),
       );
 
       // ==================== CALCULATE DISTANCE USING YOUR UTILS ====================
@@ -945,7 +981,7 @@ export const streamRideEventLocation = (
       await redisClient.setEx(statsKey, 86400, JSON.stringify(userStats));
 
       logger.info(
-        `[streamRideEventLocation] User ${userId} - Distance: ${userStats.totalDistance.toFixed(2)}km, Avg Speed: ${userStats.avgSpeed.toFixed(2)} km/h, Max Speed: ${userStats.maxSpeed.toFixed(2)} km/h`
+        `[streamRideEventLocation] User ${userId} - Distance: ${userStats.totalDistance.toFixed(2)}km, Avg Speed: ${userStats.avgSpeed.toFixed(2)} km/h, Max Speed: ${userStats.maxSpeed.toFixed(2)} km/h`,
       );
 
       return res.json({
@@ -997,7 +1033,7 @@ export const getRideEventLive = (req: AuthRequest, res: Response): void => {
             avgSpeed: formatSpeed(stats.avgSpeed),
             maxSpeed: formatSpeed(stats.maxSpeed),
           };
-        })
+        }),
       );
 
       const messages = await ChatMessage.find({ rideEventId: id })
@@ -1055,7 +1091,7 @@ export const riderStartsRide = (req: AuthRequest, res: Response): void => {
       }
 
       const participantIndex = ride.participants.findIndex(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
 
       if (participantIndex === -1) {
@@ -1116,7 +1152,7 @@ export const riderStartsRide = (req: AuthRequest, res: Response): void => {
             ? `${Math.round(timeElapsedMinutes)}min late`
             : undefined,
         },
-        { upsert: true }
+        { upsert: true },
       );
 
       logger.info(`[riderStartsRide] Rider ${userId} is now ACTIVE`);
@@ -1153,7 +1189,7 @@ export const riderEndsRide = (req: AuthRequest, res: Response): void => {
       }
 
       const participantIndex = ride.participants.findIndex(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
 
       if (participantIndex === -1) {
@@ -1175,7 +1211,7 @@ export const riderEndsRide = (req: AuthRequest, res: Response): void => {
           status: "COMPLETED",
           personalEndTime: new Date(),
           finishedRide: true,
-        }
+        },
       );
 
       logger.info(`[riderEndsRide] Rider ${userId} completed ride ${id}`);
@@ -1220,25 +1256,25 @@ export const getRideEventSummary = (req: AuthRequest, res: Response): void => {
       }).lean();
 
       const finishedCount = participantStats.filter(
-        (p: any) => p.finishedRide
+        (p: any) => p.finishedRide,
       ).length;
       const avgSpeed =
         participantStats.reduce(
           (sum: number, p: any) => sum + (p.avgSpeed || 0),
-          0
+          0,
         ) / participantStats.length || 0;
       const maxSpeed = Math.max(
         ...participantStats.map((p: any) => p.maxSpeed || 0),
-        0
+        0,
       );
       const totalElevation =
         participantStats.reduce(
           (sum: number, p: any) => sum + (p.elevation || 0),
-          0
+          0,
         ) / participantStats.length || 0;
 
       const userStats = participantStats.find(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
 
       logger.info(`[getRideEventSummary] Summary for ride ${id}`);
@@ -1260,8 +1296,8 @@ export const getRideEventSummary = (req: AuthRequest, res: Response): void => {
             avgDistance: formatDistance(
               participantStats.reduce(
                 (sum: number, p: any) => sum + (p.distance || 0),
-                0
-              ) / participantStats.length || 0
+                0,
+              ) / participantStats.length || 0,
             ),
             avgSpeed: formatSpeed(avgSpeed),
             maxSpeed: formatSpeed(maxSpeed),
@@ -1288,7 +1324,6 @@ export const getRideEventSummary = (req: AuthRequest, res: Response): void => {
     }
   })();
 };
-
 
 /**
  * POST /api/v1/ride-events/:id/end
@@ -1381,7 +1416,7 @@ export const endRideEvent = (req: AuthRequest, res: Response): void => {
           status: "NO_SHOW",
           isNoShow: true,
           noShowReason: "Did not start tracking",
-        }
+        },
       );
 
       // Broadcast to all
@@ -1399,7 +1434,7 @@ export const endRideEvent = (req: AuthRequest, res: Response): void => {
       await rideEventQueue.add(
         "process-group-ride",
         { rideEventId: ride._id },
-        { priority: 1 }
+        { priority: 1 },
       );
 
       // Cleanup Redis
@@ -1448,7 +1483,7 @@ export const rateRider = (req: AuthRequest, res: Response): void => {
           feedback,
           ratedBy: userId,
           ratedAt: new Date(),
-        }
+        },
       );
 
       logger.info(`[rateRider] ${userId} rated ${targetUserId}`);
@@ -1495,7 +1530,7 @@ export const sendChatMessage = (req: AuthRequest, res: Response): void => {
       }
 
       const isParticipant = ride.participants.some(
-        (p: any) => p.userId.toString() === userId
+        (p: any) => p.userId.toString() === userId,
       );
       if (!isParticipant) {
         return res

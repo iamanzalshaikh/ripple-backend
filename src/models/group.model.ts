@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IGroup extends Document {
   _id: mongoose.Types.ObjectId;
@@ -8,15 +8,16 @@ export interface IGroup extends Document {
   createdBy: mongoose.Types.ObjectId;
   members: {
     userId: mongoose.Types.ObjectId;
-    role: 'admin' | 'member';
+    role: "admin" | "member";
     joinedAt: Date;
   }[];
   joinRequests: {
     userId: mongoose.Types.ObjectId;
     requestedAt: Date;
   }[];
-  privacy: 'public' | 'private' | 'friends';
+  privacy: "public" | "private" | "friends";
   avatarUrl?: string;
+  coverUrl?: string;
   tags: string[];
   stats: {
     totalRides: number;
@@ -32,72 +33,73 @@ const GroupSchema = new Schema<IGroup>(
     name: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
     description: String,
     location: String,
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: "User",
+      required: true,
     },
     members: [
       {
         userId: {
           type: Schema.Types.ObjectId,
-          ref: 'User'
+          ref: "User",
         },
         role: {
           type: String,
-          enum: ['admin', 'member'],
-          default: 'member'
+          enum: ["admin", "member"],
+          default: "member",
         },
         joinedAt: {
           type: Date,
-          default: Date.now
-        }
-      }
+          default: Date.now,
+        },
+      },
     ],
     joinRequests: [
       {
         userId: {
           type: Schema.Types.ObjectId,
-          ref: 'User'
+          ref: "User",
         },
         requestedAt: {
           type: Date,
-          default: Date.now
-        }
-      }
+          default: Date.now,
+        },
+      },
     ],
     privacy: {
       type: String,
-      enum: ['public', 'private', 'friends'],
-      default: 'public'
+      enum: ["public", "private", "friends"],
+      default: "public",
     },
     avatarUrl: String,
+    coverUrl: String,
     tags: [String],
     stats: {
       totalRides: { type: Number, default: 0 },
-      totalMembers: { type: Number, default: 0 }
+      totalMembers: { type: Number, default: 0 },
     },
     chatRoomId: {
       type: String,
       unique: true,
-      sparse: true
+      sparse: true,
     },
     createdAt: {
       type: Date,
-      default: Date.now
+      default: Date.now,
     },
     updatedAt: {
       type: Date,
-      default: Date.now
-    }
+      default: Date.now,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-GroupSchema.index({ name: 'text', description: 'text', tags: 'text' });
+GroupSchema.index({ name: "text", description: "text", tags: "text" });
 
-export default mongoose.model<IGroup>('Group', GroupSchema);
+export default mongoose.model<IGroup>("Group", GroupSchema);

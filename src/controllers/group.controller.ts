@@ -15,13 +15,15 @@ interface AuthRequest extends Request {
   userId: string;
 }
 
+import { uploadOnCloudinary } from "../config/cloudinary.js";
+
 /**
  * POST /api/v1/groups
  * Create a new group (verified users only)
  */
 export const createGroup = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const {
@@ -30,7 +32,6 @@ export const createGroup = async (
       location,
       privacy = "public",
       tags = [],
-      avatarUrl,
     } = req.body;
     const creatorId = req.userId;
 
@@ -55,6 +56,39 @@ export const createGroup = async (
       return;
     }
 
+    // Handle file uploads
+    let avatarUrl = req.body.avatarUrl; // Allow passing URL directly if already uploaded
+    let coverUrl = req.body.coverUrl;
+
+    const files = (req as any).files;
+    if (files) {
+      // Upload avatar
+      if (files.avatar && files.avatar[0]) {
+        try {
+          const uploaded = await uploadOnCloudinary(
+            files.avatar[0].buffer,
+            "heridez/groups/avatars",
+          );
+          if (uploaded) avatarUrl = uploaded;
+        } catch (err: any) {
+          logger.error(`[createGroup] Avatar upload failed: ${err.message}`);
+        }
+      }
+
+      // Upload cover
+      if (files.cover && files.cover[0]) {
+        try {
+          const uploaded = await uploadOnCloudinary(
+            files.cover[0].buffer,
+            "heridez/groups/covers",
+          );
+          if (uploaded) coverUrl = uploaded;
+        } catch (err: any) {
+          logger.error(`[createGroup] Cover upload failed: ${err.message}`);
+        }
+      }
+    }
+
     // Create group
     const chatRoomId = `group-${uuidv4()}`;
     const group = new Group({
@@ -64,6 +98,7 @@ export const createGroup = async (
       createdBy: creatorId,
       privacy,
       avatarUrl,
+      coverUrl,
       tags,
       chatRoomId,
       members: [
@@ -89,10 +124,95 @@ export const createGroup = async (
         name: group.name,
         privacy: group.privacy,
         chatRoomId: group.chatRoomId,
+        avatarUrl: group.avatarUrl,
+        coverUrl: group.coverUrl,
       },
     });
   } catch (error: any) {
     logger.error(`[createGroup] Error: ${error.message}`);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * PATCH /api/v1/groups/:id
+ * Update group details (admin only)
+ */
+export const updateGroup = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    const { name, description, location, privacy, tags } = req.body;
+
+    logger.info(`[updateGroup] User ${userId} updating group ${id}`);
+
+    const group = await Group.findById(id);
+    if (!group) {
+      res.status(404).json({ success: false, error: "Group not found" });
+      return;
+    }
+
+    // Check admin permissions
+    const isAdmin = group.members.some(
+      (m: any) => m.userId.toString() === userId && m.role === "admin",
+    );
+    if (!isAdmin) {
+      res
+        .status(403)
+        .json({ success: false, error: "Only admin can update group" });
+      return;
+    }
+
+    // Handle file uploads
+    const files = (req as any).files;
+    if (files) {
+      // Upload avatar
+      if (files.avatar && files.avatar[0]) {
+        try {
+          const uploaded = await uploadOnCloudinary(
+            files.avatar[0].buffer,
+            "heridez/groups/avatars",
+          );
+          if (uploaded) group.avatarUrl = uploaded;
+        } catch (err: any) {
+          logger.error(`[updateGroup] Avatar upload failed: ${err.message}`);
+        }
+      }
+
+      // Upload cover
+      if (files.cover && files.cover[0]) {
+        try {
+          const uploaded = await uploadOnCloudinary(
+            files.cover[0].buffer,
+            "heridez/groups/covers",
+          );
+          if (uploaded) group.coverUrl = uploaded;
+        } catch (err: any) {
+          logger.error(`[updateGroup] Cover upload failed: ${err.message}`);
+        }
+      }
+    }
+
+    // Update text fields if provided
+    if (name) group.name = name;
+    if (description !== undefined) group.description = description;
+    if (location !== undefined) group.location = location;
+    if (privacy) group.privacy = privacy;
+    if (tags) group.tags = tags;
+
+    await group.save();
+
+    logger.info(`[updateGroup] Group ${id} updated`);
+
+    res.json({
+      success: true,
+      data: group,
+    });
+  } catch (error: any) {
+    logger.error(`[updateGroup] Error: ${error.message}`);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -103,7 +223,7 @@ export const createGroup = async (
  */
 export const searchGroups = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { search = "", privacy, page = 1, limit = 10 } = req.query;
@@ -137,7 +257,7 @@ export const searchGroups = async (
       // Check if current user is a member of this group
       const isMember =
         group.members?.some(
-          (m: any) => m.userId?.toString() === userId || m.userId === userId
+          (m: any) => m.userId?.toString() === userId || m.userId === userId,
         ) || false;
 
       return {
@@ -172,7 +292,7 @@ export const searchGroups = async (
  */
 export const getGroupDetail = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -190,13 +310,13 @@ export const getGroupDetail = async (
     }
 
     const isMember = group.members.some(
-      (m: any) => m.userId._id.toString() === userId
+      (m: any) => m.userId._id.toString() === userId,
     );
     const isAdmin = group.members.some(
-      (m: any) => m.userId._id.toString() === userId && m.role === "admin"
+      (m: any) => m.userId._id.toString() === userId && m.role === "admin",
     );
     const hasRequestPending = group.joinRequests.some(
-      (r: any) => r.userId._id.toString() === userId
+      (r: any) => r.userId._id.toString() === userId,
     );
 
     res.json({
@@ -222,7 +342,7 @@ export const getGroupDetail = async (
  */
 export const joinGroup = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -244,7 +364,7 @@ export const joinGroup = async (
 
     // Check if already a member
     const alreadyMember = group.members.some(
-      (m: any) => m.userId.toString() === userId
+      (m: any) => m.userId.toString() === userId,
     );
     if (alreadyMember) {
       res.status(400).json({ success: false, error: "Already a member" });
@@ -253,7 +373,7 @@ export const joinGroup = async (
 
     // Check if request pending
     const hasPendingRequest = group.joinRequests.some(
-      (r: any) => r.userId.toString() === userId
+      (r: any) => r.userId.toString() === userId,
     );
     if (hasPendingRequest) {
       res
@@ -354,14 +474,14 @@ export const joinGroup = async (
  */
 export const approveJoinRequest = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id, requestUserId } = req.params;
     const adminId = req.userId;
 
     logger.info(
-      `[approveJoinRequest] Admin ${adminId} approving ${requestUserId} for group ${id}`
+      `[approveJoinRequest] Admin ${adminId} approving ${requestUserId} for group ${id}`,
     );
 
     const group = await Group.findById(id);
@@ -372,7 +492,7 @@ export const approveJoinRequest = async (
 
     // Verify user is admin
     const isAdmin = group.members.some(
-      (m: any) => m.userId.toString() === adminId && m.role === "admin"
+      (m: any) => m.userId.toString() === adminId && m.role === "admin",
     );
     if (!isAdmin) {
       res.status(403).json({ success: false, error: "Only admin can approve" });
@@ -381,12 +501,12 @@ export const approveJoinRequest = async (
 
     // Remove from requests
     group.joinRequests = group.joinRequests.filter(
-      (r: any) => r.userId.toString() !== requestUserId
+      (r: any) => r.userId.toString() !== requestUserId,
     );
 
     // Add to members
     const alreadyMember = group.members.some(
-      (m: any) => m.userId.toString() === requestUserId
+      (m: any) => m.userId.toString() === requestUserId,
     );
     if (!alreadyMember) {
       group.members.push({
@@ -442,7 +562,7 @@ export const approveJoinRequest = async (
     }
 
     logger.info(
-      `[approveJoinRequest] User ${requestUserId} approved for group ${id}`
+      `[approveJoinRequest] User ${requestUserId} approved for group ${id}`,
     );
 
     res.json({
@@ -461,14 +581,14 @@ export const approveJoinRequest = async (
  */
 export const rejectJoinRequest = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id, requestUserId } = req.params;
     const adminId = req.userId;
 
     logger.info(
-      `[rejectJoinRequest] Admin ${adminId} rejecting ${requestUserId} for group ${id}`
+      `[rejectJoinRequest] Admin ${adminId} rejecting ${requestUserId} for group ${id}`,
     );
 
     const group = await Group.findById(id);
@@ -479,7 +599,7 @@ export const rejectJoinRequest = async (
 
     // Verify user is admin
     const isAdmin = group.members.some(
-      (m: any) => m.userId.toString() === adminId && m.role === "admin"
+      (m: any) => m.userId.toString() === adminId && m.role === "admin",
     );
     if (!isAdmin) {
       res.status(403).json({ success: false, error: "Only admin can reject" });
@@ -488,7 +608,7 @@ export const rejectJoinRequest = async (
 
     // Check if request exists
     const requestExists = group.joinRequests.some(
-      (r: any) => r.userId.toString() === requestUserId
+      (r: any) => r.userId.toString() === requestUserId,
     );
     if (!requestExists) {
       res.status(404).json({ success: false, error: "Join request not found" });
@@ -497,7 +617,7 @@ export const rejectJoinRequest = async (
 
     // Remove from requests
     group.joinRequests = group.joinRequests.filter(
-      (r: any) => r.userId.toString() !== requestUserId
+      (r: any) => r.userId.toString() !== requestUserId,
     );
 
     await group.save();
@@ -545,7 +665,7 @@ export const rejectJoinRequest = async (
     }
 
     logger.info(
-      `[rejectJoinRequest] User ${requestUserId} rejected for group ${id}`
+      `[rejectJoinRequest] User ${requestUserId} rejected for group ${id}`,
     );
 
     res.json({
@@ -564,7 +684,7 @@ export const rejectJoinRequest = async (
  */
 export const leaveGroup = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -579,7 +699,7 @@ export const leaveGroup = async (
     }
 
     const memberIndex = group.members.findIndex(
-      (m: any) => m.userId.toString() === userId
+      (m: any) => m.userId.toString() === userId,
     );
     if (memberIndex === -1) {
       res.status(400).json({ success: false, error: "Not a member" });
@@ -621,7 +741,7 @@ export const leaveGroup = async (
  */
 export const getGroupMembers = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -668,7 +788,7 @@ export const getGroupMembers = async (
  */
 export const deleteGroup = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -683,7 +803,7 @@ export const deleteGroup = async (
     }
 
     const isAdmin = group.members.some(
-      (m: any) => m.userId.toString() === userId && m.role === "admin"
+      (m: any) => m.userId.toString() === userId && m.role === "admin",
     );
     if (!isAdmin) {
       res.status(403).json({ success: false, error: "Only admin can delete" });
@@ -710,7 +830,7 @@ export const deleteGroup = async (
  */
 export const getGroupMessages = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -727,7 +847,7 @@ export const getGroupMessages = async (
     }
 
     const isMember = group.members.some(
-      (m: any) => m.userId.toString() === userId
+      (m: any) => m.userId.toString() === userId,
     );
     if (!isMember) {
       res.status(403).json({ success: false, error: "Not a group member" });
