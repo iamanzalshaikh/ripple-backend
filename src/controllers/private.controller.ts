@@ -618,9 +618,24 @@ export const getPrivateConversations = (
       // Enrich conversations with last message from ChatMessage collection
       const enriched = await Promise.all(
         conversations.map(async (conv: any) => {
-          const otherUserObj =
-            conv.user1._id.toString() === userId ? conv.user2 : conv.user1;
-          
+          // Guard against corrupted rooms where one of the user refs is missing
+          if (!conv.user1 || !conv.user2) {
+            logger.warn(
+              `[getPrivateConversations] Skipping room ${conv.roomId} because user1 or user2 is null`,
+            );
+            return null;
+          }
+
+          const isUser1 = conv.user1._id?.toString() === userId;
+          const otherUserObj = isUser1 ? conv.user2 : conv.user1;
+
+          if (!otherUserObj) {
+            logger.warn(
+              `[getPrivateConversations] Skipping room ${conv.roomId} because otherUser is null`,
+            );
+            return null;
+          }
+
           // Ensure otherUser has proper structure with _id
           const otherUser = {
             _id: otherUserObj._id?.toString() || otherUserObj.toString(),
@@ -652,7 +667,8 @@ export const getPrivateConversations = (
 
       res.json({
         success: true,
-        data: enriched,
+        // Filter out any null entries from corrupted rooms
+        data: enriched.filter(Boolean),
         pagination: {
           page: pageNum,
           limit: limitNum,
