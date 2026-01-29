@@ -269,6 +269,7 @@ import {
   resumeRide,
   startRide,
   streamChunk,
+  cancelRide,
 } from "../controllers/ride.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
 
@@ -283,12 +284,14 @@ const wrappedGetActiveRide: any = getActiveRide;
 const wrappedGetMyRides: any = getMyRides;
 const wrappedGetRideById: any = getRideById;
 const wrappedDeleteRide: any = deleteRide;
+const wrappedCancelRide: any = cancelRide;
 
 router.post("/start", isAuth, wrappedStartRide);
 router.patch("/:id/stream", isAuth, wrappedStreamChunk);
 router.patch("/:id/pause", isAuth, wrappedPauseRide);
 router.patch("/:id/resume", isAuth, wrappedResumeRide);
 router.patch("/:id/end", isAuth, wrappedEndRide);
+router.delete("/:id/cancel", isAuth, wrappedCancelRide); // Cancel ride (no GPS data)
 router.get("/active", isAuth, wrappedGetActiveRide); // Must be before /:id route
 router.get("/me", isAuth, wrappedGetMyRides);
 router.get("/:id", isAuth, wrappedGetRideById);
