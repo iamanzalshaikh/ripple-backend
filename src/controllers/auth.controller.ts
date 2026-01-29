@@ -76,9 +76,13 @@ export const sendSignupOtp = async (
       return;
     }
 
+    // Normalize email (trim + lowercase) for consistent storage/retrieval
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       res.status(400).json({
         success: false,
         message: "Invalid email format",
@@ -87,7 +91,7 @@ export const sendSignupOtp = async (
     }
 
     // Validate phone format
-    if (!/^[0-9]{10}$/.test(phone)) {
+    if (!/^[0-9]{10}$/.test(normalizedPhone)) {
       res.status(400).json({
         success: false,
         message: "Phone number must be 10 digits",
@@ -97,7 +101,7 @@ export const sendSignupOtp = async (
 
     // Check if user already exists (by email or phone)
     const existingUser = await User.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
     });
     if (existingUser) {
       res.status(400).json({
@@ -114,10 +118,10 @@ export const sendSignupOtp = async (
 
     // Send OTP via email ONLY
     try {
-      await sendSignupOtpEmail(email, otp, phone);
-      logger.info(`OTP email sent to ${email}`);
+      await sendSignupOtpEmail(normalizedEmail, otp, normalizedPhone);
+      logger.info(`OTP email sent to ${normalizedEmail}`);
     } catch (emailError: any) {
-      logger.error(`Failed to send email to ${email}: ${emailError.message}`);
+      logger.error(`Failed to send email to ${normalizedEmail}: ${emailError.message}`);
       res.status(500).json({
         success: false,
         message:
@@ -127,8 +131,8 @@ export const sendSignupOtp = async (
       return;
     }
 
-    // Store OTP in temporary storage (expires in 10 minutes)
-    otpStore.set(email, { otp, expiresAt, phone });
+    // Store OTP in temporary storage (expires in 10 minutes) - use normalized email as key
+    otpStore.set(normalizedEmail, { otp, expiresAt, phone: normalizedPhone });
 
     logger.info(`OTP sent to ${email} (${phone}) - User NOT created yet`);
 
@@ -136,8 +140,8 @@ export const sendSignupOtp = async (
       success: true,
       message: "OTP sent successfully to your email",
       data: {
-        email,
-        phone,
+        email: normalizedEmail,
+        phone: normalizedPhone,
         otpExpiresIn: "10 minutes",
       },
     });
@@ -173,9 +177,14 @@ export const verifySignupOtp = async (
       return;
     }
 
+    // Normalize email (trim + lowercase) for consistent storage/retrieval
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+    const normalizedOtp = otp.trim();
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       res.status(400).json({
         success: false,
         message: "Invalid email format",
@@ -184,7 +193,7 @@ export const verifySignupOtp = async (
     }
 
     // Validate phone format
-    if (!/^[0-9]{10}$/.test(phone)) {
+    if (!/^[0-9]{10}$/.test(normalizedPhone)) {
       res.status(400).json({
         success: false,
         message: "Phone number must be 10 digits",
@@ -192,8 +201,8 @@ export const verifySignupOtp = async (
       return;
     }
 
-    // Check if OTP exists in temporary storage
-    const storedOtp = otpStore.get(email);
+    // Check if OTP exists in temporary storage - use normalized email as key
+    const storedOtp = otpStore.get(normalizedEmail);
     if (!storedOtp) {
       res.status(400).json({
         success: false,
@@ -204,7 +213,7 @@ export const verifySignupOtp = async (
 
     // Check if OTP expired
     if (Date.now() > storedOtp.expiresAt) {
-      otpStore.delete(email);
+      otpStore.delete(normalizedEmail);
       res.status(400).json({
         success: false,
         message: "OTP has expired. Please request a new one.",
@@ -213,7 +222,7 @@ export const verifySignupOtp = async (
     }
 
     // Check if phone matches
-    if (storedOtp.phone !== phone) {
+    if (storedOtp.phone !== normalizedPhone) {
       res.status(400).json({
         success: false,
         message: "Phone number does not match.",
@@ -221,8 +230,8 @@ export const verifySignupOtp = async (
       return;
     }
 
-    // Verify OTP
-    if (storedOtp.otp !== otp) {
+    // Verify OTP (compare normalized OTP)
+    if (storedOtp.otp !== normalizedOtp) {
       res.status(400).json({
         success: false,
         message: "Invalid OTP. Please try again.",
@@ -232,14 +241,14 @@ export const verifySignupOtp = async (
 
     // ✅ OTP IS VALID - NOW CREATE USER IN DATABASE
     const newUser = new User({
-      email,
-      phone,
+      email: normalizedEmail,
+      phone: normalizedPhone,
       role: UserRole.RIDER,
       accountStatus: AccountStatus.ACTIVE,
       verificationStatus: VerificationStatus.APPROVED,
       verified: true,
       otp: {
-        code: otp,
+        code: normalizedOtp,
         attempts: 0,
         maxAttempts: 5,
         isUsed: true,
@@ -251,13 +260,13 @@ export const verifySignupOtp = async (
     await newUser.save();
 
     // Remove OTP from temporary storage
-    otpStore.delete(email);
+    otpStore.delete(normalizedEmail);
 
     // Generate tokens
     const accessToken = signUserAccessToken(newUser._id.toString());
     const refreshToken = signUserRefreshToken(newUser._id.toString());
 
-    logger.info(`✅ User created successfully: ${email} | ${phone}`);
+    logger.info(`✅ User created successfully: ${normalizedEmail} | ${normalizedPhone}`);
 
     res.status(201).json({
       success: true,

@@ -677,3 +677,125 @@ export const getMyListings = async (
     });
   }
 };
+
+/**
+ * GET /api/v1/marketplace/:listingId/similar
+ * Get similar listings based on category, sub-category, price, and location
+ * Public route (no auth required)
+ * 
+ * Scoring algorithm:
+ * - Same category (required filter)
+ * - Same sub-category: +3 points
+ * - Similar price (±25%): +2 points
+ * - Same/similar location: +2 points
+ * - Excludes current listing and seller's other listings
+ * - Returns top 5 results, sorted by score then newest first
+ */
+export const getSimilarListings = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { listingId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(listingId)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid listing ID",
+      });
+      return;
+    }
+
+    // Get the current listing
+    const currentListing = await Listing.findById(listingId).lean();
+
+    if (!currentListing) {
+      res.status(404).json({
+        success: false,
+        message: "Listing not found",
+      });
+      return;
+    }
+
+    // Build base filter: same category, active status, exclude current listing and seller's items
+    const filter: any = {
+      _id: { $ne: currentListing._id },
+      sellerId: { $ne: currentListing.sellerId },
+      category: currentListing.category,
+      status: "active",
+    };
+
+    // Calculate price range (±25%)
+    const priceMin = currentListing.price * 0.75;
+    const priceMax = currentListing.price * 1.25;
+
+    // Fetch all potential similar listings
+    const candidates = await Listing.find(filter)
+      .populate("sellerId", "name verified avatarUrl handle")
+      .lean();
+
+    // Score each candidate
+    interface ScoredListing {
+      listing: any;
+      score: number;
+    }
+
+    const scoredListings: ScoredListing[] = candidates.map((listing) => {
+      let score = 0;
+
+      // +3 points for same sub-category
+      if (
+        listing.subCategory &&
+        currentListing.subCategory &&
+        listing.subCategory.toLowerCase() === currentListing.subCategory.toLowerCase()
+      ) {
+        score += 3;
+      }
+
+      // +2 points for similar price (within ±25%)
+      if (listing.price >= priceMin && listing.price <= priceMax) {
+        score += 2;
+      }
+
+      // +2 points for same/similar location
+      if (listing.location && currentListing.location) {
+        const currentLoc = currentListing.location.toLowerCase().trim();
+        const candidateLoc = listing.location.toLowerCase().trim();
+        
+        // Exact match or partial match
+        if (currentLoc === candidateLoc || 
+            currentLoc.includes(candidateLoc) || 
+            candidateLoc.includes(currentLoc)) {
+          score += 2;
+        }
+      }
+
+      return { listing, score };
+    });
+
+    // Sort by score (descending), then by createdAt (newest first)
+    scoredListings.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+      // Tiebreaker: newer listings first
+      return new Date(b.listing.createdAt).getTime() - new Date(a.listing.createdAt).getTime();
+    });
+
+    // Return top 5 results
+    const similarListings = scoredListings.slice(0, 5).map((item) => item.listing);
+
+    res.json({
+      success: true,
+      count: similarListings.length,
+      data: similarListings,
+    });
+  } catch (error: any) {
+    logger.error(`Error fetching similar listings: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch similar listings",
+      error: error.message,
+    });
+  }
+};

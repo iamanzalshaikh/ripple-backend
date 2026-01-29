@@ -22,6 +22,11 @@ export interface IPost extends Document {
   commentCount: number;
   taggedUsers: mongoose.Types.ObjectId[];
   privacy: 'private' | 'friends' | 'public';
+  // Sponsorship fields
+  isSponsored: boolean;
+  sponsorBrandId?: mongoose.Types.ObjectId;
+  contractId?: mongoose.Types.ObjectId;
+  disclosureLabel?: string; // e.g. "Sponsored by BrandName"
   createdAt: Date;
   updatedAt: Date;
 }
@@ -111,7 +116,24 @@ const postSchema = new Schema<IPost>(
       type: String,
       enum: ['private', 'friends', 'public'],
       default: 'friends'
-    }
+    },
+    // Sponsorship fields
+    isSponsored: {
+      type: Boolean,
+      default: false,
+      index: true
+    },
+    sponsorBrandId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Brand',
+      sparse: true
+    },
+    contractId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Contract',
+      sparse: true
+    },
+    disclosureLabel: String
   },
   {
     timestamps: true,
@@ -126,6 +148,9 @@ postSchema.index({ rideId: 1 });
 postSchema.index({ likeCount: -1 });
 postSchema.index({ userId: 1, privacy: 1 });
 postSchema.index({ taggedUsers: 1 });
+postSchema.index({ isSponsored: 1, createdAt: -1 }); // For media feed
+postSchema.index({ contractId: 1 });
+postSchema.index({ sponsorBrandId: 1 });
 
 const Post = mongoose.model<IPost>('Post', postSchema);
 export default Post;

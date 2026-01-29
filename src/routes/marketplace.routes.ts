@@ -7,6 +7,7 @@ import {
   deleteListing,
   contactSeller,
   getMyListings,
+  getSimilarListings,
 } from "../controllers/marketplace.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
 import isVerified from "../middlewares/verified.middleware.js";
@@ -46,6 +47,14 @@ router.get("/", browseListings);
  * Must be before /:listingId route to avoid conflict
  */
 router.get("/my-listings", isAuth, isVerified, getMyListings);
+
+/**
+ * GET /api/v1/marketplace/:listingId/similar
+ * Get similar listings based on smart matching algorithm
+ * Public route (no auth required)
+ * Must be before generic /:listingId route
+ */
+router.get("/:listingId/similar", getSimilarListings);
 
 /**
  * GET /api/v1/marketplace/:listingId
