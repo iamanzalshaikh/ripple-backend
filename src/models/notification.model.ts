@@ -16,7 +16,19 @@ export interface INotification extends Document {
     | "ride_share"
     | "tag"
     | "sos"
-    | "chat";
+    | "chat"
+    | "creator_application_approved"
+    | "creator_application_rejected"
+    | "campaign_application_received"
+    | "campaign_application_shortlisted"
+    | "campaign_application_selected"
+    | "campaign_application_rejected"
+    | "contract_created"
+    | "deliverable_submitted"
+    | "deliverable_approved"
+    | "deliverable_rejected"
+    | "milestone_paid"
+    | "contract_completed";
   fromUserId?: mongoose.Types.ObjectId;
   fromUserName?: string;
   postId?: mongoose.Types.ObjectId;
@@ -24,6 +36,11 @@ export interface INotification extends Document {
   commentText?: string; // Store actual comment text for better UX
   rideEventId?: mongoose.Types.ObjectId;
   groupId?: mongoose.Types.ObjectId;
+  // Creator/Sponsorship references
+  campaignId?: mongoose.Types.ObjectId;
+  contractId?: mongoose.Types.ObjectId;
+  deliverableId?: mongoose.Types.ObjectId;
+  creatorApplicationId?: mongoose.Types.ObjectId;
   message: string;
   read: boolean;
   readAt?: Date;
@@ -54,6 +71,18 @@ const notificationSchema = new Schema<INotification>(
         "tag",
         "sos",
         "chat",
+        "creator_application_approved",
+        "creator_application_rejected",
+        "campaign_application_received",
+        "campaign_application_shortlisted",
+        "campaign_application_selected",
+        "campaign_application_rejected",
+        "contract_created",
+        "deliverable_submitted",
+        "deliverable_approved",
+        "deliverable_rejected",
+        "milestone_paid",
+        "contract_completed",
       ],
       required: true,
     },
@@ -96,6 +125,27 @@ const notificationSchema = new Schema<INotification>(
     groupId: {
       type: Schema.Types.ObjectId,
       ref: "Group",
+      sparse: true,
+    },
+    // Creator/Sponsorship references
+    campaignId: {
+      type: Schema.Types.ObjectId,
+      ref: "Campaign",
+      sparse: true,
+    },
+    contractId: {
+      type: Schema.Types.ObjectId,
+      ref: "Contract",
+      sparse: true,
+    },
+    deliverableId: {
+      type: Schema.Types.ObjectId,
+      ref: "Deliverable",
+      sparse: true,
+    },
+    creatorApplicationId: {
+      type: Schema.Types.ObjectId,
+      ref: "CreatorApplication",
       sparse: true,
     },
 

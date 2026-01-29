@@ -20,6 +20,15 @@ import adminUserRoutes from "./admin.users.routes.js";
 import adminRideEventRoutes from "./admin.rideEvents.routes.js";
 import adminPaymentRoutes from "./admin.payments.routes.js";
 import adminSOSRoutes from "./admin.sos.routes.js";
+import adminCreatorsRoutes from "./admin.creators.routes.js";
+import adminPressRoutes from "./admin.press.routes.js";
+import adminBrandsRoutes from "./admin.brands.routes.js";
+import adminSponsorshipRoutes from "./admin.sponsorship.routes.js";
+import creatorRoutes from "./creator.routes.js";
+import sponsorshipRoutes from "./sponsorship.routes.js";
+import mediaFeedRoutes from "./media-feed.routes.js";
+import brandsRoutes from "./brands.routes.js";
+import pressRoutes from "./press.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -75,6 +84,13 @@ router.use("/chat", chatRoutes);
 router.use("/users", followRoutes);
 router.use("/marketplace", marketplaceRoutes);
 
+// Creator & Sponsorship Routes
+router.use("/creator", creatorRoutes);
+router.use("/sponsorship", sponsorshipRoutes);
+router.use("/media-feed", mediaFeedRoutes);
+router.use("/brands", brandsRoutes);
+router.use("/press", pressRoutes);
+
 // Admin Routes
 router.use("/admin/auth", adminAuthRoutes);
 router.use("/admin/dashboard", adminDashboardRoutes);
@@ -82,5 +98,9 @@ router.use("/admin/users", adminUserRoutes);
 router.use("/admin/ride-events", adminRideEventRoutes);
 router.use("/admin/payments", adminPaymentRoutes);
 router.use("/admin/sos", adminSOSRoutes);
+router.use("/admin/creators", adminCreatorsRoutes);
+router.use("/admin/press", adminPressRoutes);
+router.use("/admin/brands", adminBrandsRoutes);
+router.use("/admin/sponsorship", adminSponsorshipRoutes);
 
 export default router;
