@@ -473,12 +473,22 @@ export const endRide = async (req: AuthRequest, res: Response) => {
     const redisKey = `ride:${rideId}:points`;
     const pointsData = await redisClient.lRange(redisKey, 0, -1);
 
-    // Guard: no GPS data
+    // Guard: no GPS data - return special indicator instead of error
     if (pointsData.length === 0) {
-      logger.warn(`[endRide] No GPS data for ride ${rideId}`);
-      return res
-        .status(400)
-        .json({ success: false, error: "No GPS data recorded" });
+      logger.warn(
+        `[endRide] No GPS data for ride ${rideId}, returning no-data indicator`,
+      );
+
+      // Return success with special flag indicating no GPS data
+      // Frontend will show dialog asking user to discard or keep the ride
+      return res.status(200).json({
+        success: true,
+        noGpsData: true,
+        data: {
+          rideId: ride._id,
+          message: "No movement detected",
+        },
+      });
     }
 
     // Parse points
@@ -512,9 +522,15 @@ export const endRide = async (req: AuthRequest, res: Response) => {
       logger.warn(
         `[endRide] Insufficient GPS data after filtering for ride ${rideId}`,
       );
-      return res.status(400).json({
-        success: false,
-        error: "No GPS data recorded",
+
+      // Return success with no-data flag (same as above)
+      return res.status(200).json({
+        success: true,
+        noGpsData: true,
+        data: {
+          rideId: ride._id,
+          message: "No movement detected",
+        },
       });
     }
 
@@ -741,6 +757,60 @@ export const getMyRides = async (req: AuthRequest, res: Response) => {
     });
   } catch (error: any) {
     logger.error(`[getMyRides] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * DELETE /api/v1/rides/:id/cancel
+ * Cancel a ride (used when no GPS data exists)
+ */
+export const cancelRide = async (req: AuthRequest, res: Response) => {
+  try {
+    const rideId = req.params.id;
+    const userId = req.userId;
+
+    logger.info(`[cancelRide] User ${userId} cancelling ride ${rideId}`);
+
+    // Get ride
+    const ride = await Ride.findOne({ _id: rideId, userId });
+    if (!ride || !["active", "paused"].includes(ride.status)) {
+      logger.warn(
+        `[cancelRide] Ride ${rideId} not found or already ended for user ${userId}`,
+      );
+      return res
+        .status(404)
+        .json({ success: false, error: "Ride not found or already ended" });
+    }
+
+    // Mark as cancelled
+    ride.status = "cancelled";
+    ride.endedAt = new Date();
+    await ride.save();
+
+    logger.info(`[cancelRide] Ride ${rideId} marked as cancelled`);
+
+    // Cleanup Redis
+    const redisKey = `ride:${rideId}:points`;
+    await redisClient.del(redisKey);
+    if (ride.liveShareToken) {
+      await redisClient.del(`live:${ride.liveShareToken}`);
+    }
+
+    logger.info(`[cancelRide] Cleaned up Redis keys for ride ${rideId}`);
+
+    // Do NOT update user stats - this ride is cancelled
+    // Do NOT trigger background jobs
+
+    return res.json({
+      success: true,
+      data: {
+        message: "Ride cancelled",
+        rideId: ride._id,
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[cancelRide] Error: ${error.message}`);
     return res.status(500).json({ success: false, error: error.message });
   }
 };
