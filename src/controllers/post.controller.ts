@@ -415,11 +415,10 @@ export const getExploreFeed = async (
     logger.info(`[getExploreFeed] Fetching explore feed for user ${userId}`);
 
     // ============================================
-    // Show ALL public posts (excluding own posts)
+    // Show ALL public posts (including own posts)
     // ============================================
     const exploreQuery = {
-      userId: { $ne: userId }, // Exclude own posts
-      privacy: "public", // Only public posts
+      privacy: "public", // Only public posts (includes own posts)
     };
 
     const posts = await Post.find(exploreQuery)
