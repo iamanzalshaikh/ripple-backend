@@ -54,18 +54,17 @@ export const startRide = async (req: AuthRequest, res: Response) => {
     }
 
     // Generate live share token if enabled
-    let liveShareToken: string | null = null;
+    let liveShareToken: string | undefined;
     if (liveShare) {
       liveShareToken = generateToken(32);
     }
 
-    // Create ride
-    const ride = new Ride({
+    // Create ride - only include liveShareToken if it exists
+    const rideData: any = {
       userId,
       bikeId,
       startedAt: new Date(),
       liveShareEnabled: liveShare,
-      liveShareToken,
       status: "active",
       privacy: "friends",
       distance: 0,
@@ -73,7 +72,14 @@ export const startRide = async (req: AuthRequest, res: Response) => {
       avgSpeed: 0,
       maxSpeed: 0,
       simplifiedPolyline: [],
-    });
+    };
+
+    // Only add liveShareToken if live share is enabled
+    if (liveShareToken) {
+      rideData.liveShareToken = liveShareToken;
+    }
+
+    const ride = new Ride(rideData);
 
     await ride.save();
     logger.info(`[startRide] Ride ${ride._id} created for user ${userId}`);
