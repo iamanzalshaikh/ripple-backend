@@ -94,6 +94,7 @@ import express, { Router } from "express";
 import {
   createRideEvent,
   listRideEvents,
+  searchRideEvents,
   getMyRideEvents,
   getRideEventDetail,
   rsvpRideEvent,
@@ -119,6 +120,7 @@ const router: Router = express.Router();
 
 router.post("/", isAuth, upload.single("banner"), createRideEvent as any);
 router.get("/", isAuth, listRideEvents as any);
+router.get("/search", isAuth, searchRideEvents as any); // Search/filter route
 router.get("/me", isAuth, getMyRideEvents as any); // Must be before /:id
 router.get("/:id", isAuth, getRideEventDetail as any);
 router.post("/:id/rsvp", isAuth, rsvpRideEvent as any);
