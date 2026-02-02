@@ -53,6 +53,58 @@ export const startRide = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // ✅ Check subscription ride limit
+    const user = await User.findById(userId).select("subscription");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    // Check if subscription is expired
+    const isExpired =
+      user.subscription.tier === "pro" &&
+      user.subscription.expiryDate &&
+      new Date() > user.subscription.expiryDate;
+
+    const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+    // Get plan to check ride limit
+    const SubscriptionPlan = (await import("../models/subscriptionPlan.model.js")).default;
+    const plan = await SubscriptionPlan.findOne({
+      tier: effectiveTier,
+      active: true,
+    }).lean();
+
+    if (!plan) {
+      logger.error(`[startRide] No plan found for tier: ${effectiveTier}`);
+      return res.status(500).json({
+        success: false,
+        error: "Subscription plan not found",
+      });
+    }
+
+    // Check ride limit for free tier
+    if (effectiveTier === "free") {
+      const ridesLimit = plan.features.ridesPerMonth || 3;
+      if (user.subscription.ridesUsedThisMonth >= ridesLimit) {
+        logger.warn(
+          `[startRide] User ${userId} has reached ride limit (${ridesLimit})`
+        );
+        return res.status(403).json({
+          success: false,
+          error: "UPGRADE_REQUIRED",
+          message: `You've used all ${ridesLimit} free rides this month. Upgrade to Pro for unlimited rides.`,
+          data: {
+            ridesUsed: user.subscription.ridesUsedThisMonth,
+            ridesLimit,
+            tier: effectiveTier,
+          },
+        });
+      }
+    }
+
     // Generate live share token if enabled
     let liveShareToken: string | undefined;
     if (liveShare) {
@@ -83,6 +135,15 @@ export const startRide = async (req: AuthRequest, res: Response) => {
 
     await ride.save();
     logger.info(`[startRide] Ride ${ride._id} created for user ${userId}`);
+
+    // ✅ Increment ride counter for free tier
+    if (effectiveTier === "free") {
+      user.subscription.ridesUsedThisMonth += 1;
+      await user.save();
+      logger.info(
+        `[startRide] Incremented ride counter for user ${userId} (${user.subscription.ridesUsedThisMonth}/${plan.features.ridesPerMonth})`
+      );
+    }
 
     // ✅ Initialize Redis key for GPS points (24h TTL)
     if (liveShareToken) {
