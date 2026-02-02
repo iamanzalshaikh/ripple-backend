@@ -30,11 +30,6 @@ import {
 } from "../utils/otp.js";
 // import { sendLoginOtpEmail, sendSignupOtpEmail } from "../config/mail.js";
 
-// Generate 6-digit OTP
-function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
 // Format user response for auth
 function formatAuthUser(user: any): IAuthUser {
   return {
