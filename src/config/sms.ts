@@ -188,7 +188,6 @@ const TECHMORE_API_URL = "http://textsms.thetechmore.in/http-tokenkeyapi.php";
  * @param message - SMS message content
  * @returns Promise<boolean> - Success status
  */
-import axios from "axios";
 
 async function sendSMS(phone: string, message: string): Promise<boolean> {
   try {
