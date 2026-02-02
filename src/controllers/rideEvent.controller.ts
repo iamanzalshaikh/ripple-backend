@@ -312,6 +312,152 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
 };
 
 /**
+ * GET /api/v1/ride-events/search
+ * Search and filter ride events
+ * Supports: text search (title/location), difficulty, privacy, price range, date range, status
+ */
+export const searchRideEvents = (req: AuthRequest, res: Response): void => {
+  (async () => {
+    try {
+      const {
+        q, // Text search query (title, location, description)
+        difficulty, // Route difficulty filter
+        privacy, // public or private
+        priceMin, // Minimum price
+        priceMax, // Maximum price
+        dateFrom, // Minimum scheduled date
+        dateTo, // Maximum scheduled date
+        status = "SCHEDULED", // Event status
+        location, // Location filter
+        category, // Event category
+        page = 1,
+        limit = 20,
+        sortBy = "scheduledAt", // Sort field
+        sortOrder = "asc", // Sort order (asc/desc)
+      } = req.query;
+
+      logger.info(`[searchRideEvents] Search query: ${q || "all"}`);
+
+      // Build query
+      const query: any = {};
+
+      // Status filter (default to SCHEDULED)
+      if (status) {
+        query.status = status;
+      }
+
+      // Text search on title, description, and location
+      if (q) {
+        query.$or = [
+          { title: { $regex: q, $options: "i" } },
+          { description: { $regex: q, $options: "i" } },
+          { location: { $regex: q, $options: "i" } },
+        ];
+      }
+
+      // Location filter
+      if (location && !q) {
+        query.location = { $regex: location, $options: "i" };
+      }
+
+      // Difficulty filter
+      if (difficulty) {
+        query["route.difficulty"] = difficulty;
+      }
+
+      // Privacy filter (public/private)
+      if (privacy) {
+        query.privacy = privacy;
+      }
+
+      // Price range filter
+      if (priceMin !== undefined || priceMax !== undefined) {
+        query.price = {};
+        if (priceMin !== undefined) {
+          query.price.$gte = parseFloat(priceMin as string);
+        }
+        if (priceMax !== undefined) {
+          query.price.$lte = parseFloat(priceMax as string);
+        }
+      }
+
+      // Date range filter
+      if (dateFrom || dateTo) {
+        query.scheduledAt = {};
+        if (dateFrom) {
+          query.scheduledAt.$gte = new Date(dateFrom as string);
+        }
+        if (dateTo) {
+          query.scheduledAt.$lte = new Date(dateTo as string);
+        }
+      }
+
+      // Category filter
+      if (category) {
+        query.category = category;
+      }
+
+      // Pagination
+      const pageNum = Math.max(1, parseInt(page as string) || 1);
+      const limitNum = Math.min(50, parseInt(limit as string) || 20);
+      const skip = (pageNum - 1) * limitNum;
+
+      // Sort configuration
+      const sortField = sortBy as string;
+      const sortDirection = sortOrder === "desc" ? -1 : 1;
+      const sort: any = { [sortField]: sortDirection };
+
+      // Execute query
+      const rides = await RideEvent.find(query)
+        .populate("organizerId", "name avatarUrl verified ridingHours")
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNum)
+        .lean();
+
+      const total = await RideEvent.countDocuments(query);
+
+      // Enrich with participant counts
+      const enriched = rides.map((ride: any) => ({
+        ...ride,
+        participantCount: ride.participants.length,
+        spotsAvailable: ride.maxParticipants - ride.participants.length,
+      }));
+
+      logger.info(
+        `[searchRideEvents] Found ${rides.length} rides matching criteria`,
+      );
+
+      return res.json({
+        success: true,
+        data: enriched,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum),
+        },
+        filters: {
+          q,
+          difficulty,
+          privacy,
+          priceMin,
+          priceMax,
+          dateFrom,
+          dateTo,
+          status,
+          location,
+          category,
+        },
+      });
+    } catch (error: any) {
+      logger.error(`[searchRideEvents] Error: ${error.message}`);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  })();
+};
+
+/**
  * GET /api/v1/ride-events/me
  * Get ride events where the logged-in user is a participant
  */
