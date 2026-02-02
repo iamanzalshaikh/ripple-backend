@@ -57,6 +57,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 export const updateMyProfile = async (req: AuthRequest, res: Response) => {
   const allowedFields = [
     "name",
+    "handle",
     "email",
     "bio",
     "city",
