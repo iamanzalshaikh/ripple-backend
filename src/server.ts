@@ -5,8 +5,10 @@ import connectDB from "./config/db.js";
 import config from "./config/config.js";
 import { connectRedis } from "./config/redis.js";
 import { initBadges } from "./seeds/initBadges.js";
+import seedSubscriptionPlans from "./seeds/subscriptionPlans.seed.js";
 import initializeSocket from "./config/socket.js";
 import logger from "./config/logger.js";
+import { startSubscriptionJobs } from "./jobs/subscription.cron.js";
 
 const startServer = async () => {
   try {
@@ -22,7 +24,14 @@ const startServer = async () => {
 
     // Initialize badges
     await initBadges();
+
+    // Initialize subscription plans
+    await seedSubscriptionPlans();
     logger.info("✅ Badges initialized");
+
+    // Start subscription cron jobs
+    startSubscriptionJobs();
+    logger.info("✅ Subscription cron jobs started");
 
     // ==================== CREATE HTTP SERVER ====================
     // Required for Socket.io

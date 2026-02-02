@@ -582,6 +582,18 @@ export interface IUser {
   // Notifications
   pushTokens: string[];
 
+  // Subscription
+  subscription: {
+    tier: "free" | "pro";
+    startDate: Date;
+    expiryDate?: Date | null;
+    planId?: string | null;
+    ridesUsedThisMonth: number;
+    lastRideResetDate: Date;
+    autoRenew: boolean;
+    paymentMethod?: string | null;
+  };
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -821,6 +833,47 @@ const userSchema = new Schema<IUserDocument, IUserModel, IUserMethods>(
 
     // Push Tokens
     pushTokens: { type: [String], default: [] },
+
+    // Subscription
+    subscription: {
+      tier: {
+        type: String,
+        enum: ["free", "pro"],
+        default: "free",
+        index: true,
+      },
+      startDate: {
+        type: Date,
+        default: Date.now,
+      },
+      expiryDate: {
+        type: Date,
+        default: null,
+        index: true,
+      },
+      planId: {
+        type: Schema.Types.ObjectId,
+        ref: "SubscriptionPlan",
+        default: null,
+      },
+      ridesUsedThisMonth: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      lastRideResetDate: {
+        type: Date,
+        default: Date.now,
+      },
+      autoRenew: {
+        type: Boolean,
+        default: false,
+      },
+      paymentMethod: {
+        type: String,
+        default: null,
+      },
+    },
   },
   {
     timestamps: true,
@@ -838,6 +891,7 @@ userSchema.index({ city: 1, verified: 1 });
 userSchema.index({ createdAt: -1 });
 userSchema.index({ followerCount: -1 });
 userSchema.index({ totalDistance: -1 });
+userSchema.index({ "subscription.tier": 1, "subscription.expiryDate": 1 });
 
 // ============================================
 // Middleware - Hash password before save

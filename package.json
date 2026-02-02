@@ -8,7 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier --write src/**/*.ts",
+    "seed:plans": "tsx src/seeds/subscriptionPlans.seed.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -34,6 +35,7 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
+    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.12",
     "redis": "^5.10.0",
     "socket.io": "^4.8.3",
@@ -56,6 +58,7 @@
     "@types/multer": "^2.0.0",
     "@types/multer-s3": "^3.0.3",
     "@types/node": "^24.10.4",
+    "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.4",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",

@@ -246,6 +246,37 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
       const limitNum = Math.min(50, parseInt(limit as string) || 10);
       const skip = (pageNum - 1) * limitNum;
 
+      // ✅ Filter events by subscription tier
+      const userId = req.userId;
+      if (userId) {
+        const User = (await import("../models/user.model.js")).default;
+        const user = await User.findById(userId).select("subscription");
+        if (user) {
+          // Check if subscription is expired
+          const isExpired =
+            user.subscription.tier === "pro" &&
+            user.subscription.expiryDate &&
+            new Date() > user.subscription.expiryDate;
+
+          const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+          // Free tier can only see free events (price === 0 or privacy === 'public')
+          if (effectiveTier === "free") {
+            query.$or = [
+              { price: 0 },
+              { privacy: "public" },
+            ];
+          }
+          // Pro tier can see all events (no filter needed)
+        }
+      } else {
+        // Not authenticated - only show free events
+        query.$or = [
+          { price: 0 },
+          { privacy: "public" },
+        ];
+      }
+
       const rides = await RideEvent.find(query)
         .populate("organizerId", "name avatarUrl verified ridingHours")
         .sort({ scheduledAt: 1 })
@@ -465,6 +496,32 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
         return res.status(400).json({ success: false, error: "Ride is full" });
       }
 
+      // ✅ Check subscription - free tier cannot join paid events
+      const userSubscription = await User.findById(userId).select("subscription");
+      if (userSubscription) {
+        // Check if subscription is expired
+        const isExpired =
+          userSubscription.subscription.tier === "pro" &&
+          userSubscription.subscription.expiryDate &&
+          new Date() > userSubscription.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+
+        // Free tier cannot join paid events (price > 0 or privacy === 'private')
+        if (effectiveTier === "free" && (ride.price > 0 || ride.privacy === "private")) {
+          return res.status(403).json({
+            success: false,
+            error: "UPGRADE_REQUIRED",
+            message: "This is a paid event. Upgrade to Pro to join paid events.",
+            data: {
+              tier: effectiveTier,
+              eventPrice: ride.price,
+              eventPrivacy: ride.privacy,
+            },
+          });
+        }
+      }
+
       // If event is private, ALWAYS block normal RSVP and force booking flow
       if (ride.privacy === "private") {
         return res.status(400).json({
@@ -575,6 +632,32 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
         return res
           .status(403)
           .json({ success: false, error: "Verification required to join" });
+      }
+
+      // ✅ Check subscription - free tier cannot book paid events
+      const userSubscription = await User.findById(userId).select("subscription");
+      if (userSubscription) {
+        // Check if subscription is expired
+        const isExpired =
+          userSubscription.subscription.tier === "pro" &&
+          userSubscription.subscription.expiryDate &&
+          new Date() > userSubscription.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+
+        // Free tier cannot book paid events (price > 0 or privacy === 'private')
+        if (effectiveTier === "free" && (ride.price > 0 || ride.privacy === "private")) {
+          return res.status(403).json({
+            success: false,
+            error: "UPGRADE_REQUIRED",
+            message: "This is a paid event. Upgrade to Pro to book paid events.",
+            data: {
+              tier: effectiveTier,
+              eventPrice: ride.price,
+              eventPrivacy: ride.privacy,
+            },
+          });
+        }
       }
 
       const alreadyParticipant = ride.participants.some(
