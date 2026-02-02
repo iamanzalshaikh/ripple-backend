@@ -8,18 +8,30 @@ import {
   sendSignupOtp,
   verifyLoginOtp,
   verifySignupOtp,
+  sendSignupOtpSms,
+  verifySignupOtpSms,
+  sendLoginOtpSms,
+  verifyLoginOtpSms,
 } from "../controllers/auth.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
 
 const router: Router = Router();
 
-// Signup Routes
+// Signup Routes (Email-based - existing)
 router.post("/signup/send-otp", sendSignupOtp);
 router.post("/signup/verify-otp", verifySignupOtp);
 
-// Login Routes
+// Signup Routes (SMS-based - new)
+router.post("/signup/send-otp-sms", sendSignupOtpSms);
+router.post("/signup/verify-otp-sms", verifySignupOtpSms);
+
+// Login Routes (Email-based - existing)
 router.post("/login/send-otp", sendLoginOtp);
 router.post("/login/verify-otp", verifyLoginOtp);
+
+// Login Routes (SMS-based - new)
+router.post("/login/send-otp-sms", sendLoginOtpSms);
+router.post("/login/verify-otp-sms", verifyLoginOtpSms);
 
 // Logout Route
 router.post("/logout", isAuth, logout);
