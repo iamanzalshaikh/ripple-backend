@@ -26,6 +26,32 @@ export const browseListings = async (
   res: Response
 ): Promise<void> => {
   try {
+    // ✅ Check subscription - marketplace requires Pro tier
+    const userId = req.userId;
+    if (userId) {
+      const user = await User.findById(userId).select("subscription");
+      if (user) {
+        // Check if subscription is expired
+        const isExpired =
+          user.subscription.tier === "pro" &&
+          user.subscription.expiryDate &&
+          new Date() > user.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+        if (effectiveTier === "free") {
+          res.status(403).json({
+            success: false,
+            message: "UPGRADE_REQUIRED",
+            error: "Marketplace access requires Pro subscription. Upgrade to browse listings.",
+            data: {
+              tier: effectiveTier,
+            },
+          });
+          return;
+        }
+      }
+    }
     const {
       category,
       location,
@@ -102,6 +128,33 @@ export const getListingDetails = async (
   res: Response
 ): Promise<void> => {
   try {
+    // ✅ Check subscription - marketplace requires Pro tier
+    const userId = req.userId;
+    if (userId) {
+      const user = await User.findById(userId).select("subscription");
+      if (user) {
+        // Check if subscription is expired
+        const isExpired =
+          user.subscription.tier === "pro" &&
+          user.subscription.expiryDate &&
+          new Date() > user.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+        if (effectiveTier === "free") {
+          res.status(403).json({
+            success: false,
+            message: "UPGRADE_REQUIRED",
+            error: "Marketplace access requires Pro subscription. Upgrade to view listing details.",
+            data: {
+              tier: effectiveTier,
+            },
+          });
+          return;
+        }
+      }
+    }
+
     const { listingId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(listingId)) {
@@ -150,7 +203,7 @@ export const getListingDetails = async (
 /**
  * POST /api/v1/marketplace
  * Create a new marketplace listing
- * Requires: authenticated + verified user
+ * Requires: authenticated + verified user + Pro subscription
  */
 export const createListing = async (
   req: AuthRequest,
@@ -161,6 +214,38 @@ export const createListing = async (
 
   try {
     const userId = req.userId!;
+
+    // ✅ Check subscription - marketplace requires Pro tier
+    const user = await User.findById(userId).select("subscription");
+    if (!user) {
+      await session.abortTransaction();
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    // Check if subscription is expired
+    const isExpired =
+      user.subscription.tier === "pro" &&
+      user.subscription.expiryDate &&
+      new Date() > user.subscription.expiryDate;
+
+    const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+    if (effectiveTier === "free") {
+      await session.abortTransaction();
+      res.status(403).json({
+        success: false,
+        message: "UPGRADE_REQUIRED",
+        error: "Marketplace access requires Pro subscription. Upgrade to create listings.",
+        data: {
+          tier: effectiveTier,
+        },
+      });
+      return;
+    }
     const { title, description, price, category, subCategory, location } =
       req.body;
 
@@ -440,7 +525,7 @@ export const deleteListing = async (
 /**
  * POST /api/v1/marketplace/:listingId/contact
  * Contact seller - creates/retrieves private chat room
- * Requires: authenticated user
+ * Requires: authenticated user + Pro subscription
  */
 export const contactSeller = async (
   req: AuthRequest,
@@ -449,6 +534,36 @@ export const contactSeller = async (
   try {
     const buyerId = req.userId!;
     const { listingId } = req.params;
+
+    // ✅ Check subscription - marketplace requires Pro tier
+    const user = await User.findById(buyerId).select("subscription");
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    // Check if subscription is expired
+    const isExpired =
+      user.subscription.tier === "pro" &&
+      user.subscription.expiryDate &&
+      new Date() > user.subscription.expiryDate;
+
+    const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+    if (effectiveTier === "free") {
+      res.status(403).json({
+        success: false,
+        message: "UPGRADE_REQUIRED",
+        error: "Marketplace access requires Pro subscription. Upgrade to contact sellers.",
+        data: {
+          tier: effectiveTier,
+        },
+      });
+      return;
+    }
 
     if (!mongoose.Types.ObjectId.isValid(listingId)) {
       res.status(400).json({
@@ -681,7 +796,7 @@ export const getMyListings = async (
 /**
  * GET /api/v1/marketplace/:listingId/similar
  * Get similar listings based on category, sub-category, price, and location
- * Public route (no auth required)
+ * Requires: Pro subscription
  * 
  * Scoring algorithm:
  * - Same category (required filter)
@@ -696,6 +811,33 @@ export const getSimilarListings = async (
   res: Response
 ): Promise<void> => {
   try {
+    // ✅ Check subscription - marketplace requires Pro tier
+    const userId = req.userId;
+    if (userId) {
+      const user = await User.findById(userId).select("subscription");
+      if (user) {
+        // Check if subscription is expired
+        const isExpired =
+          user.subscription.tier === "pro" &&
+          user.subscription.expiryDate &&
+          new Date() > user.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+        if (effectiveTier === "free") {
+          res.status(403).json({
+            success: false,
+            message: "UPGRADE_REQUIRED",
+            error: "Marketplace access requires Pro subscription. Upgrade to view similar listings.",
+            data: {
+              tier: effectiveTier,
+            },
+          });
+          return;
+        }
+      }
+    }
+
     const { listingId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(listingId)) {
