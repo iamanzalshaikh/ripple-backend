@@ -63,7 +63,7 @@ const otpStore = new Map<
 /**
  * Step 1: Send OTP to Email (Signup)
  * POST /api/v1/auth/signup/send-otp
- * Body: { email, phone }
+ * Body: { email, phone } - email is required, phone is optional
  * NOTE: User is NOT created yet, only OTP is sent to email
  */
 export const sendSignupOtp = async (
@@ -73,18 +73,18 @@ export const sendSignupOtp = async (
   try {
     const { email, phone } = req.body;
 
-    // Validation - Both required
-    if (!email || !phone) {
+    // Validation - Email required
+    if (!email) {
       res.status(400).json({
         success: false,
-        message: "Email and phone number are required",
+        message: "Email is required",
       });
       return;
     }
 
     // Normalize email (trim + lowercase) for consistent storage/retrieval
     const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPhone = phone.trim();
+    const normalizedPhone = phone ? phone.trim() : "";
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -96,8 +96,8 @@ export const sendSignupOtp = async (
       return;
     }
 
-    // Validate phone format
-    if (!/^[0-9]{10}$/.test(normalizedPhone)) {
+    // Validate phone format (if provided)
+    if (normalizedPhone && !/^[0-9]{10}$/.test(normalizedPhone)) {
       res.status(400).json({
         success: false,
         message: "Phone number must be 10 digits",
@@ -106,8 +106,15 @@ export const sendSignupOtp = async (
     }
 
     // Check if user already exists (by email or phone)
+    const queryConditions: Array<{ email?: string; phone?: string }> = [
+      { email: normalizedEmail },
+    ];
+    if (normalizedPhone) {
+      queryConditions.push({ phone: normalizedPhone });
+    }
+
     const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
+      $or: queryConditions,
     });
     if (existingUser) {
       res.status(400).json({
@@ -142,14 +149,14 @@ export const sendSignupOtp = async (
     // Store OTP in temporary storage (expires in 10 minutes) - use normalized email as key
     otpStore.set(normalizedEmail, { otp, expiresAt, phone: normalizedPhone });
 
-    logger.info(`OTP sent to ${email} (${phone}) - User NOT created yet`);
+    logger.info(`OTP sent to email ${normalizedEmail} - User NOT created yet`);
 
     res.status(200).json({
       success: true,
       message: "OTP sent successfully to your email",
       data: {
         email: normalizedEmail,
-        phone: normalizedPhone,
+        phone: normalizedPhone || null,
         otpExpiresIn: "10 minutes",
       },
     });
@@ -166,7 +173,7 @@ export const sendSignupOtp = async (
 /**
  * Step 2: Verify OTP & CREATE USER (Signup)
  * POST /api/v1/auth/signup/verify-otp
- * Body: { email, phone, otp }
+ * Body: { email, phone, otp } - email and phone are both required, OTP is verified against email
  * NOTE: User is CREATED ONLY AFTER OTP verification succeeds ✅
  */
 export const verifySignupOtp = async (
@@ -174,9 +181,9 @@ export const verifySignupOtp = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { email, phone, otp } = req.body;
+    const { email, phone, otp, name } = req.body;
 
-    // Validation - All required
+    // Validation - All required for user creation
     if (!email || !phone || !otp) {
       res.status(400).json({
         success: false,
@@ -229,15 +236,6 @@ export const verifySignupOtp = async (
       return;
     }
 
-    // Check if phone matches
-    if (storedOtp.phone !== normalizedPhone) {
-      res.status(400).json({
-        success: false,
-        message: "Phone number does not match.",
-      });
-      return;
-    }
-
     // Verify OTP (compare normalized OTP)
     if (storedOtp.otp !== normalizedOtp) {
       res.status(400).json({
@@ -251,6 +249,7 @@ export const verifySignupOtp = async (
     const newUser = new User({
       email: normalizedEmail,
       phone: normalizedPhone,
+      name: name ? name.trim() : undefined,
       role: UserRole.RIDER,
       accountStatus: AccountStatus.ACTIVE,
       verificationStatus: VerificationStatus.APPROVED,
@@ -677,7 +676,7 @@ export const verifySignupOtpSms = async (
       return;
     }
 
-    const { email, phone, otp } = req.body;
+    const { email, phone, otp, name } = req.body;
 
     // Validation - All required
     if (!email || !phone || !otp) {
@@ -746,6 +745,7 @@ export const verifySignupOtpSms = async (
     const newUser = new User({
       email: normalizedEmail,
       phone: normalizedPhone,
+      name: name ? name.trim() : undefined,
       role: UserRole.RIDER,
       accountStatus: AccountStatus.ACTIVE,
       verificationStatus: VerificationStatus.APPROVED,
