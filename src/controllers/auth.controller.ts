@@ -600,7 +600,7 @@ export const sendSignupOtpSms = async (
     // Hash OTP before storing
     const otpHash = await hashOTP(otp);
 
-    // Send OTP via SMS
+    // Send OTP via SMS (with fallback: Techmore → Twilio)
     try {
       const smsSent = await sendSignupOtpViaSms(normalizedPhone, otp);
       if (!smsSent) {
@@ -894,7 +894,7 @@ export const sendLoginOtpSms = async (
       phone: normalizedPhone,
     });
 
-    // Send OTP via SMS
+    // Send OTP via SMS (with fallback: Techmore → Twilio)
     try {
       const smsSent = await sendLoginOtpViaSms(normalizedPhone, otp);
       if (!smsSent) {

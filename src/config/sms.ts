@@ -1,4 +1,5 @@
 import axios from "axios";
+import twilio from "twilio";
 import config from "./config.js";
 import logger from "./logger.js";
 
@@ -6,6 +7,55 @@ import logger from "./logger.js";
 // API Documentation: https://www.techmoreindia.com/
 
 const TECHMORE_API_URL = "http://textsms.thetechmore.in/http-tokenkeyapi.php";
+
+// Twilio SMS Integration
+// Initialize Twilio client (will be created on first use)
+let twilioClient: twilio.Twilio | null = null;
+
+/**
+ * Get or create Twilio client instance
+ */
+function getTwilioClient(): twilio.Twilio {
+  if (!twilioClient) {
+    if (!config.TWILIO_ACCOUNT_SID || !config.TWILIO_AUTH_TOKEN) {
+      throw new Error("Twilio credentials are not configured");
+    }
+    twilioClient = twilio(
+      config.TWILIO_ACCOUNT_SID,
+      config.TWILIO_AUTH_TOKEN,
+    );
+  }
+  return twilioClient;
+}
+
+/**
+ * Format phone number to E.164 format for Twilio
+ * Converts 10-digit Indian number to +91XXXXXXXXXX
+ * @param phone - Phone number (10-digit or already formatted)
+ * @returns Formatted phone number in E.164 format
+ */
+function formatPhoneForTwilio(phone: string): string {
+  // Remove any spaces, dashes, or other characters
+  const cleaned = phone.replace(/[\s\-\(\)]/g, "");
+
+  // If already in E.164 format (starts with +), return as is
+  if (cleaned.startsWith("+")) {
+    return cleaned;
+  }
+
+  // If it's a 10-digit Indian number, add +91 prefix
+  if (/^[0-9]{10}$/.test(cleaned)) {
+    return `+91${cleaned}`;
+  }
+
+  // If it's 12 digits starting with 91, add + prefix
+  if (/^91[0-9]{10}$/.test(cleaned)) {
+    return `+${cleaned}`;
+  }
+
+  // Return as is if it doesn't match expected patterns
+  return cleaned;
+}
 
 // /**
 //  * Send SMS via TechMore Gateway
@@ -211,13 +261,29 @@ async function sendSMS(phone: string, message: string): Promise<boolean> {
     }
 
     // 3️⃣ Prepare TechMore parameters (Token Key API)
-    const params = {
+    const params: any = {
       "authentic-key": config.TECHMORE_AUTH_KEY,
       senderid: config.TECHMORE_SENDER_ID,
       route: config.TECHMORE_ROUTE,
       number: phone,
       message,
     };
+
+    // Add template ID if configured (some TechMore accounts require this)
+    if (config.TECHMORE_TEMPLATE_ID) {
+      params.templateid = config.TECHMORE_TEMPLATE_ID;
+      console.log(`[SMS] Using Template ID: ${config.TECHMORE_TEMPLATE_ID}`);
+    }
+
+    // Log request details (without exposing full auth key)
+    console.log(`[SMS] Request Details:`);
+    console.log(`[SMS] API URL: ${TECHMORE_API_URL}`);
+    console.log(`[SMS] Phone: ${phone}`);
+    console.log(`[SMS] Sender ID: ${config.TECHMORE_SENDER_ID}`);
+    console.log(`[SMS] Route: ${config.TECHMORE_ROUTE}`);
+    console.log(`[SMS] Auth Key: ${config.TECHMORE_AUTH_KEY?.substring(0, 10)}...`);
+    console.log(`[SMS] Message Length: ${message.length} chars`);
+    console.log(`[SMS] Message Preview: ${message.substring(0, 50)}...`);
 
     console.log(`[SMS] Sending OTP SMS...`);
 
@@ -226,16 +292,32 @@ async function sendSMS(phone: string, message: string): Promise<boolean> {
       params,
       timeout: 10000, // 10 seconds
     });
-
+    
     const data = response.data;
-
-    console.log(`[SMS] API Response:`, data);
+    console.log(`[SMS] Full API Response:`, JSON.stringify(data, null, 2));
+    console.log(`[SMS] Response Status Code: ${response.status}`);
+    console.log(`[SMS] Response Headers:`, JSON.stringify(response.headers, null, 2));
 
     // 5️⃣ SUCCESS condition (THIS IS IMPORTANT)
     if (response.status === 200 && data?.Status === "Success") {
       console.log(
         `[SMS] ✅ SMS sent successfully. Message ID: ${data["Message-Id"]}`,
       );
+      console.log(`[SMS] Response Code: ${data?.Code || "N/A"}`);
+      console.log(`[SMS] Description: ${data?.Description || "N/A"}`);
+      console.log("\n⚠️  IMPORTANT: If SMS not received, check:");
+      console.log("  1. ✅ Template ID: " + (config.TECHMORE_TEMPLATE_ID || "Not set"));
+      console.log("  2. ✅ Message must match approved template EXACTLY");
+      console.log("  3. ✅ Template must be APPROVED in TechMore dashboard");
+      console.log("  4. ✅ Check TechMore dashboard for delivery status");
+      console.log("  5. ✅ Verify account balance/credits in TechMore");
+      console.log("  6. ✅ Phone number format: " + phone);
+      console.log("  7. ✅ Message preview: " + message.substring(0, 60) + "...");
+      console.log("\n💡 TROUBLESHOOTING:");
+      console.log("  - Template ID: " + config.TECHMORE_TEMPLATE_ID);
+      console.log("  - Expected format: 'Your OTP is {#var#}. It is valid for 10 minutes...'");
+      console.log("  - Your message: '" + message + "'");
+      console.log("  - If template uses {#var#}, ensure message matches EXACTLY");
       console.log("========== SMS SEND SUCCESS ==========\n");
       return true;
     }
@@ -244,6 +326,8 @@ async function sendSMS(phone: string, message: string): Promise<boolean> {
     console.error(
       `[SMS] ❌ TechMore API error: ${data?.Description || "Unknown error"}`,
     );
+    console.error(`[SMS] Response Code: ${data?.Code || "N/A"}`);
+    console.error(`[SMS] Full Response:`, JSON.stringify(data, null, 2));
     console.log("========== SMS SEND FAILED ==========\n");
     return false;
   } catch (error: any) {
@@ -262,7 +346,44 @@ async function sendSMS(phone: string, message: string): Promise<boolean> {
 }
 
 /**
- * Send Signup OTP SMS
+ * Send SMS with fallback: Twilio first (for testing), then Techmore
+ * NOTE: Once Twilio is confirmed working, we'll switch to Techmore first, Twilio fallback
+ * @param phone - 10-digit mobile number
+ * @param message - SMS message content
+ * @returns Promise<boolean> - Success status
+ */
+async function sendSMSWithFallback(
+  phone: string,
+  message: string,
+): Promise<boolean> {
+  console.log("\n========== SMS SEND WITH FALLBACK ==========");
+  console.log(`[SMS] Testing Twilio first...`);
+
+  // Try Twilio first (for testing)
+  const twilioResult = await sendSMSViaTwilio(phone, message);
+  if (twilioResult) {
+    console.log(`[SMS] ✅ Twilio succeeded, no fallback needed`);
+    console.log("===========================================\n");
+    return true;
+  }
+
+  // Twilio failed, try Techmore as fallback
+  console.log(`[SMS] ⚠️  Twilio failed, trying Techmore as fallback...`);
+  const techmoreResult = await sendSMS(phone, message);
+  if (techmoreResult) {
+    console.log(`[SMS] ✅ Techmore fallback succeeded`);
+    console.log("===========================================\n");
+    return true;
+  }
+
+  // Both failed
+  console.log(`[SMS] ❌ Both Twilio and Techmore failed`);
+  console.log("===========================================\n");
+  return false;
+}
+
+/**
+ * Send Signup OTP SMS (with fallback: Techmore → Twilio)
  * @param phone - 10-digit mobile number
  * @param otp - 6-digit OTP
  * @returns Promise<boolean>
@@ -271,14 +392,19 @@ export const sendSignupOtpSms = async (
   phone: string,
   otp: string,
 ): Promise<boolean> => {
-  const message = `Welcome to HerRidez! Your verification OTP is: ${otp}. Valid for 10 minutes. Do not share this code with anyone. - HerRidez`;
+  const message = `Your OTP  is ${otp}. It is valid for 10 minutes. 
+Please do not share this code with anyone.
+
+HerRidez
+
+TMS `;
 
   try {
-    const success = await sendSMS(phone, message);
+    const success = await sendSMSWithFallback(phone, message);
     if (success) {
       logger.info(`[SMS] Signup OTP sent to ${phone}`);
     } else {
-      logger.error(`[SMS] Failed to send signup OTP to ${phone}`);
+      logger.error(`[SMS] Failed to send signup OTP to ${phone} (both providers failed)`);
     }
     return success;
   } catch (error: any) {
@@ -290,7 +416,7 @@ export const sendSignupOtpSms = async (
 };
 
 /**
- * Send Login OTP SMS
+ * Send Login OTP SMS (with fallback: Techmore → Twilio)
  * @param phone - 10-digit mobile number
  * @param otp - 6-digit OTP
  * @returns Promise<boolean>
@@ -299,14 +425,19 @@ export const sendLoginOtpSms = async (
   phone: string,
   otp: string,
 ): Promise<boolean> => {
-  const message = `Your HerRidez login OTP is: ${otp}. Valid for 10 minutes. Do not share this code. If you did not request this, please ignore. - HerRidez`;
+  const message = `Your OTP  is ${otp}. It is valid for 10 minutes. 
+Please do not share this code with anyone.
+
+HerRidez
+
+TMS `;
 
   try {
-    const success = await sendSMS(phone, message);
+    const success = await sendSMSWithFallback(phone, message);
     if (success) {
       logger.info(`[SMS] Login OTP sent to ${phone}`);
     } else {
-      logger.error(`[SMS] Failed to send login OTP to ${phone}`);
+      logger.error(`[SMS] Failed to send login OTP to ${phone} (both providers failed)`);
     }
     return success;
   } catch (error: any) {
@@ -316,7 +447,7 @@ export const sendLoginOtpSms = async (
 };
 
 /**
- * Send Emergency SOS Alert SMS
+ * Send Emergency SOS Alert SMS (with fallback: Techmore → Twilio)
  * @param phone - 10-digit mobile number
  * @param message - Alert message
  * @returns Promise<boolean>
@@ -326,16 +457,238 @@ export const sendEmergencyAlertSms = async (
   message: string,
 ): Promise<boolean> => {
   try {
-    const success = await sendSMS(phone, message);
+    const success = await sendSMSWithFallback(phone, message);
     if (success) {
       logger.info(`[SMS] Emergency alert sent to ${phone}`);
     } else {
-      logger.error(`[SMS] Failed to send emergency alert to ${phone}`);
+      logger.error(`[SMS] Failed to send emergency alert to ${phone} (both providers failed)`);
     }
     return success;
   } catch (error: any) {
     logger.error(
       `[SMS] Error sending emergency alert to ${phone}: ${error.message}`,
+    );
+    return false;
+  }
+};
+
+// ============================================
+// TWILIO SMS IMPLEMENTATION (For Testing)
+// ============================================
+
+/**
+ * Send SMS via Twilio Gateway
+ * @param phone - 10-digit Indian mobile number (will be formatted to +91XXXXXXXXXX)
+ * @param message - SMS message content
+ * @returns Promise<boolean> - Success status
+ */
+async function sendSMSViaTwilio(
+  phone: string,
+  message: string,
+): Promise<boolean> {
+  try {
+    console.log("\n========== TWILIO SMS SEND ATTEMPT ==========");
+    console.log(`[TWILIO] Target Phone: ${phone}`);
+
+    // 1️⃣ Validate phone number (accept 10-digit or already formatted)
+    const cleanedPhone = phone.replace(/[\s\-\(\)]/g, "");
+    if (!/^[0-9]{10}$/.test(cleanedPhone) && !cleanedPhone.startsWith("+")) {
+      console.error(`[TWILIO] ❌ Invalid phone number format: ${phone}`);
+      logger.error(`[TWILIO] Invalid phone number format: ${phone}`);
+      return false;
+    }
+
+    // 2️⃣ Validate Twilio configuration
+    console.log(`[TWILIO] Checking configuration...`);
+    console.log(`[TWILIO] TWILIO_ACCOUNT_SID: ${config.TWILIO_ACCOUNT_SID ? "Set" : "❌ MISSING"}`);
+    console.log(`[TWILIO] TWILIO_AUTH_TOKEN: ${config.TWILIO_AUTH_TOKEN ? "Set" : "❌ MISSING"}`);
+    console.log(`[TWILIO] TWILIO_FROM_NUMBER: ${config.TWILIO_FROM_NUMBER || "❌ MISSING"}`);
+    console.log(`[TWILIO] TWILIO_MESSAGING_SERVICE_SID: ${config.TWILIO_MESSAGING_SERVICE_SID || "Not set (optional)"}`);
+    
+    if (!config.TWILIO_ACCOUNT_SID || !config.TWILIO_AUTH_TOKEN) {
+      console.error(`[TWILIO] ❌ Twilio configuration missing in .env`);
+      console.error(`[TWILIO] Please add these to your .env file:`);
+      console.error(`[TWILIO] TWILIO_ACCOUNT_SID=your_account_sid`);
+      console.error(`[TWILIO] TWILIO_AUTH_TOKEN=your_auth_token`);
+      console.error(`[TWILIO] TWILIO_FROM_NUMBER=+your_phone_number`);
+      logger.error(`[TWILIO] Twilio configuration missing in .env`);
+      return false;
+    }
+
+    if (!config.TWILIO_FROM_NUMBER && !config.TWILIO_MESSAGING_SERVICE_SID) {
+      console.error(
+        `[TWILIO] ❌ Either TWILIO_FROM_NUMBER or TWILIO_MESSAGING_SERVICE_SID must be set`,
+      );
+      logger.error(
+        `[TWILIO] Either TWILIO_FROM_NUMBER or TWILIO_MESSAGING_SERVICE_SID must be set`,
+      );
+      return false;
+    }
+
+    // 3️⃣ Format phone number to E.164 format
+    const formattedPhone = formatPhoneForTwilio(phone);
+    console.log(`[TWILIO] Formatted Phone: ${formattedPhone}`);
+
+    // 4️⃣ Get Twilio client
+    const client = getTwilioClient();
+
+    // 5️⃣ Prepare message options
+    const messageOptions: any = {
+      to: formattedPhone,
+      body: message,
+    };
+
+    // Use Messaging Service SID if available, otherwise use From Number
+    if (config.TWILIO_MESSAGING_SERVICE_SID) {
+      messageOptions.messagingServiceSid = config.TWILIO_MESSAGING_SERVICE_SID;
+      console.log(`[TWILIO] Using Messaging Service SID`);
+    } else {
+      messageOptions.from = config.TWILIO_FROM_NUMBER;
+      console.log(`[TWILIO] Using From Number: ${config.TWILIO_FROM_NUMBER}`);
+    }
+
+    console.log(`[TWILIO] Sending SMS...`);
+
+    // 6️⃣ Send SMS via Twilio
+    const response = await client.messages.create(messageOptions);
+
+    // 7️⃣ Check response status
+    if (response.status === "queued" || response.status === "sent") {
+      console.log(
+        `[TWILIO] ✅ SMS sent successfully. Message SID: ${response.sid}`,
+      );
+      console.log(`[TWILIO] Status: ${response.status}`);
+      logger.info(
+        `[TWILIO] SMS sent successfully to ${formattedPhone}. Message SID: ${response.sid}`,
+      );
+      console.log("========== TWILIO SMS SEND SUCCESS ==========\n");
+      return true;
+    } else {
+      console.error(
+        `[TWILIO] ❌ SMS status: ${response.status}, Error: ${response.errorMessage || "Unknown"}`,
+      );
+      logger.error(
+        `[TWILIO] SMS failed. Status: ${response.status}, Error: ${response.errorMessage || "Unknown"}`,
+      );
+      console.log("========== TWILIO SMS SEND FAILED ==========\n");
+      return false;
+    }
+  } catch (error: any) {
+    console.error(`[TWILIO] ❌ Exception while sending SMS: ${error.message}`);
+    logger.error(`[TWILIO] Error sending SMS: ${error.message}`);
+
+    if (error.code) {
+      console.error(`[TWILIO] Error Code: ${error.code}`);
+      logger.error(`[TWILIO] Error Code: ${error.code}`);
+      
+      // Error 20003 = Authentication failed
+      if (error.code === 20003) {
+        console.error(`[TWILIO] ⚠️  AUTHENTICATION ERROR (20003)`);
+        console.error(`[TWILIO] This means your Account SID or Auth Token is incorrect.`);
+        console.error(`[TWILIO] Please verify your credentials in Twilio Console:`);
+        console.error(`[TWILIO] https://console.twilio.com/us1/account/settings/credentials`);
+        console.error(`[TWILIO] Current Account SID: ${config.TWILIO_ACCOUNT_SID?.substring(0, 10)}...`);
+        console.error(`[TWILIO] Make sure:`);
+        console.error(`[TWILIO] 1. Account SID starts with "AC"`);
+        console.error(`[TWILIO] 2. Auth Token matches the Account SID`);
+        console.error(`[TWILIO] 3. No extra spaces or quotes in .env file`);
+      }
+    }
+
+    if (error.moreInfo) {
+      console.error(`[TWILIO] More Info: ${error.moreInfo}`);
+    }
+
+    console.log("========== TWILIO SMS SEND EXCEPTION ==========\n");
+    return false;
+  }
+}
+
+/**
+ * Send Signup OTP SMS via Twilio (For Testing)
+ * @param phone - 10-digit mobile number
+ * @param otp - 6-digit OTP
+ * @returns Promise<boolean>
+ */
+export const sendSignupOtpSmsViaTwilio = async (
+  phone: string,
+  otp: string,
+): Promise<boolean> => {
+  const message = `Your OTP  is ${otp}. It is valid for 10 minutes. 
+Please do not share this code with anyone.
+
+HerRidez
+
+TMS `;
+
+  try {
+    const success = await sendSMSViaTwilio(phone, message);
+    if (success) {
+      logger.info(`[TWILIO] Signup OTP sent to ${phone}`);
+    } else {
+      logger.error(`[TWILIO] Failed to send signup OTP to ${phone}`);
+    }
+    return success;
+  } catch (error: any) {
+    logger.error(
+      `[TWILIO] Error sending signup OTP to ${phone}: ${error.message}`,
+    );
+    return false;
+  }
+};
+
+/**
+ * Send Login OTP SMS via Twilio (For Testing)
+ * @param phone - 10-digit mobile number
+ * @param otp - 6-digit OTP
+ * @returns Promise<boolean>
+ */
+export const sendLoginOtpSmsViaTwilio = async (
+  phone: string,
+  otp: string,
+): Promise<boolean> => {
+  const message = `Your OTP  is ${otp}. It is valid for 10 minutes. 
+Please do not share this code with anyone.
+
+HerRidez
+
+TMS `;
+
+  try {
+    const success = await sendSMSViaTwilio(phone, message);
+    if (success) {
+      logger.info(`[TWILIO] Login OTP sent to ${phone}`);
+    } else {
+      logger.error(`[TWILIO] Failed to send login OTP to ${phone}`);
+    }
+    return success;
+  } catch (error: any) {
+    logger.error(`[TWILIO] Error sending login OTP to ${phone}: ${error.message}`);
+    return false;
+  }
+};
+
+/**
+ * Send Emergency SOS Alert SMS via Twilio (For Testing)
+ * @param phone - 10-digit mobile number
+ * @param message - Alert message
+ * @returns Promise<boolean>
+ */
+export const sendEmergencyAlertSmsViaTwilio = async (
+  phone: string,
+  message: string,
+): Promise<boolean> => {
+  try {
+    const success = await sendSMSViaTwilio(phone, message);
+    if (success) {
+      logger.info(`[TWILIO] Emergency alert sent to ${phone}`);
+    } else {
+      logger.error(`[TWILIO] Failed to send emergency alert to ${phone}`);
+    }
+    return success;
+  } catch (error: any) {
+    logger.error(
+      `[TWILIO] Error sending emergency alert to ${phone}: ${error.message}`,
     );
     return false;
   }
