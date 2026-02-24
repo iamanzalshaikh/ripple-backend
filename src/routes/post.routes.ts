@@ -218,7 +218,8 @@ const wrappedUpdatePost: any = updatePost;
 
 router.post("/", isAuth, upload.array("media", 5), wrappedCreatePost);
 router.get("/feed", isAuth, wrappedGetFeed);
-router.get("/explore", isAuth, wrappedGetExploreFeed);
+// Public explore feed so guests can see Community Pulse
+router.get("/explore", wrappedGetExploreFeed);
 router.get("/user/:userId", isAuth, wrappedGetUserPosts);
 router.get("/me", isAuth, wrappedGetMyPosts);
 // Specific routes with /:id/* must come before /:id
