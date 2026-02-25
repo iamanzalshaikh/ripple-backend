@@ -220,9 +220,9 @@ export interface IRideEvent extends Document {
   inclusions?: string; // What's included in ticket
 
   // Monetization
-  privacy: "public" | "private"; // public = free, private = paid
+  privacy: "public" | "private"; // currently we only use "private" for rider events
   price: number; // 0 for free events
-  approved: boolean; // Admin approval for paid events
+  approved: boolean; // Admin approval flag (must be true to show publicly)
 
   // Categorisation & discovery
   location?: string; // City / place name (for text search)
@@ -337,10 +337,12 @@ const rideEventSchema = new Schema<IRideEvent>(
     },
 
     // Monetization
+    // NOTE: All ride events are treated as private and require admin approval
+    // before being visible in public listings.
     privacy: {
       type: String,
       enum: ["public", "private"],
-      default: "public",
+      default: "private",
       index: true,
     },
     price: {
@@ -350,7 +352,7 @@ const rideEventSchema = new Schema<IRideEvent>(
     },
     approved: {
       type: Boolean,
-      default: true, // Public events are auto-approved, paid events need admin approval
+      default: false, // New events start as pending; admin must approve
       index: true,
     },
 

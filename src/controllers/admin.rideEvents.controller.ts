@@ -186,15 +186,7 @@ export const approveRideEvent = async (
       return;
     }
 
-    // Only paid events need approval
-    if (rideEvent.privacy !== "private" || rideEvent.price === 0) {
-      res.status(400).json({
-        success: false,
-        message: "Only paid events require approval",
-      });
-      return;
-    }
-
+    // If already approved, do nothing
     if (rideEvent.approved) {
       res.status(400).json({
         success: false,
@@ -250,15 +242,7 @@ export const rejectRideEvent = async (
       return;
     }
 
-    // Only paid events need approval/rejection
-    if (rideEvent.privacy !== "private" || rideEvent.price === 0) {
-      res.status(400).json({
-        success: false,
-        message: "Only paid events require approval",
-      });
-      return;
-    }
-
+    // Mark as explicitly not approved and cancel the event
     rideEvent.approved = false;
     rideEvent.status = "CANCELLED";
     await rideEvent.save();
@@ -370,12 +354,9 @@ export const getRideEventsStats = async (
       RideEvent.countDocuments({ status: "LIVE" }),
       RideEvent.countDocuments({ status: "COMPLETED" }),
       RideEvent.countDocuments({ status: "CANCELLED" }),
-      RideEvent.countDocuments({ privacy: "private", price: { $gt: 0 } }),
-      RideEvent.countDocuments({
-        privacy: "private",
-        price: { $gt: 0 },
-        approved: false,
-      }),
+      RideEvent.countDocuments({ price: { $gt: 0 } }),
+      // All events with approved=false are awaiting admin approval
+      RideEvent.countDocuments({ approved: false }),
     ]);
 
     res.status(200).json({

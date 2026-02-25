@@ -46,7 +46,7 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         maxParticipants,
         timezone,
         eventType = "ride",
-        privacy = "public",
+        // We now always treat events as private; do not trust incoming privacy.
         price,
       } = req.body;
       const organizerId = req.userId;
@@ -99,14 +99,6 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         return res.status(403).json({
           success: false,
           error: "Need 0+ riding hours to organize",
-        });
-      }
-
-      // Enforce: all private events must have a positive price
-      if (privacy === "private" && (!price || price <= 0)) {
-        return res.status(400).json({
-          success: false,
-          error: "Private events must have a price greater than 0",
         });
       }
 
@@ -163,9 +155,11 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         maxParticipants: maxParticipants || 50,
         timezone: timezone || "Asia/Kolkata",
         eventType,
-        privacy,
-        price: privacy === "private" ? price : 0,
-        status: "SCHEDULED", // ✅ CHANGED: Auto-scheduled instead of draft
+        // Force all events to be private; price can be 0 or >0
+        privacy: "private",
+        price: price || 0,
+        // Events are scheduled but NOT visible until admin approves (approved=false by default)
+        status: "SCHEDULED",
         safetyLevel: "high",
         chatRoomId: `event-${Date.now()}`,
         participants: [
@@ -193,7 +187,7 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
           elevation: `${elevation}m`,
           difficulty: getDifficultyLabel(difficulty),
           eventType,
-          privacy,
+          privacy: rideEvent.privacy,
           status: rideEvent.status, // ✅ Will show "scheduled"
         },
       });
@@ -222,7 +216,8 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
         limit = 10,
       } = req.query;
 
-      let query: any = { status };
+      // Only show admin-approved events in public listings
+      let query: any = { status, approved: true };
 
       if (lat && lng) {
         const latNum = parseFloat(lat as string);
@@ -338,8 +333,8 @@ export const searchRideEvents = (req: AuthRequest, res: Response): void => {
 
       logger.info(`[searchRideEvents] Search query: ${q || "all"}`);
 
-      // Build query
-      const query: any = {};
+      // Build query - only show admin-approved events in search
+      const query: any = { approved: true };
 
       // Status filter (default to SCHEDULED)
       if (status) {
@@ -555,11 +550,24 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
           .json({ success: false, error: "Ride not found" });
       }
 
-      const isOrganizer = (ride.organizerId as any)._id.toString() === userId;
-      const userParticipant = ride.participants.find(
-        (p: any) => p.userId._id.toString() === userId,
-      );
+      const organizerId =
+        (ride.organizerId as any)?._id?.toString() ??
+        (ride.organizerId as any)?.toString();
+      const isOrganizer = !!userId && organizerId === userId;
+      const userParticipant =
+        userId &&
+        ride.participants.find(
+          (p: any) => p.userId?._id?.toString() === userId,
+        );
       const isParticipant = !!userParticipant;
+
+      // If event is not yet approved, only organizer can see details
+      if (!ride.approved && !isOrganizer) {
+        return res.status(403).json({
+          success: false,
+          error: "Event is pending admin approval",
+        });
+      }
 
       return res.json({
         success: true,
@@ -607,6 +615,15 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
         return res
           .status(404)
           .json({ success: false, error: "Ride not found" });
+      }
+
+      // Disallow joining events that are not yet approved by admin
+      if (!ride.approved) {
+        return res.status(403).json({
+          success: false,
+          error: "EVENT_PENDING_APPROVAL",
+          message: "This event is awaiting admin approval and cannot be joined yet.",
+        });
       }
 
       const user = await User.findById(userId);
@@ -750,6 +767,15 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
         return res
           .status(404)
           .json({ success: false, error: "Event not found" });
+      }
+
+      // Disallow booking events that are not yet approved by admin
+      if (!ride.approved) {
+        return res.status(403).json({
+          success: false,
+          error: "EVENT_PENDING_APPROVAL",
+          message: "This event is awaiting admin approval and cannot be booked yet.",
+        });
       }
 
       if (ride.status !== "SCHEDULED") {
