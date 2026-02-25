@@ -193,7 +193,13 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    if (admin.isLocked && admin.lockedUntil && admin.lockedUntil > new Date()) {
+    // In development we disable account lockout to avoid getting stuck.
+    if (
+      process.env.NODE_ENV !== "development" &&
+      admin.isLocked &&
+      admin.lockedUntil &&
+      admin.lockedUntil > new Date()
+    ) {
       res.status(423).json({
         success: false,
         message: "Account is temporarily locked due to multiple failed attempts",
@@ -203,17 +209,20 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
 
     const isPasswordValid = await admin.comparePassword(password);
     if (!isPasswordValid) {
-      admin.failedLoginAttempts += 1;
-      admin.lastFailedLoginAt = new Date();
+      // Only track failed attempts and lockouts outside development
+      if (process.env.NODE_ENV !== "development") {
+        admin.failedLoginAttempts += 1;
+        admin.lastFailedLoginAt = new Date();
 
-      if (admin.failedLoginAttempts >= ADMIN_MAX_PASSWORD_ATTEMPTS) {
-        admin.isLocked = true;
-        admin.lockedUntil = new Date(
-          Date.now() + ADMIN_LOCKOUT_MINUTES * 60 * 1000
-        );
+        if (admin.failedLoginAttempts >= ADMIN_MAX_PASSWORD_ATTEMPTS) {
+          admin.isLocked = true;
+          admin.lockedUntil = new Date(
+            Date.now() + ADMIN_LOCKOUT_MINUTES * 60 * 1000
+          );
+        }
+
+        await admin.save();
       }
-
-      await admin.save();
 
       res.status(400).json({
         success: false,
@@ -222,10 +231,13 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    admin.failedLoginAttempts = 0;
-    admin.isLocked = false;
-    admin.lockedUntil = undefined;
-    await admin.save();
+    // Reset counters only in non-development where we track them
+    if (process.env.NODE_ENV !== "development") {
+      admin.failedLoginAttempts = 0;
+      admin.isLocked = false;
+      admin.lockedUntil = undefined;
+      await admin.save();
+    }
 
     const otp = generateOtp();
     await setLoginOtp(admin.email, otp);
