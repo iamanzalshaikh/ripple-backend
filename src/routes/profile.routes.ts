@@ -5,6 +5,7 @@ import {
   deleteEmergencyContact,
   getEmergencyContacts,
   getMyProfile,
+  getNearbyRiders,
   getUserProfile,
   reorderEmergencyContacts,
   updateAvatar,
@@ -27,6 +28,9 @@ router.patch("/privacy", isAuth, updatePrivacySettings);
 
 // Push notification token
 router.patch("/push-token", isAuth, updatePushToken);
+
+// Riders nearby (for Rider Radar map)
+router.get("/nearby", isAuth, getNearbyRiders);
 
 // Emergency contacts routes (must be before the :userId route)
 router.get("/emergency-contacts", isAuth, getEmergencyContacts);
