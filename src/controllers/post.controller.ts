@@ -424,7 +424,7 @@ export const getExploreFeed = async (
     const posts = await Post.find(exploreQuery)
       .populate(
         "userId",
-        "name avatarUrl handle city ridingLevel isCreator followerCount"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
@@ -537,7 +537,7 @@ export const getUserPosts = async (
     const posts = await Post.find(postQuery)
       .populate(
         "userId",
-        "name avatarUrl handle city ridingLevel isCreator followerCount"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
@@ -617,7 +617,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
     const post = await Post.findById(postId)
       .populate(
         "userId",
-        "name avatarUrl handle city ridingLevel isCreator followerCount"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")

@@ -28,7 +28,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 
     const user = await User.findById(targetUserId)
       .select(
-        "name avatarUrl handle bio city state country ridingLevel ridingStyle yearsOfExperience followerCount followingCount totalRides totalDistance verified isCreator createdAt"
+        "name avatarUrl handle bio city state country ridingLevel ridingStyle yearsOfExperience followerCount followingCount totalRides totalDistance verified isCreator createdAt currentLocation"
       )
       .lean();
 
@@ -92,6 +92,40 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
       } else {
         updates[key] = req.body[key];
       }
+    }
+  }
+
+  // Optional: update currentLocation (lat/lng + optional labels)
+  if (req.body?.currentLocation !== undefined) {
+    const loc = req.body.currentLocation;
+
+    if (loc === null) {
+      // Explicitly clear stored location
+      updates.currentLocation = undefined;
+    } else {
+      const lat = Number(loc.lat);
+      const lng = Number(loc.lng);
+
+      if (
+        Number.isNaN(lat) ||
+        Number.isNaN(lng) ||
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid location coordinates",
+        });
+      }
+
+      updates.currentLocation = {
+        lat,
+        lng,
+        ...(loc.name ? { name: String(loc.name).slice(0, 120) } : {}),
+        ...(loc.address ? { address: String(loc.address).slice(0, 300) } : {}),
+      };
     }
   }
 
@@ -323,6 +357,120 @@ export const reorderEmergencyContacts = async (
     return res.status(500).json({
       success: false,
       error: error.message,
+    });
+  }
+};
+
+/**
+ * GET /api/v1/profile/nearby
+ * List riders who have shared a currentLocation, within a radius of the given point.
+ *
+ * Query params:
+ *  - lat: number (required)
+ *  - lng: number (required)
+ *  - radiusKm: number (optional, default 50, max 500)
+ *  - limit: number (optional, default 200, max 500)
+ */
+export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
+  try {
+    const { lat, lng, radiusKm = "50", limit = "200" } = req.query;
+
+    const centerLat = Number(lat);
+    const centerLng = Number(lng);
+
+    if (
+      Number.isNaN(centerLat) ||
+      Number.isNaN(centerLng) ||
+      centerLat < -90 ||
+      centerLat > 90 ||
+      centerLng < -180 ||
+      centerLng > 180
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid lat and lng query parameters are required",
+      });
+    }
+
+    const radiusKmNum = Math.min(
+      500,
+      Math.max(1, Number(radiusKm) || 50),
+    );
+    const limitNum = Math.min(500, Math.max(1, parseInt(limit as string, 10) || 200));
+
+    // Approximate bounding box to narrow candidates before precise distance check
+    const latDelta = radiusKmNum / 111; // ~111km per degree
+    const lngDelta =
+      radiusKmNum /
+      (111 * Math.cos((centerLat * Math.PI) / 180) || 1); // avoid div by zero near poles
+
+    const candidates = await User.find({
+      "currentLocation.lat": {
+        $gte: centerLat - latDelta,
+        $lte: centerLat + latDelta,
+      },
+      "currentLocation.lng": {
+        $gte: centerLng - lngDelta,
+        $lte: centerLng + lngDelta,
+      },
+    })
+      .select(
+        "name avatarUrl currentLocation city state country ridingLevel isCreator followerCount"
+      )
+      .lean();
+
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const earthRadiusKm = 6371;
+
+    const riders = candidates
+      .map((u: any) => {
+        const loc = u.currentLocation;
+        if (!loc || loc.lat == null || loc.lng == null) return null;
+
+        const dLat = toRad(loc.lat - centerLat);
+        const dLng = toRad(loc.lng - centerLng);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(centerLat)) *
+            Math.cos(toRad(loc.lat)) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distanceKm = earthRadiusKm * c;
+
+        return {
+          _id: u._id,
+          name: u.name,
+          avatarUrl: u.avatarUrl,
+          currentLocation: loc,
+          city: u.city,
+          state: u.state,
+          country: u.country,
+          ridingLevel: u.ridingLevel,
+          isCreator: u.isCreator,
+          followerCount: u.followerCount,
+          distanceKm,
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => !!r && r.distanceKm <= radiusKmNum)
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, limitNum);
+
+    return res.json({
+      success: true,
+      data: {
+        riders,
+        center: { lat: centerLat, lng: centerLng },
+        radiusKm: radiusKmNum,
+        count: riders.length,
+      },
+    });
+  } catch (error: any) {
+    logger.error("[getNearbyRiders] Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch nearby riders",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };

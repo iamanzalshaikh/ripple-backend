@@ -495,6 +495,21 @@ export interface IVerificationPhotos {
   selfie?: string;
 }
 
+export interface IUserLocation {
+  lat: number;
+  lng: number;
+  /**
+   * Optional human-readable label for the location
+   * e.g. neighbourhood / landmark / city name.
+   */
+  name?: string;
+  /**
+   * Optional full address or formatted string
+   * returned from reverse geocoding.
+   */
+  address?: string;
+}
+
 export interface IOTP {
   code: string;
   attempts: number;
@@ -522,6 +537,12 @@ export interface IUser {
   country: string;
   state?: string;
   city?: string;
+  /**
+   * Optional last-known location of the rider,
+   * captured from the mobile app. This is used
+   * for features like Rider Radar map.
+   */
+  currentLocation?: IUserLocation;
 
   // Verification
   verified: boolean;
@@ -762,6 +783,26 @@ const userSchema = new Schema<IUserDocument, IUserModel, IUserMethods>(
     country: { type: String, default: "India" },
     state: String,
     city: String,
+    currentLocation: {
+      lat: {
+        type: Number,
+        min: -90,
+        max: 90,
+      },
+      lng: {
+        type: Number,
+        min: -180,
+        max: 180,
+      },
+      name: {
+        type: String,
+        maxlength: 120,
+      },
+      address: {
+        type: String,
+        maxlength: 300,
+      },
+    },
 
     // Verification
     verified: { type: Boolean, default: false },
@@ -892,6 +933,8 @@ userSchema.index({ createdAt: -1 });
 userSchema.index({ followerCount: -1 });
 userSchema.index({ totalDistance: -1 });
 userSchema.index({ "subscription.tier": 1, "subscription.expiryDate": 1 });
+// Simple index to help lookups of riders who have a stored location
+userSchema.index({ "currentLocation.lat": 1, "currentLocation.lng": 1 });
 
 // ============================================
 // Middleware - Hash password before save
