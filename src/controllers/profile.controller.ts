@@ -363,22 +363,46 @@ export const reorderEmergencyContacts = async (
 
 /**
  * GET /api/v1/profile/nearby
- * List riders who have shared a currentLocation, within a radius of the given point.
+ * List nearby riders within a radius of a given point (or the current user's location).
  *
  * Query params:
- *  - lat: number (required)
- *  - lng: number (required)
- *  - radiusKm: number (optional, default 50, max 500)
- *  - limit: number (optional, default 200, max 500)
+ *  - lat: number (optional) - if omitted, uses current user's saved currentLocation
+ *  - lng: number (optional)
+ *  - radiusKm: number (optional, default 300, max 300)
+ *  - limit: number (optional, default 100, max 500)
+ *
+ * Notes:
+ *  - Only returns other users (excludes the current user)
+ *  - Only returns verified riders (verificationStatus === "approved")
  */
 export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
   try {
-    const { lat, lng, radiusKm = "50", limit = "200" } = req.query;
+    const { lat, lng, radiusKm = "300", limit = "100" } = req.query;
 
-    const centerLat = Number(lat);
-    const centerLng = Number(lng);
+    let centerLat: number | null = lat != null ? Number(lat) : null;
+    let centerLng: number | null = lng != null ? Number(lng) : null;
+
+    // If lat/lng not provided, fall back to current user's saved location
+    if (centerLat == null || centerLng == null) {
+      const me = await User.findById(req.userId)
+        .select("currentLocation")
+        .lean();
+
+      const loc = (me as any)?.currentLocation;
+      if (!loc || loc.lat == null || loc.lng == null) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Location is required. Pass lat & lng query params or set your current location in profile.",
+        });
+      }
+      centerLat = loc.lat;
+      centerLng = loc.lng;
+    }
 
     if (
+      centerLat == null ||
+      centerLng == null ||
       Number.isNaN(centerLat) ||
       Number.isNaN(centerLng) ||
       centerLat < -90 ||
@@ -388,15 +412,16 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Valid lat and lng query parameters are required",
+        message: "Valid lat and lng are required",
       });
     }
 
+    // Clamp radius to 1–300km, default 300
     const radiusKmNum = Math.min(
-      500,
-      Math.max(1, Number(radiusKm) || 50),
+      300,
+      Math.max(1, Number(radiusKm) || 300),
     );
-    const limitNum = Math.min(500, Math.max(1, parseInt(limit as string, 10) || 200));
+    const limitNum = Math.min(500, Math.max(1, parseInt(limit as string, 10) || 100));
 
     // Approximate bounding box to narrow candidates before precise distance check
     const latDelta = radiusKmNum / 111; // ~111km per degree
@@ -405,6 +430,9 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
       (111 * Math.cos((centerLat * Math.PI) / 180) || 1); // avoid div by zero near poles
 
     const candidates = await User.find({
+      _id: { $ne: req.userId }, // exclude self
+      verified: true,
+      verificationStatus: "approved",
       "currentLocation.lat": {
         $gte: centerLat - latDelta,
         $lte: centerLat + latDelta,
@@ -474,6 +502,7 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
 
 export const updateAvatar = async (req: AuthRequest, res: Response) => {
   if (!req.file) {
