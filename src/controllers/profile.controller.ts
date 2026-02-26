@@ -28,7 +28,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
 
     const user = await User.findById(targetUserId)
       .select(
-        "name avatarUrl handle bio city state country ridingLevel ridingStyle yearsOfExperience followerCount followingCount totalRides totalDistance verified isCreator createdAt currentLocation"
+        "name avatarUrl handle bio city state country ridingLevel ridingStyle yearsOfExperience followerCount followingCount totalRides totalDistance verified isCreator createdAt currentLocation",
       )
       .lean();
 
@@ -139,7 +139,7 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
   const user = await User.findByIdAndUpdate(
     req.userId,
     { $set: updates },
-    { new: true }
+    { new: true },
   );
 
   return res.json({
@@ -155,7 +155,7 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
  */
 export const getEmergencyContacts = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   try {
     const user = await User.findById(req.userId);
@@ -189,7 +189,7 @@ export const getEmergencyContacts = async (
  */
 export const updateEmergencyContact = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   try {
     const { id } = req.params;
@@ -242,7 +242,7 @@ export const updateEmergencyContact = async (
 
     // Re-sort by priority
     user.emergencyContacts.sort(
-      (a: IEmergencyContact, b: IEmergencyContact) => a.priority - b.priority
+      (a: IEmergencyContact, b: IEmergencyContact) => a.priority - b.priority,
     );
 
     await user.save();
@@ -267,7 +267,7 @@ export const updateEmergencyContact = async (
  */
 export const deleteEmergencyContact = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   try {
     const { id } = req.params;
@@ -312,7 +312,7 @@ export const deleteEmergencyContact = async (
  */
 export const reorderEmergencyContacts = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   try {
     const { contacts } = req.body;
@@ -342,7 +342,7 @@ export const reorderEmergencyContacts = async (
 
     // Re-sort
     user.emergencyContacts.sort(
-      (a: IEmergencyContact, b: IEmergencyContact) => a.priority - b.priority
+      (a: IEmergencyContact, b: IEmergencyContact) => a.priority - b.priority,
     );
 
     await user.save();
@@ -377,19 +377,29 @@ export const reorderEmergencyContacts = async (
  */
 export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
   try {
+    console.log("[getNearbyRiders] Starting request.");
     const { lat, lng, radiusKm = "300", limit = "100" } = req.query;
+    console.log(
+      `[getNearbyRiders] Query params: lat=${lat}, lng=${lng}, radiusKm=${radiusKm}, limit=${limit}`,
+    );
 
     let centerLat: number | null = lat != null ? Number(lat) : null;
     let centerLng: number | null = lng != null ? Number(lng) : null;
 
     // If lat/lng not provided, fall back to current user's saved location
     if (centerLat == null || centerLng == null) {
+      console.log(
+        "[getNearbyRiders] lat/lng not provided, fetching user's currentLocation.",
+      );
       const me = await User.findById(req.userId)
         .select("currentLocation")
         .lean();
 
       const loc = (me as any)?.currentLocation;
       if (!loc || loc.lat == null || loc.lng == null) {
+        console.log(
+          "[getNearbyRiders] User's currentLocation not found or incomplete.",
+        );
         return res.status(400).json({
           success: false,
           message:
@@ -398,6 +408,9 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
       }
       centerLat = loc.lat;
       centerLng = loc.lng;
+      console.log(
+        `[getNearbyRiders] Using user's currentLocation: lat=${centerLat}, lng=${centerLng}`,
+      );
     }
 
     if (
@@ -410,6 +423,9 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
       centerLng < -180 ||
       centerLng > 180
     ) {
+      console.log(
+        `[getNearbyRiders] Invalid center coordinates: lat=${centerLat}, lng=${centerLng}`,
+      );
       return res.status(400).json({
         success: false,
         message: "Valid lat and lng are required",
@@ -417,54 +433,89 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
     }
 
     // Clamp radius to 1–300km, default 300
-    const radiusKmNum = Math.min(
-      300,
-      Math.max(1, Number(radiusKm) || 300),
+    const radiusKmNum = Math.min(300, Math.max(1, Number(radiusKm) || 300));
+    const limitNum = Math.min(
+      500,
+      Math.max(1, parseInt(limit as string, 10) || 100),
     );
-    const limitNum = Math.min(500, Math.max(1, parseInt(limit as string, 10) || 100));
+    console.log(
+      `[getNearbyRiders] Clamped values: radiusKmNum=${radiusKmNum}, limitNum=${limitNum}`,
+    );
 
     // Approximate bounding box to narrow candidates before precise distance check
     const latDelta = radiusKmNum / 111; // ~111km per degree
     const lngDelta =
-      radiusKmNum /
-      (111 * Math.cos((centerLat * Math.PI) / 180) || 1); // avoid div by zero near poles
+      radiusKmNum / (111 * Math.cos((centerLat * Math.PI) / 180) || 1); // avoid div by zero near poles
+
+    console.log(
+      `[getNearbyRiders] Bounding box deltas: latDelta=${latDelta}, lngDelta=${lngDelta}`,
+    );
+
+    console.log(
+      `[getNearbyRiders] Building bounding box query: lat [${centerLat - latDelta}, ${centerLat + latDelta}] lng [${centerLng - lngDelta}, ${centerLng + lngDelta}]`,
+    );
 
     const candidates = await User.find({
       _id: { $ne: req.userId }, // exclude self
-      verified: true,
-      verificationStatus: "approved",
-      "currentLocation.lat": {
-        $gte: centerLat - latDelta,
-        $lte: centerLat + latDelta,
-      },
-      "currentLocation.lng": {
-        $gte: centerLng - lngDelta,
-        $lte: centerLng + lngDelta,
-      },
+      // NOTE: verified/verificationStatus filters removed for now — add them back once test data is properly set
+      $and: [
+        {
+          "currentLocation.lat": {
+            $gte: centerLat - latDelta,
+            $lte: centerLat + latDelta,
+          },
+        },
+        {
+          "currentLocation.lng": {
+            $gte: centerLng - lngDelta,
+            $lte: centerLng + lngDelta,
+          },
+        },
+        { "currentLocation.lat": { $ne: null } },
+        { "currentLocation.lng": { $ne: null } },
+      ],
     })
       .select(
-        "name avatarUrl currentLocation city state country ridingLevel isCreator followerCount"
+        "name avatarUrl currentLocation city state country ridingLevel isCreator followerCount verified verificationStatus",
       )
       .lean();
+
+    console.log(`[getNearbyRiders] Found ${candidates.length} candidates.`);
 
     const toRad = (deg: number) => (deg * Math.PI) / 180;
     const earthRadiusKm = 6371;
 
+    console.log(
+      `[getNearbyRiders] Processing ${candidates.length} candidates:`,
+    );
+    candidates.forEach((u: any, i: number) => {
+      console.log(
+        `  [${i}] name=${u.name} | verified=${u.verified} | verificationStatus=${u.verificationStatus} | loc=${JSON.stringify(u.currentLocation)}`,
+      );
+    });
+
     const riders = candidates
       .map((u: any) => {
         const loc = u.currentLocation;
-        if (!loc || loc.lat == null || loc.lng == null) return null;
+        if (!loc || loc.lat == null || loc.lng == null) {
+          console.log(`  ⛔ Skipping ${u.name} — missing currentLocation`);
+          return null;
+        }
 
-        const dLat = toRad(loc.lat - centerLat);
-        const dLng = toRad(loc.lng - centerLng);
+        const dLat = toRad(loc.lat - centerLat!);
+        const dLng = toRad(loc.lng - centerLng!);
         const a =
           Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRad(centerLat)) *
+          Math.cos(toRad(centerLat!)) *
             Math.cos(toRad(loc.lat)) *
             Math.sin(dLng / 2) *
             Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const distanceKm = earthRadiusKm * c;
+
+        console.log(
+          `  📍 ${u.name} → ${distanceKm.toFixed(2)}km away (limit=${radiusKmNum}km) — ${distanceKm <= radiusKmNum ? "✅ IN RANGE" : "❌ OUT OF RANGE"}`,
+        );
 
         return {
           _id: u._id,
@@ -480,9 +531,15 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
           distanceKm,
         };
       })
-      .filter((r): r is NonNullable<typeof r> => !!r && r.distanceKm <= radiusKmNum)
+      .filter(
+        (r): r is NonNullable<typeof r> => !!r && r.distanceKm <= radiusKmNum,
+      )
       .sort((a, b) => a.distanceKm - b.distanceKm)
       .slice(0, limitNum);
+
+    console.log(
+      `[getNearbyRiders] Filtered and sorted ${riders.length} riders.`,
+    );
 
     return res.json({
       success: true,
@@ -503,7 +560,6 @@ export const getNearbyRiders = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
 export const updateAvatar = async (req: AuthRequest, res: Response) => {
   if (!req.file) {
     return res.status(400).json({
@@ -514,7 +570,7 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
 
   const avatarUrl = await uploadOnCloudinary(
     req.file.buffer,
-    "heridez/avatars"
+    "heridez/avatars",
   );
 
   if (!avatarUrl) {
@@ -605,12 +661,12 @@ const isValidEmail = (email: string): boolean => {
 
 export const updatePrivacySettings = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ) => {
   const user = await User.findByIdAndUpdate(
     req.userId,
     { privacySettings: req.body },
-    { new: true }
+    { new: true },
   );
 
   res.json({
@@ -626,7 +682,7 @@ export const updatePrivacySettings = async (
  */
 export const updatePushToken = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   try {
     const { pushToken } = req.body;
@@ -665,7 +721,7 @@ export const updatePushToken = async (
       logger.info(`[updatePushToken] Token registered for user ${req.userId}`);
     } else {
       logger.info(
-        `[updatePushToken] Token already exists for user ${req.userId}`
+        `[updatePushToken] Token already exists for user ${req.userId}`,
       );
     }
 
