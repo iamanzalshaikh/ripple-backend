@@ -11,6 +11,7 @@ import {
   deleteGroup,
   getGroupMessages,
   updateGroup,
+  getMyGroups,
 } from "../controllers/group.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
@@ -26,6 +27,7 @@ const uploadFields = upload.fields([
 
 router.post("/", isAuth, uploadFields, createGroup as any);
 router.get("/", isAuth, searchGroups as any);
+router.get("/mine", isAuth, getMyGroups as any);
 router.get("/:id", isAuth, getGroupDetail as any);
 router.patch("/:id", isAuth, uploadFields, updateGroup as any);
 router.post("/:id/join", isAuth, joinGroup as any);
