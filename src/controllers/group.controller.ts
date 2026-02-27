@@ -287,6 +287,74 @@ export const searchGroups = async (
 };
 
 /**
+ * GET /api/v1/groups/mine
+ * Get all groups where the current user is a member
+ */
+export const getMyGroups = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const { page = 1, limit = 20 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, parseInt(limit as string) || 20);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Find groups where current user is in members array
+    const groups = await Group.find({
+      "members.userId": userId,
+    })
+      .populate("createdBy", "name avatarUrl verified")
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await Group.countDocuments({
+      "members.userId": userId,
+    });
+
+    // Enrich with last message for each group
+    const enriched = await Promise.all(
+      groups.map(async (group: any) => {
+        const lastMessage = await ChatMessage.findOne({
+          groupId: group._id,
+        })
+          .sort({ timestamp: -1 })
+          .populate("senderId", "name")
+          .lean();
+
+        return {
+          ...group,
+          roomId: group.chatRoomId, // Compatibility with conversation format
+          lastMessage: lastMessage?.text || "No messages yet",
+          lastMessageAt: lastMessage?.timestamp || group.updatedAt,
+          lastMessageSender: lastMessage?.senderId?.name,
+          memberCount: group.members?.length || 0,
+          isMember: true,
+        };
+      }),
+    );
+
+    res.json({
+      success: true,
+      data: enriched,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getMyGroups] Error: ${error.message}`);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
  * GET /api/v1/groups/:id
  * Get group details
  */
