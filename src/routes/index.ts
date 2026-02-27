@@ -30,6 +30,7 @@ import mediaFeedRoutes from "./media-feed.routes.js";
 import brandsRoutes from "./brands.routes.js";
 import pressRoutes from "./press.routes.js";
 import subscriptionRoutes from "./subscription.routes.js";
+import groupRideRoutes from "./groupRide.routes.js";
 
 const router: express.Router = express.Router();
 
@@ -85,6 +86,7 @@ router.use("/chat", chatRoutes);
 router.use("/users", followRoutes);
 router.use("/marketplace", marketplaceRoutes);
 router.use("/subscriptions", subscriptionRoutes);
+router.use("/group-ride", groupRideRoutes);
 
 // Creator & Sponsorship Routes
 router.use("/creator", creatorRoutes);

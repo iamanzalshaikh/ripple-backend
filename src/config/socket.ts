@@ -62,7 +62,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
       socket.data.phone = decoded.phone;
 
       logger.info(
-        `[Socket Auth] User ${decoded.userId} authenticated (Socket ID: ${socket.id})`
+        `[Socket Auth] User ${decoded.userId} authenticated (Socket ID: ${socket.id})`,
       );
       next();
     } catch (error: any) {
@@ -105,7 +105,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         }
 
         const isParticipant = ride.participants.some(
-          (p: any) => p.userId.toString() === userId
+          (p: any) => p.userId.toString() === userId,
         );
         if (!isParticipant) {
           socket.emit("error", { message: "Not a participant in this ride" });
@@ -154,7 +154,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           } = data;
 
           logger.info(
-            `[follow-notification] ${followerUserId} followed ${followedUserId}`
+            `[follow-notification] ${followerUserId} followed ${followedUserId}`,
           );
 
           // Get follower details
@@ -193,13 +193,13 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           });
 
           logger.debug(
-            `[follow-notification] Notification sent to ${followedUserId}`
+            `[follow-notification] Notification sent to ${followedUserId}`,
           );
         } catch (error: any) {
           logger.error(`[follow-notification] Error: ${error.message}`);
           socket.emit("error", { message: error.message });
         }
-      }
+      },
     );
 
     /**
@@ -217,7 +217,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           const { unfollowedUserId, unfollowerUserId, unfollowerName } = data;
 
           logger.info(
-            `[unfollow-notification] ${unfollowerUserId} unfollowed ${unfollowedUserId}`
+            `[unfollow-notification] ${unfollowerUserId} unfollowed ${unfollowedUserId}`,
           );
 
           // Optional: You can emit this if you want to show unfollows
@@ -231,12 +231,12 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           });
 
           logger.debug(
-            `[unfollow-notification] Notification sent to ${unfollowedUserId}`
+            `[unfollow-notification] Notification sent to ${unfollowedUserId}`,
           );
         } catch (error: any) {
           logger.error(`[unfollow-notification] Error: ${error.message}`);
         }
-      }
+      },
     );
 
     /**
@@ -288,7 +288,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           }
 
           const isParticipant = ride.participants.some(
-            (p: any) => p.userId.toString() === userId
+            (p: any) => p.userId.toString() === userId,
           );
           if (!isParticipant) {
             socket.emit("error", { message: "Not a participant" });
@@ -324,7 +324,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           logger.error(`[send-message-ride] Error: ${error.message}`);
           socket.emit("error", { message: error.message });
         }
-      }
+      },
     );
 
     /**
@@ -355,12 +355,12 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           });
 
           logger.debug(
-            `[location-update] Location from ${userId} in ride ${rideEventId}`
+            `[location-update] Location from ${userId} in ride ${rideEventId}`,
           );
         } catch (error: any) {
           logger.error(`[location-update] Error: ${error.message}`);
         }
-      }
+      },
     );
 
     /**
@@ -417,12 +417,12 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           });
 
           logger.warn(
-            `[sos-triggered] SOS from ${userId} in ride ${rideEventId}`
+            `[sos-triggered] SOS from ${userId} in ride ${rideEventId}`,
           );
         } catch (error: any) {
           logger.error(`[sos-triggered] Error: ${error.message}`);
         }
-      }
+      },
     );
 
     /**
@@ -458,7 +458,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         });
 
         logger.debug(
-          `[host-started-ride] Notification sent for ride ${rideEventId}`
+          `[host-started-ride] Notification sent for ride ${rideEventId}`,
         );
       } catch (error: any) {
         logger.error(`[host-started-ride] Error: ${error.message}`);
@@ -482,7 +482,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         }
 
         const isMember = group.members.some(
-          (m: any) => m.userId.toString() === userId
+          (m: any) => m.userId.toString() === userId,
         );
         if (!isMember) {
           socket.emit("error", { message: "Not a group member" });
@@ -558,7 +558,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           }
 
           const isMember = group.members.some(
-            (m: any) => m.userId.toString() === userId
+            (m: any) => m.userId.toString() === userId,
           );
           if (!isMember) {
             socket.emit("error", { message: "Not a member" });
@@ -623,7 +623,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                 });
               } catch (notifError: any) {
                 logger.error(
-                  `[send-message-group] Failed to send notification to ${memberId}: ${notifError.message}`
+                  `[send-message-group] Failed to send notification to ${memberId}: ${notifError.message}`,
                 );
                 // Continue sending to other members
               }
@@ -635,7 +635,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           logger.error(`[send-message-group] Error: ${error.message}`);
           socket.emit("error", { message: error.message });
         }
-      }
+      },
     );
 
     /**
@@ -754,7 +754,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
               lastMessage: text.trim(),
               lastMessageAt: new Date(),
               $inc: { [`unreadCount.${receiverId}`]: 1 }, // Increment receiver's unread count
-            }
+            },
           );
 
           // Get updated unread count for receiver
@@ -796,7 +796,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           logger.error(`[send-message-private] Error: ${error.message}`);
           socket.emit("error", { message: error.message });
         }
-      }
+      },
     );
 
     /**
@@ -831,7 +831,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         const { roomId } = data;
 
         logger.debug(
-          `[mark-messages-read] User ${userId} marking room ${roomId} as read`
+          `[mark-messages-read] User ${userId} marking room ${roomId} as read`,
         );
 
         const chatRoom = await PrivateChatRoom.findOne({ roomId });
@@ -852,7 +852,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         // Reset unread count for this user
         await PrivateChatRoom.updateOne(
           { roomId },
-          { $set: { [`unreadCount.${userId}`]: 0 } }
+          { $set: { [`unreadCount.${userId}`]: 0 } },
         );
 
         // Calculate new total unread for this user
@@ -870,11 +870,103 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         socket.emit("total-unread-updated", { totalUnread });
 
         logger.debug(
-          `[mark-messages-read] Room ${roomId} marked as read, total unread: ${totalUnread}`
+          `[mark-messages-read] Room ${roomId} marked as read, total unread: ${totalUnread}`,
         );
       } catch (error: any) {
         logger.error(`[mark-messages-read] Error: ${error.message}`);
         socket.emit("error", { message: error.message });
+      }
+    });
+
+    // ==================== GROUP RIDE (LIVE TRACKING) ====================
+    // Room isolation: group-ride:{rideId}
+    // Live tracking only works when ride.status === "active"
+    // No global broadcasting — only participants receive locations
+
+    /**
+     * Join group ride tracking room
+     * Client must be a participant and ride must be active
+     */
+    socket.on("join-group-ride", async (data: { rideId: string }) => {
+      try {
+        const { rideId } = data;
+
+        if (!rideId) {
+          socket.emit("error", { message: "rideId is required" });
+          return;
+        }
+
+        // Lazy import to avoid circular dependency
+        const GroupRide = (await import("../models/groupRide.model.js"))
+          .default;
+
+        const ride = await GroupRide.findById(rideId);
+        if (!ride) {
+          socket.emit("error", { message: "Group ride not found" });
+          return;
+        }
+
+        // Only allow joining if ride is active
+        if (ride.status !== "active") {
+          socket.emit("error", {
+            message: "Can only join a tracking room while ride is active",
+          });
+          return;
+        }
+
+        // Verify user is a participant
+        const isParticipant = ride.participants.some(
+          (p: any) => p.userId.toString() === userId,
+        );
+        if (!isParticipant) {
+          socket.emit("error", {
+            message: "You are not a participant in this group ride",
+          });
+          return;
+        }
+
+        const room = `group-ride:${rideId}`;
+        socket.join(room);
+
+        // Notify others in the room that this rider is online
+        socket.to(room).emit("group-rider-joined", {
+          userId,
+          rideId,
+          timestamp: new Date(),
+        });
+
+        socket.emit("join-group-ride-success", {
+          rideId,
+          room,
+          message: "Successfully joined group ride tracking",
+        });
+
+        logger.info(`[join-group-ride] User ${userId} joined room ${room}`);
+      } catch (error: any) {
+        logger.error(`[join-group-ride] Error: ${error.message}`);
+        socket.emit("error", { message: error.message });
+      }
+    });
+
+    /**
+     * Leave group ride tracking room
+     */
+    socket.on("leave-group-ride", (data: { rideId: string }) => {
+      try {
+        const { rideId } = data;
+        const room = `group-ride:${rideId}`;
+
+        socket.leave(room);
+
+        socket.to(room).emit("group-rider-left", {
+          userId,
+          rideId,
+          timestamp: new Date(),
+        });
+
+        logger.info(`[leave-group-ride] User ${userId} left room ${room}`);
+      } catch (error: any) {
+        logger.error(`[leave-group-ride] Error: ${error.message}`);
       }
     });
 
@@ -893,7 +985,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
   });
 
   logger.info(
-    "✅ Socket.io server initialized with Notifications + Rides + Groups + Private Chat"
+    "✅ Socket.io server initialized with Notifications + Rides + Groups + Private Chat",
   );
   return io;
 };
@@ -923,7 +1015,7 @@ export const sendNotificationToUser = (
     rideEventId?: string;
     groupId?: string;
     postId?: string;
-  }
+  },
 ) => {
   if (!io) {
     logger.warn(`[sendNotificationToUser] Socket.io not available`);
@@ -937,7 +1029,7 @@ export const sendNotificationToUser = (
   });
 
   logger.info(
-    `[sendNotificationToUser] Notification sent to ${userId}: ${notification.message}`
+    `[sendNotificationToUser] Notification sent to ${userId}: ${notification.message}`,
   );
 };
 
@@ -981,7 +1073,7 @@ export const sendNotificationToUsers = (
       | "mentor"
       | "tag";
     message: string;
-  }
+  },
 ) => {
   if (!io) {
     logger.warn(`[sendNotificationToUsers] Socket.io not available`);
@@ -993,7 +1085,7 @@ export const sendNotificationToUsers = (
   });
 
   logger.info(
-    `[sendNotificationToUsers] Notifications sent to ${userIds.length} users`
+    `[sendNotificationToUsers] Notifications sent to ${userIds.length} users`,
   );
 };
 
