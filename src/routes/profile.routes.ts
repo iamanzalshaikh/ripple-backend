@@ -30,7 +30,7 @@ router.patch("/privacy", isAuth, updatePrivacySettings);
 router.patch("/push-token", isAuth, updatePushToken);
 
 // Riders nearby (for Rider Radar map)
-router.get("/nearby", isAuth, getNearbyRiders);
+router.get("/nearby", getNearbyRiders);
 
 // Emergency contacts routes (must be before the :userId route)
 router.get("/emergency-contacts", isAuth, getEmergencyContacts);
