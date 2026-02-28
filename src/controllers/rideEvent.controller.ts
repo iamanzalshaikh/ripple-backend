@@ -257,19 +257,13 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
 
           // Free tier can only see free events (price === 0 or privacy === 'public')
           if (effectiveTier === "free") {
-            query.$or = [
-              { price: 0 },
-              { privacy: "public" },
-            ];
+            query.$or = [{ price: 0 }, { privacy: "public" }];
           }
           // Pro tier can see all events (no filter needed)
         }
       } else {
         // Not authenticated - only show free events
-        query.$or = [
-          { price: 0 },
-          { privacy: "public" },
-        ];
+        query.$or = [{ price: 0 }, { privacy: "public" }];
       }
 
       const rides = await RideEvent.find(query)
@@ -577,7 +571,7 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
           spotsAvailable: ride.maxParticipants - ride.participants.length,
           isOrganizer,
           isParticipant,
-          myParticipantStatus: userParticipant?.status || null,
+          myParticipantStatus: (userParticipant as any)?.status || null,
           canJoin:
             ride.status === "SCHEDULED" &&
             ride.participants.length < ride.maxParticipants &&
@@ -622,7 +616,8 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
         return res.status(403).json({
           success: false,
           error: "EVENT_PENDING_APPROVAL",
-          message: "This event is awaiting admin approval and cannot be joined yet.",
+          message:
+            "This event is awaiting admin approval and cannot be joined yet.",
         });
       }
 
@@ -660,7 +655,8 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
       }
 
       // ✅ Check subscription - free tier cannot join paid events
-      const userSubscription = await User.findById(userId).select("subscription");
+      const userSubscription =
+        await User.findById(userId).select("subscription");
       if (userSubscription) {
         // Check if subscription is expired
         const isExpired =
@@ -668,14 +664,20 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
           userSubscription.subscription.expiryDate &&
           new Date() > userSubscription.subscription.expiryDate;
 
-        const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+        const effectiveTier = isExpired
+          ? "free"
+          : userSubscription.subscription.tier;
 
         // Free tier cannot join paid events (price > 0 or privacy === 'private')
-        if (effectiveTier === "free" && (ride.price > 0 || ride.privacy === "private")) {
+        if (
+          effectiveTier === "free" &&
+          (ride.price > 0 || ride.privacy === "private")
+        ) {
           return res.status(403).json({
             success: false,
             error: "UPGRADE_REQUIRED",
-            message: "This is a paid event. Upgrade to Pro to join paid events.",
+            message:
+              "This is a paid event. Upgrade to Pro to join paid events.",
             data: {
               tier: effectiveTier,
               eventPrice: ride.price,
@@ -774,7 +776,8 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
         return res.status(403).json({
           success: false,
           error: "EVENT_PENDING_APPROVAL",
-          message: "This event is awaiting admin approval and cannot be booked yet.",
+          message:
+            "This event is awaiting admin approval and cannot be booked yet.",
         });
       }
 
@@ -807,7 +810,8 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
       }
 
       // ✅ Check subscription - free tier cannot book paid events
-      const userSubscription = await User.findById(userId).select("subscription");
+      const userSubscription =
+        await User.findById(userId).select("subscription");
       if (userSubscription) {
         // Check if subscription is expired
         const isExpired =
@@ -815,14 +819,20 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
           userSubscription.subscription.expiryDate &&
           new Date() > userSubscription.subscription.expiryDate;
 
-        const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+        const effectiveTier = isExpired
+          ? "free"
+          : userSubscription.subscription.tier;
 
         // Free tier cannot book paid events (price > 0 or privacy === 'private')
-        if (effectiveTier === "free" && (ride.price > 0 || ride.privacy === "private")) {
+        if (
+          effectiveTier === "free" &&
+          (ride.price > 0 || ride.privacy === "private")
+        ) {
           return res.status(403).json({
             success: false,
             error: "UPGRADE_REQUIRED",
-            message: "This is a paid event. Upgrade to Pro to book paid events.",
+            message:
+              "This is a paid event. Upgrade to Pro to book paid events.",
             data: {
               tier: effectiveTier,
               eventPrice: ride.price,

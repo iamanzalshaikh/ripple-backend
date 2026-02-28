@@ -331,7 +331,7 @@ export const getMyGroups = async (
           roomId: group.chatRoomId, // Compatibility with conversation format
           lastMessage: lastMessage?.text || "No messages yet",
           lastMessageAt: lastMessage?.timestamp || group.updatedAt,
-          lastMessageSender: lastMessage?.senderId?.name,
+          lastMessageSender: (lastMessage?.senderId as any)?.name,
           memberCount: group.members?.length || 0,
           isMember: true,
         };
