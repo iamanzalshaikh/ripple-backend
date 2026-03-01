@@ -1,4 +1,4 @@
-name: Deploy Backend to EC2
+name: Deploy Backend to EC2 with Docker
 
 on:
   push:
@@ -10,19 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Copy deploy script to server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deploy.sh"
-          target: "/tmp/deploy-herridez-backend-script"
-
-      - name: Execute deployment script
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           command_timeout: 30m
@@ -30,12 +18,27 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Clean up old script location
-            rm -rf ~/deploy-herridez-backend.sh 
+            mkdir -p ~/herridez/HerRidez-backend
+            cd ~/herridez/HerRidez-backend
 
-            # Move the new script
-            mv /tmp/deploy-herridez-backend-script/deploy.sh ~/deploy-herridez-backend.sh
+            # Clone or update code
+            if [ ! -d ".git" ]; then
+              git clone git@github.com:EGC-india/HerRidez-backend.git .
+            else
+              git fetch --all
+              git reset --hard origin/main
+              git pull origin main
+            fi
 
-            # Make executable and run
-            chmod +x ~/deploy-herridez-backend.sh
-            ~/deploy-herridez-backend.sh
+            # Ensure .env.production exists on the server to prevent errors
+            if [ ! -f ".env.production" ]; then
+               echo "Warning: .env.production not found in ~/herridez/HerRidez-backend."
+               echo "Docker Compose requires this file to start the container."
+            fi
+
+            # Build and restart containers using Docker Compose
+            sudo docker compose up -d --build
+
+            # Prune old images to save space
+            sudo docker image prune -f
+            sudo docker builder prune -f

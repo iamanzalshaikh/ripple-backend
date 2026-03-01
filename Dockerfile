@@ -22,6 +22,6 @@ COPY --from=build /app/dist ./dist
 # Create logs directory
 RUN mkdir -p logs
 
-EXPOSE 3004
+EXPOSE 3001
 
 CMD ["node", "dist/server.js"]
