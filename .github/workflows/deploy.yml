@@ -23,12 +23,19 @@ jobs:
 
             # Clone or update code
             if [ ! -d ".git" ]; then
-              git clone git@github.com:EGC-india/HerRidez-backend.git .
+              # Allow clone to work even if the directory exists and has files (like .env.production)
+              git init
+              git remote add origin git@github.com:EGC-india/HerRidez-backend.git
+              git fetch --all
+              git reset --hard origin/main
             else
               git fetch --all
               git reset --hard origin/main
               git pull origin main
             fi
+
+            # Ensure we are in the right directory where docker-compose.yml is located
+            cd ~/herridez/HerRidez-backend
 
             # Ensure .env.production exists on the server to prevent errors
             if [ ! -f ".env.production" ]; then
