@@ -4,7 +4,7 @@ import { AuthRequest } from "../types/auth.types.js";
 import User from "../models/user.model.js";
 import Bike, { IBike } from "../models/bike.model.js";
 import logger from "../config/logger.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 
 /**
  * POST /api/v1/bikes
@@ -68,15 +68,16 @@ export const addBike = async (
     // Handle image upload if file is provided
     let uploadedImageUrl: string | null = null;
     if (req.file) {
-      logger.info(`Uploading bike image to Cloudinary`);
+      logger.info(`Uploading bike image to AWS S3`);
       try {
-        uploadedImageUrl = await uploadOnCloudinary(
+        uploadedImageUrl = await uploadOnS3(
           req.file.buffer,
-          "bike-images",
+          "herridez/bike-images",
+          req.file.mimetype,
         );
         logger.info(`✅ Bike image uploaded successfully: ${uploadedImageUrl}`);
       } catch (uploadError: any) {
-        logger.error(`❌ Cloudinary upload failed: ${uploadError.message}`);
+        logger.error(`❌ AWS S3 upload failed: ${uploadError.message}`);
         await session.abortTransaction();
         res.status(500).json({
           success: false,
@@ -256,16 +257,17 @@ export const updateBike = async (
 
     // Handle image upload if file is provided
     if (req.file) {
-      logger.info(`Uploading bike image to Cloudinary for bike ${id}`);
+      logger.info(`Uploading bike image to AWS S3 for bike ${id}`);
       try {
-        const imageUrl = await uploadOnCloudinary(
+        const imageUrl = await uploadOnS3(
           req.file.buffer,
-          "bike-images",
+          "herridez/bike-images",
+          req.file.mimetype,
         );
         updates.imageUrl = imageUrl;
         logger.info(`✅ Bike image uploaded successfully: ${imageUrl}`);
       } catch (uploadError: any) {
-        logger.error(`❌ Cloudinary upload failed: ${uploadError.message}`);
+        logger.error(`❌ AWS S3 upload failed: ${uploadError.message}`);
         res.status(500).json({
           success: false,
           message: "Failed to upload bike image",

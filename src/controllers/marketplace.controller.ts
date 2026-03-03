@@ -6,7 +6,7 @@ import User from "../models/user.model.js";
 import PrivateChatRoom from "../models/private.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import logger from "../config/logger.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 
 /**
  * GET /api/v1/marketplace
@@ -23,7 +23,7 @@ import { uploadOnCloudinary } from "../config/cloudinary.js";
  */
 export const browseListings = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     // ✅ Check subscription - marketplace requires Pro tier
@@ -43,7 +43,8 @@ export const browseListings = async (
           res.status(403).json({
             success: false,
             message: "UPGRADE_REQUIRED",
-            error: "Marketplace access requires Pro subscription. Upgrade to browse listings.",
+            error:
+              "Marketplace access requires Pro subscription. Upgrade to browse listings.",
             data: {
               tier: effectiveTier,
             },
@@ -125,7 +126,7 @@ export const browseListings = async (
  */
 export const getListingDetails = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     // ✅ Check subscription - marketplace requires Pro tier
@@ -145,7 +146,8 @@ export const getListingDetails = async (
           res.status(403).json({
             success: false,
             message: "UPGRADE_REQUIRED",
-            error: "Marketplace access requires Pro subscription. Upgrade to view listing details.",
+            error:
+              "Marketplace access requires Pro subscription. Upgrade to view listing details.",
             data: {
               tier: effectiveTier,
             },
@@ -207,7 +209,7 @@ export const getListingDetails = async (
  */
 export const createListing = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -239,7 +241,8 @@ export const createListing = async (
       res.status(403).json({
         success: false,
         message: "UPGRADE_REQUIRED",
-        error: "Marketplace access requires Pro subscription. Upgrade to create listings.",
+        error:
+          "Marketplace access requires Pro subscription. Upgrade to create listings.",
         data: {
           tier: effectiveTier,
         },
@@ -291,9 +294,9 @@ export const createListing = async (
         return;
       }
 
-      // Upload to Cloudinary
+      // Upload to AWS S3
       const uploadPromises = req.files.map((file: any) =>
-        uploadOnCloudinary(file.buffer, "marketplace-listings")
+        uploadOnS3(file.buffer, "herridez/marketplace", file.mimetype),
       );
       const uploadResults = await Promise.all(uploadPromises);
       mediaUrls = uploadResults.filter((url): url is string => url !== null);
@@ -319,7 +322,7 @@ export const createListing = async (
     await User.findByIdAndUpdate(
       userId,
       { $push: { listings: newListing._id } },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -354,7 +357,7 @@ export const createListing = async (
  */
 export const updateListing = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId!;
@@ -430,11 +433,11 @@ export const updateListing = async (
       }
 
       const uploadPromises = req.files.map((file: any) =>
-        uploadOnCloudinary(file.buffer, "marketplace-listings")
+        uploadOnS3(file.buffer, "herridez/marketplace", file.mimetype),
       );
       const uploadResults = await Promise.all(uploadPromises);
       const newMediaUrls = uploadResults.filter(
-        (url): url is string => url !== null
+        (url): url is string => url !== null,
       );
 
       updates.$push = { media: { $each: newMediaUrls } };
@@ -470,7 +473,7 @@ export const updateListing = async (
  */
 export const deleteListing = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId!;
@@ -529,7 +532,7 @@ export const deleteListing = async (
  */
 export const contactSeller = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const buyerId = req.userId!;
@@ -557,7 +560,8 @@ export const contactSeller = async (
       res.status(403).json({
         success: false,
         message: "UPGRADE_REQUIRED",
-        error: "Marketplace access requires Pro subscription. Upgrade to contact sellers.",
+        error:
+          "Marketplace access requires Pro subscription. Upgrade to contact sellers.",
         data: {
           tier: effectiveTier,
         },
@@ -619,7 +623,10 @@ export const contactSeller = async (
         context: "marketplace",
         contextId: listing._id,
         productTitle: listing.title,
-        productImage: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+        productImage:
+          listing.media && listing.media.length > 0
+            ? listing.media[0]
+            : undefined,
         productPrice: listing.price,
       });
       await chatRoom.save();
@@ -649,7 +656,10 @@ export const contactSeller = async (
             productData: {
               listingId: listing._id.toString(),
               title: listing.title,
-              image: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+              image:
+                listing.media && listing.media.length > 0
+                  ? listing.media[0]
+                  : undefined,
               price: listing.price,
             },
             timestamp: new Date(),
@@ -665,17 +675,23 @@ export const contactSeller = async (
           logger.info(`   Message ID: ${productCardMessage._id}`);
           logger.info(`   Product: ${listing.title} (₹${listing.price})`);
         } catch (error: any) {
-          logger.error(`❌ Failed to send product card message: ${error.message}`);
+          logger.error(
+            `❌ Failed to send product card message: ${error.message}`,
+          );
           logger.error(`   Error details:`, error);
           // Don't fail the entire request if product card message fails
         }
       } else {
-        logger.info(`Room ${roomId} already has ${existingMessages} messages, skipping product card`);
+        logger.info(
+          `Room ${roomId} already has ${existingMessages} messages, skipping product card`,
+        );
       }
     } else {
       // Room already exists - check if it needs product card for this listing
-      logger.info(`Room ${roomId} already exists, checking if product card needed...`);
-      
+      logger.info(
+        `Room ${roomId} already exists, checking if product card needed...`,
+      );
+
       // Check if room already has a product card for this listing
       const existingProductCard = await ChatMessage.findOne({
         privateRoomId: roomId,
@@ -697,7 +713,10 @@ export const contactSeller = async (
             productData: {
               listingId: listing._id.toString(),
               title: listing.title,
-              image: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+              image:
+                listing.media && listing.media.length > 0
+                  ? listing.media[0]
+                  : undefined,
               price: listing.price,
             },
             timestamp: new Date(),
@@ -709,15 +728,21 @@ export const contactSeller = async (
           chatRoom.lastMessageAt = new Date();
           await chatRoom.save();
 
-          logger.info(`✅ Product card message sent in existing room: ${roomId}`);
+          logger.info(
+            `✅ Product card message sent in existing room: ${roomId}`,
+          );
           logger.info(`   Message ID: ${productCardMessage._id}`);
           logger.info(`   Product: ${listing.title} (₹${listing.price})`);
         } catch (error: any) {
-          logger.error(`❌ Failed to send product card message: ${error.message}`);
+          logger.error(
+            `❌ Failed to send product card message: ${error.message}`,
+          );
           logger.error(`   Error details:`, error);
         }
       } else {
-        logger.info(`Product card already exists for listing ${listing._id} in room ${roomId}`);
+        logger.info(
+          `Product card already exists for listing ${listing._id} in room ${roomId}`,
+        );
       }
 
       // Update existing room with product context if not already set
@@ -725,7 +750,10 @@ export const contactSeller = async (
         chatRoom.context = "marketplace";
         chatRoom.contextId = listing._id;
         chatRoom.productTitle = listing.title;
-        chatRoom.productImage = listing.media && listing.media.length > 0 ? listing.media[0] : undefined;
+        chatRoom.productImage =
+          listing.media && listing.media.length > 0
+            ? listing.media[0]
+            : undefined;
         chatRoom.productPrice = listing.price;
         await chatRoom.save();
       }
@@ -742,7 +770,10 @@ export const contactSeller = async (
         sellerId,
         listingId: listing._id,
         listingTitle: listing.title,
-        productImage: listing.media && listing.media.length > 0 ? listing.media[0] : undefined,
+        productImage:
+          listing.media && listing.media.length > 0
+            ? listing.media[0]
+            : undefined,
         productPrice: listing.price,
         chatRoom, // Include populated chat room data
       },
@@ -764,7 +795,7 @@ export const contactSeller = async (
  */
 export const getMyListings = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId!;
@@ -797,7 +828,7 @@ export const getMyListings = async (
  * GET /api/v1/marketplace/:listingId/similar
  * Get similar listings based on category, sub-category, price, and location
  * Requires: Pro subscription
- * 
+ *
  * Scoring algorithm:
  * - Same category (required filter)
  * - Same sub-category: +3 points
@@ -808,7 +839,7 @@ export const getMyListings = async (
  */
 export const getSimilarListings = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     // ✅ Check subscription - marketplace requires Pro tier
@@ -828,7 +859,8 @@ export const getSimilarListings = async (
           res.status(403).json({
             success: false,
             message: "UPGRADE_REQUIRED",
-            error: "Marketplace access requires Pro subscription. Upgrade to view similar listings.",
+            error:
+              "Marketplace access requires Pro subscription. Upgrade to view similar listings.",
             data: {
               tier: effectiveTier,
             },
@@ -889,7 +921,8 @@ export const getSimilarListings = async (
       if (
         listing.subCategory &&
         currentListing.subCategory &&
-        listing.subCategory.toLowerCase() === currentListing.subCategory.toLowerCase()
+        listing.subCategory.toLowerCase() ===
+          currentListing.subCategory.toLowerCase()
       ) {
         score += 3;
       }
@@ -903,11 +936,13 @@ export const getSimilarListings = async (
       if (listing.location && currentListing.location) {
         const currentLoc = currentListing.location.toLowerCase().trim();
         const candidateLoc = listing.location.toLowerCase().trim();
-        
+
         // Exact match or partial match
-        if (currentLoc === candidateLoc || 
-            currentLoc.includes(candidateLoc) || 
-            candidateLoc.includes(currentLoc)) {
+        if (
+          currentLoc === candidateLoc ||
+          currentLoc.includes(candidateLoc) ||
+          candidateLoc.includes(currentLoc)
+        ) {
           score += 2;
         }
       }
@@ -921,11 +956,16 @@ export const getSimilarListings = async (
         return b.score - a.score;
       }
       // Tiebreaker: newer listings first
-      return new Date(b.listing.createdAt).getTime() - new Date(a.listing.createdAt).getTime();
+      return (
+        new Date(b.listing.createdAt).getTime() -
+        new Date(a.listing.createdAt).getTime()
+      );
     });
 
     // Return top 5 results
-    const similarListings = scoredListings.slice(0, 5).map((item) => item.listing);
+    const similarListings = scoredListings
+      .slice(0, 5)
+      .map((item) => item.listing);
 
     res.json({
       success: true,

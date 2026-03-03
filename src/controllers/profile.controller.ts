@@ -1,7 +1,7 @@
 import { Response } from "express";
 import User, { IEmergencyContact } from "../models/user.model.js";
 import { AuthRequest } from "../types/auth.types.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 import logger from "../config/logger.js";
 
 export const getMyProfile = async (req: AuthRequest, res: Response) => {
@@ -568,9 +568,10 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
     });
   }
 
-  const avatarUrl = await uploadOnCloudinary(
+  const avatarUrl = await uploadOnS3(
     req.file.buffer,
     "heridez/avatars",
+    req.file.mimetype,
   );
 
   if (!avatarUrl) {

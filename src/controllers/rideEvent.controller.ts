@@ -23,7 +23,7 @@ import {
   calculateRideDifficulty,
   getDifficultyLabel,
 } from "../utils/ride.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 
 // import rideEventQueue from '../queues/rideEvent.queue';
 // import rideEventQueue from '../queues/rideEvent.queue';
@@ -107,9 +107,10 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
       if ((req as any).file) {
         try {
           const fileBuffer = (req as any).file.buffer;
-          const uploadedUrl = await uploadOnCloudinary(
+          const uploadedUrl = await uploadOnS3(
             fileBuffer,
             "heridez/events",
+            (req as any).file.mimetype,
           );
           if (uploadedUrl) {
             bannerUrl = uploadedUrl;

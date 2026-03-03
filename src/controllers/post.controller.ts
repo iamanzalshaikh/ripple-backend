@@ -5,7 +5,7 @@ import User from "../models/user.model.js";
 import Ride from "../models/ride.model.js";
 import logger from "../config/logger.js";
 import postQueue from "../queues/post.queue.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 
 interface AuthRequest extends Request {
   userId: string;
@@ -13,7 +13,7 @@ interface AuthRequest extends Request {
 
 /**
  * POST /api/v1/posts
- * Create a new post with Cloudinary image upload
+ * Create a new post with AWS S3 image upload
  *
  * MULTIPART FORM DATA (NOT JSON)
  *
@@ -73,11 +73,11 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // ✅ UPLOAD FILES TO CLOUDINARY
+    // ✅ UPLOAD FILES TO AWS S3
     const mediaArray = [];
 
     if (files && files.length > 0) {
-      logger.info(`[createPost] Uploading ${files.length} files to Cloudinary`);
+      logger.info(`[createPost] Uploading ${files.length} files to AWS S3`);
 
       for (const file of files) {
         try {
@@ -85,8 +85,8 @@ export const createPost = async (req: AuthRequest, res: Response) => {
           const isVideo = file.mimetype.startsWith("video/");
           const folder = isVideo ? "herridez/videos" : "herridez/posts";
 
-          // Upload to Cloudinary
-          const imageUrl = await uploadOnCloudinary(file.buffer, folder);
+          // Upload to AWS S3
+          const imageUrl = await uploadOnS3(file.buffer, folder, file.mimetype);
 
           if (imageUrl) {
             mediaArray.push({
@@ -96,12 +96,12 @@ export const createPost = async (req: AuthRequest, res: Response) => {
             logger.info(`[createPost] File uploaded: ${imageUrl}`);
           } else {
             logger.warn(
-              `[createPost] Failed to upload file: ${file.originalname}`
+              `[createPost] Failed to upload file: ${file.originalname}`,
             );
           }
         } catch (uploadError: any) {
           logger.error(
-            `[createPost] Upload error for ${file.originalname}: ${uploadError.message}`
+            `[createPost] Upload error for ${file.originalname}: ${uploadError.message}`,
           );
           // Continue with other files instead of failing completely
         }
@@ -140,7 +140,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         if (parsedTaggedUsers.length > 0) {
           // Filter out current user and validate users exist
           const filteredUserIds = parsedTaggedUsers.filter(
-            (id) => id.toString() !== userId
+            (id) => id.toString() !== userId,
           );
 
           const validUsers = await User.find({
@@ -180,7 +180,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
     }
 
     logger.info(
-      `[createPost] Post ${post._id} created with ${mediaArray.length} media files and ${parsedTaggedUsers.length} tagged users`
+      `[createPost] Post ${post._id} created with ${mediaArray.length} media files and ${parsedTaggedUsers.length} tagged users`,
     );
 
     // Send notifications to tagged users
@@ -402,7 +402,7 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
  */
 export const getExploreFeed = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = req.userId;
@@ -424,7 +424,7 @@ export const getExploreFeed = async (
     const posts = await Post.find(exploreQuery)
       .populate(
         "userId",
-        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation",
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
@@ -436,7 +436,7 @@ export const getExploreFeed = async (
     const total = await Post.countDocuments(exploreQuery);
 
     logger.info(
-      `[getExploreFeed] Found ${posts.length} posts (page ${pageNum})`
+      `[getExploreFeed] Found ${posts.length} posts (page ${pageNum})`,
     );
 
     res.status(200).json({
@@ -475,7 +475,7 @@ export const getExploreFeed = async (
  */
 export const getUserPosts = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { userId: targetUserId } = req.params;
@@ -521,7 +521,7 @@ export const getUserPosts = async (
 
       // Check if current user follows target user
       const isFollowing = currentUserFollowing.some(
-        (id: any) => id.toString() === targetUserId
+        (id: any) => id.toString() === targetUserId,
       );
 
       if (isFollowing) {
@@ -537,7 +537,7 @@ export const getUserPosts = async (
     const posts = await Post.find(postQuery)
       .populate(
         "userId",
-        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation",
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
@@ -549,7 +549,7 @@ export const getUserPosts = async (
     const total = await Post.countDocuments(postQuery);
 
     logger.info(
-      `[getUserPosts] Found ${posts.length} posts for user ${targetUserId}`
+      `[getUserPosts] Found ${posts.length} posts for user ${targetUserId}`,
     );
 
     res.status(200).json({
@@ -617,7 +617,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
     const post = await Post.findById(postId)
       .populate(
         "userId",
-        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation"
+        "name avatarUrl handle city state country ridingLevel isCreator followerCount currentLocation",
       )
       .populate("rideId", "title distance duration avgSpeed maxSpeed")
       .populate("taggedUsers", "name avatarUrl handle")
@@ -665,7 +665,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
         const postOwnerId = post.userId._id.toString();
 
         const isFollowing = currentUserFollowing.some(
-          (id: any) => id.toString() === postOwnerId
+          (id: any) => id.toString() === postOwnerId,
         );
 
         if (!isFollowing) {
@@ -978,7 +978,7 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
 
     const validUserIds = validUsers.map((u) => u._id.toString());
     const invalidUserIds = userIds.filter(
-      (id) => !validUserIds.includes(id.toString())
+      (id) => !validUserIds.includes(id.toString()),
     );
 
     if (invalidUserIds.length > 0) {
@@ -998,7 +998,7 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
 
     // Find newly tagged users (users not already tagged)
     const newlyTaggedUsers = newTaggedUsers.filter(
-      (id) => !currentTaggedUsers.includes(id)
+      (id) => !currentTaggedUsers.includes(id),
     );
 
     // Update post with all tagged users
@@ -1006,7 +1006,7 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
     await post.save();
 
     logger.info(
-      `[tagUsers] Post ${postId} updated with ${newTaggedUsers.length} tagged users (${newlyTaggedUsers.length} newly tagged)`
+      `[tagUsers] Post ${postId} updated with ${newTaggedUsers.length} tagged users (${newlyTaggedUsers.length} newly tagged)`,
     );
 
     // Send notifications to newly tagged users
@@ -1158,12 +1158,12 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     // Populate fields for response
     await post.populate(
       "userId",
-      "name avatarUrl handle city ridingLevel isCreator followerCount"
+      "name avatarUrl handle city ridingLevel isCreator followerCount",
     );
     if (post.rideId) {
       await post.populate(
         "rideId",
-        "title distance duration avgSpeed maxSpeed"
+        "title distance duration avgSpeed maxSpeed",
       );
     }
     await post.populate("taggedUsers", "name avatarUrl handle");
@@ -1235,7 +1235,7 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
       {
         $pull: { comments: commentId },
         $inc: { commentCount: -1 },
-      }
+      },
     );
 
     await Comment.deleteOne({ _id: commentId });

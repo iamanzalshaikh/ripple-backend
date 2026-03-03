@@ -4,7 +4,7 @@
 // ==========================================
 import { Response } from "express";
 import { AdminAuthRequest } from "../middlewares/adminAuth.middleware.js";
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 import logger from "../config/logger.js";
 
 export const uploadCampaignHeroImage = async (
@@ -21,9 +21,10 @@ export const uploadCampaignHeroImage = async (
     }
 
     const fileBuffer = (req as any).file.buffer as Buffer;
-    const uploadedUrl = await uploadOnCloudinary(
+    const uploadedUrl = await uploadOnS3(
       fileBuffer,
       "heridez/campaigns",
+      (req as any).file.mimetype,
     );
 
     if (!uploadedUrl) {
@@ -48,10 +49,7 @@ export const uploadCampaignHeroImage = async (
     res.status(500).json({
       success: false,
       message: "Failed to upload image",
-      error:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
-
-

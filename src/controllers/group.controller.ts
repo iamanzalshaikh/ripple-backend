@@ -15,7 +15,7 @@ interface AuthRequest extends Request {
   userId: string;
 }
 
-import { uploadOnCloudinary } from "../config/cloudinary.js";
+import { uploadOnS3 } from "../config/s3.js";
 
 /**
  * POST /api/v1/groups
@@ -65,9 +65,10 @@ export const createGroup = async (
       // Upload avatar
       if (files.avatar && files.avatar[0]) {
         try {
-          const uploaded = await uploadOnCloudinary(
+          const uploaded = await uploadOnS3(
             files.avatar[0].buffer,
             "heridez/groups/avatars",
+            files.avatar[0].mimetype,
           );
           if (uploaded) avatarUrl = uploaded;
         } catch (err: any) {
@@ -78,9 +79,10 @@ export const createGroup = async (
       // Upload cover
       if (files.cover && files.cover[0]) {
         try {
-          const uploaded = await uploadOnCloudinary(
+          const uploaded = await uploadOnS3(
             files.cover[0].buffer,
             "heridez/groups/covers",
+            files.cover[0].mimetype,
           );
           if (uploaded) coverUrl = uploaded;
         } catch (err: any) {
@@ -172,9 +174,10 @@ export const updateGroup = async (
       // Upload avatar
       if (files.avatar && files.avatar[0]) {
         try {
-          const uploaded = await uploadOnCloudinary(
+          const uploaded = await uploadOnS3(
             files.avatar[0].buffer,
             "heridez/groups/avatars",
+            files.avatar[0].mimetype,
           );
           if (uploaded) group.avatarUrl = uploaded;
         } catch (err: any) {
@@ -185,9 +188,10 @@ export const updateGroup = async (
       // Upload cover
       if (files.cover && files.cover[0]) {
         try {
-          const uploaded = await uploadOnCloudinary(
+          const uploaded = await uploadOnS3(
             files.cover[0].buffer,
             "heridez/groups/covers",
+            files.cover[0].mimetype,
           );
           if (uploaded) group.coverUrl = uploaded;
         } catch (err: any) {
