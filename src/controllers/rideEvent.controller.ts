@@ -791,26 +791,7 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
           .json({ success: false, error: "Verification required to join" });
       }
 
-      // Subscription check: free tier cannot book events with price > 0
-      // (private events with price=0 are open to all)
-      if (ride.price > 0) {
-        const userSubscription = await User.findById(userId).select("subscription");
-        if (userSubscription) {
-          const isExpired =
-            userSubscription.subscription.tier === "pro" &&
-            userSubscription.subscription.expiryDate &&
-            new Date() > userSubscription.subscription.expiryDate;
-          const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
-          if (effectiveTier === "free") {
-            return res.status(403).json({
-              success: false,
-              error: "UPGRADE_REQUIRED",
-              message: "Upgrade to Pro to book paid events.",
-              data: { tier: effectiveTier, eventPrice: ride.price },
-            });
-          }
-        }
-      }
+      // No subscription / payment gate — all verified users can join any event freely.
 
       const alreadyParticipant = ride.participants.find(
         (p: any) => p.userId.toString() === userId,
@@ -846,7 +827,12 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
         // Update participant record with ticket info
         await RideEvent.updateOne(
           { _id: ride._id, "participants.userId": userId },
-          { $set: { "participants.$.ticketId": ticketId, "participants.$.qrCode": qrPayload } }
+          {
+            $set: {
+              "participants.$.ticketId": ticketId,
+              "participants.$.qrCode": qrPayload,
+            },
+          },
         );
 
         return res.status(200).json({
@@ -872,7 +858,7 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
       const payment = await Payment.create({
         userId,
         rideEventId: ride._id,
-        amount,
+        amount: 0, // no charge — free join
         status: "paid",
         provider: "mock",
         metadata: {
