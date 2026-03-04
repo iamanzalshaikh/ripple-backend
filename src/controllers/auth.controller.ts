@@ -184,7 +184,7 @@ export const verifySignupOtp = async (
     const { email, phone, otp, name } = req.body;
 
     // Validation - All required for user creation
-    if (!email || !phone || !otp) {
+    if (!phone || !otp) {
       res.status(400).json({
         success: false,
         message: "Email, phone number, and OTP are required",
@@ -193,31 +193,31 @@ export const verifySignupOtp = async (
     }
 
     // Normalize email (trim + lowercase) for consistent storage/retrieval
-    const normalizedEmail = email.trim().toLowerCase();
+    // const normalizedEmail = email.trim().toLowerCase();
     const normalizedPhone = phone.trim();
     const normalizedOtp = otp.trim();
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
-      res.status(400).json({
-        success: false,
-        message: "Invalid email format",
-      });
-      return;
-    }
+    // // Validate email format
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!emailRegex.test(normalizedEmail)) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Invalid email format",
+    //   });
+    //   return;
+    // }
 
-    // Validate phone format
-    if (!/^[0-9]{10}$/.test(normalizedPhone)) {
-      res.status(400).json({
-        success: false,
-        message: "Phone number must be 10 digits",
-      });
-      return;
-    }
+    // // Validate phone format
+    // if (!/^[0-9]{10}$/.test(normalizedPhone)) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Phone number must be 10 digits",
+    //   });
+    //   return;
+    // }
 
     // Check if OTP exists in temporary storage - use normalized email as key
-    const storedOtp = otpStore.get(normalizedEmail);
+    const storedOtp = otpStore.get(normalizedPhone);
     if (!storedOtp) {
       res.status(400).json({
         success: false,
@@ -228,7 +228,7 @@ export const verifySignupOtp = async (
 
     // Check if OTP expired
     if (Date.now() > storedOtp.expiresAt) {
-      otpStore.delete(normalizedEmail);
+      otpStore.delete(normalizedPhone);
       res.status(400).json({
         success: false,
         message: "OTP has expired. Please request a new one.",
@@ -247,7 +247,7 @@ export const verifySignupOtp = async (
 
     // ✅ OTP IS VALID - NOW CREATE USER IN DATABASE
     const newUser = new User({
-      email: normalizedEmail,
+      // email: normalizedEmail,
       phone: normalizedPhone,
       name: name ? name.trim() : undefined,
       role: UserRole.RIDER,
@@ -267,15 +267,13 @@ export const verifySignupOtp = async (
     await newUser.save();
 
     // Remove OTP from temporary storage
-    otpStore.delete(normalizedEmail);
+    otpStore.delete(normalizedPhone);
 
     // Generate tokens
     const accessToken = signUserAccessToken(newUser._id.toString());
     const refreshToken = signUserRefreshToken(newUser._id.toString());
 
-    logger.info(
-      `✅ User created successfully: ${normalizedEmail} | ${normalizedPhone}`,
-    );
+    logger.info(`✅ User created successfully: ${normalizedPhone}`);
 
     res.status(201).json({
       success: true,
@@ -549,7 +547,7 @@ export const sendSignupOtpSms = async (
     const { email, phone } = req.body;
 
     // Validation - Both required
-    if (!email || !phone) {
+    if (!phone) {
       res.status(400).json({
         success: false,
         message: "Email and phone number are required",
@@ -557,19 +555,19 @@ export const sendSignupOtpSms = async (
       return;
     }
 
-    // Normalize email and phone
-    const normalizedEmail = email.trim().toLowerCase();
+    // // Normalize email and phone
+    // const normalizedEmail = email.trim().toLowerCase();
     const normalizedPhone = phone.trim();
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
-      res.status(400).json({
-        success: false,
-        message: "Invalid email format",
-      });
-      return;
-    }
+    // // Validate email format
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!emailRegex.test(normalizedEmail)) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Invalid email format",
+    //   });
+    //   return;
+    // }
 
     // Validate phone format (10 digits)
     if (!/^[0-9]{10}$/.test(normalizedPhone)) {
@@ -582,13 +580,12 @@ export const sendSignupOtpSms = async (
 
     // Check if user already exists (by email or phone)
     const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { phone: normalizedPhone }],
+      phone: normalizedPhone,
     });
     if (existingUser) {
       res.status(400).json({
         success: false,
-        message:
-          "Email or phone number already registered. Please login instead.",
+        message: "Phone number already registered. Please login instead.",
       });
       return;
     }
@@ -632,15 +629,12 @@ export const sendSignupOtpSms = async (
       phone: normalizedPhone,
     });
 
-    logger.info(
-      `[SMS] OTP sent to ${normalizedPhone} (${normalizedEmail}) - User NOT created yet`,
-    );
+    logger.info(`[SMS] OTP sent to ${normalizedPhone} - User NOT created yet`);
 
     res.status(200).json({
       success: true,
       message: "OTP sent successfully to your phone via SMS",
       data: {
-        email: normalizedEmail,
         phone: normalizedPhone,
         otpExpiresIn: "10 minutes",
       },
@@ -679,7 +673,7 @@ export const verifySignupOtpSms = async (
     const { email, phone, otp, name } = req.body;
 
     // Validation - All required
-    if (!email || !phone || !otp) {
+    if (!phone || !otp) {
       res.status(400).json({
         success: false,
         message: "Email, phone number, and OTP are required",
@@ -688,28 +682,28 @@ export const verifySignupOtpSms = async (
     }
 
     // Normalize inputs
-    const normalizedEmail = email.trim().toLowerCase();
+    // const normalizedEmail = email.trim().toLowerCase();
     const normalizedPhone = phone.trim();
     const normalizedOtp = otp.trim();
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
-      res.status(400).json({
-        success: false,
-        message: "Invalid email format",
-      });
-      return;
-    }
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!emailRegex.test(normalizedEmail)) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Invalid email format",
+    //   });
+    //   return;
+    // }
 
     // Validate phone format
-    if (!/^[0-9]{10}$/.test(normalizedPhone)) {
-      res.status(400).json({
-        success: false,
-        message: "Phone number must be 10 digits",
-      });
-      return;
-    }
+    // if (!/^[0-9]{10}$/.test(normalizedPhone)) {
+    //   res.status(400).json({
+    //     success: false,
+    //     message: "Phone number must be 10 digits",
+    //   });
+    //   return;
+    // }
 
     // Check if OTP exists in temporary storage
     const storedOtp = otpStore.get(normalizedPhone);
@@ -743,7 +737,7 @@ export const verifySignupOtpSms = async (
 
     // ✅ OTP IS VALID - NOW CREATE USER IN DATABASE
     const newUser = new User({
-      email: normalizedEmail,
+      // email: normalizedEmail,
       phone: normalizedPhone,
       name: name ? name.trim() : undefined,
       role: UserRole.RIDER,
@@ -769,9 +763,7 @@ export const verifySignupOtpSms = async (
     const accessToken = signUserAccessToken(newUser._id.toString());
     const refreshToken = signUserRefreshToken(newUser._id.toString());
 
-    logger.info(
-      `✅ User created successfully via SMS: ${normalizedEmail} | ${normalizedPhone}`,
-    );
+    logger.info(`✅ User created successfully via SMS: ${normalizedPhone}`);
 
     res.status(201).json({
       success: true,
