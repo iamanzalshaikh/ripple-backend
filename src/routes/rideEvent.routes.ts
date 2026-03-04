@@ -112,22 +112,21 @@ import {
   riderEndsRide,
 } from "../controllers/rideEvent.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
+import optionalAuth from "../middlewares/optionalAuth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
 
 const router: Router = express.Router();
 
-// router.use(isAuth);
-
 // NOTE:
-// - Public read-only endpoints (GET / and GET /:id) are accessible without auth
-//   so guests can browse events.
+// - Public read-only endpoints use optionalAuth so guests can browse,
+//   but logged-in users get personalized data (isOrganizer, isParticipant).
 // - All mutating endpoints remain protected with isAuth.
 
 router.post("/", isAuth, upload.single("banner"), createRideEvent as any);
-router.get("/", listRideEvents as any);
-router.get("/search", searchRideEvents as any); // Search/filter route (public browsing)
+router.get("/", optionalAuth, listRideEvents as any);
+router.get("/search", optionalAuth, searchRideEvents as any);
 router.get("/me", isAuth, getMyRideEvents as any); // Must be before /:id
-router.get("/:id", getRideEventDetail as any);
+router.get("/:id", optionalAuth, getRideEventDetail as any);
 router.post("/:id/rsvp", isAuth, rsvpRideEvent as any);
 router.post("/:id/book", isAuth, bookRideEvent as any);
 router.get("/:id/pass", isAuth, getRideEventPass as any);

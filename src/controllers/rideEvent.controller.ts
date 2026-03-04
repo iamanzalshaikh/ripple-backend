@@ -138,12 +138,12 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         title,
         description,
         organizerId,
-        banner: bannerUrl, // Banner image URL from Cloudinary
+        banner: bannerUrl,
         route: {
           startPoint: parsedRoute.startPoint,
           endPoint: parsedRoute.endPoint,
           waypoints: parsedRoute.waypoints || [],
-          polyline: simplifiedPolyline, // Use simplified polyline
+          polyline: simplifiedPolyline,
           distance: totalDistance,
           estimatedDuration,
           elevation,
@@ -156,10 +156,10 @@ export const createRideEvent = (req: AuthRequest, res: Response): void => {
         maxParticipants: maxParticipants || 50,
         timezone: timezone || "Asia/Kolkata",
         eventType,
-        // Force all events to be private; price can be 0 or >0
         privacy: "private",
         price: price || 0,
-        // Events are scheduled but NOT visible until admin approves (approved=false by default)
+        // Events require admin approval before appearing in public listings
+        // approved defaults to false (set in model schema)
         status: "SCHEDULED",
         safetyLevel: "high",
         chatRoomId: `event-${Date.now()}`,
@@ -242,30 +242,9 @@ export const listRideEvents = (req: AuthRequest, res: Response): void => {
       const limitNum = Math.min(50, parseInt(limit as string) || 10);
       const skip = (pageNum - 1) * limitNum;
 
-      // ✅ Filter events by subscription tier
-      const userId = req.userId;
-      if (userId) {
-        const User = (await import("../models/user.model.js")).default;
-        const user = await User.findById(userId).select("subscription");
-        if (user) {
-          // Check if subscription is expired
-          const isExpired =
-            user.subscription.tier === "pro" &&
-            user.subscription.expiryDate &&
-            new Date() > user.subscription.expiryDate;
-
-          const effectiveTier = isExpired ? "free" : user.subscription.tier;
-
-          // Free tier can only see free events (price === 0 or privacy === 'public')
-          if (effectiveTier === "free") {
-            query.$or = [{ price: 0 }, { privacy: "public" }];
-          }
-          // Pro tier can see all events (no filter needed)
-        }
-      } else {
-        // Not authenticated - only show free events
-        query.$or = [{ price: 0 }, { privacy: "public" }];
-      }
+      // All authenticated users can see approved events regardless of tier
+      // (Subscription tier only affects ability to JOIN/BOOK paid events, not visibility)
+      // No additional $or filter needed since all events default to price=0
 
       const rides = await RideEvent.find(query)
         .populate("organizerId", "name avatarUrl verified ridingHours")
@@ -552,7 +531,9 @@ export const getRideEventDetail = (req: AuthRequest, res: Response): void => {
       const userParticipant =
         userId &&
         ride.participants.find(
-          (p: any) => p.userId?._id?.toString() === userId,
+          (p: any) =>
+            p.userId?.toString() === userId ||
+            p.userId?._id?.toString() === userId,
         );
       const isParticipant = !!userParticipant;
 
@@ -810,46 +791,73 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
           .json({ success: false, error: "Verification required to join" });
       }
 
-      // ✅ Check subscription - free tier cannot book paid events
-      const userSubscription =
-        await User.findById(userId).select("subscription");
-      if (userSubscription) {
-        // Check if subscription is expired
-        const isExpired =
-          userSubscription.subscription.tier === "pro" &&
-          userSubscription.subscription.expiryDate &&
-          new Date() > userSubscription.subscription.expiryDate;
-
-        const effectiveTier = isExpired
-          ? "free"
-          : userSubscription.subscription.tier;
-
-        // Free tier cannot book paid events (price > 0 or privacy === 'private')
-        if (
-          effectiveTier === "free" &&
-          (ride.price > 0 || ride.privacy === "private")
-        ) {
-          return res.status(403).json({
-            success: false,
-            error: "UPGRADE_REQUIRED",
-            message:
-              "This is a paid event. Upgrade to Pro to book paid events.",
-            data: {
-              tier: effectiveTier,
-              eventPrice: ride.price,
-              eventPrivacy: ride.privacy,
-            },
-          });
+      // Subscription check: free tier cannot book events with price > 0
+      // (private events with price=0 are open to all)
+      if (ride.price > 0) {
+        const userSubscription = await User.findById(userId).select("subscription");
+        if (userSubscription) {
+          const isExpired =
+            userSubscription.subscription.tier === "pro" &&
+            userSubscription.subscription.expiryDate &&
+            new Date() > userSubscription.subscription.expiryDate;
+          const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+          if (effectiveTier === "free") {
+            return res.status(403).json({
+              success: false,
+              error: "UPGRADE_REQUIRED",
+              message: "Upgrade to Pro to book paid events.",
+              data: { tier: effectiveTier, eventPrice: ride.price },
+            });
+          }
         }
       }
 
-      const alreadyParticipant = ride.participants.some(
+      const alreadyParticipant = ride.participants.find(
         (p: any) => p.userId.toString() === userId,
       );
       if (alreadyParticipant) {
-        return res.status(400).json({
-          success: false,
-          error: "Already joined this event",
+        // If they already have a ticket (previously booked), return it
+        if (alreadyParticipant.ticketId && alreadyParticipant.qrCode) {
+          return res.status(200).json({
+            success: true,
+            data: {
+              rideEventId: ride._id,
+              ticketId: alreadyParticipant.ticketId,
+              qrPayload: alreadyParticipant.qrCode,
+              amount: 0,
+              paymentStatus: "paid",
+              alreadyJoined: true,
+            },
+          });
+        }
+        // If they are already joined (e.g. organizer auto-joined) but have no ticket yet, create one
+        const ticketId = `TCKT-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const qrPayload = `event:${ride._id}:user:${userId}:ticket:${ticketId}`;
+
+        await Payment.create({
+          userId,
+          rideEventId: ride._id,
+          amount: 0,
+          status: "paid",
+          provider: "mock",
+          metadata: { ticketId },
+        });
+
+        // Update participant record with ticket info
+        await RideEvent.updateOne(
+          { _id: ride._id, "participants.userId": userId },
+          { $set: { "participants.$.ticketId": ticketId, "participants.$.qrCode": qrPayload } }
+        );
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            rideEventId: ride._id,
+            ticketId,
+            qrPayload,
+            amount: 0,
+            paymentStatus: "paid",
+          },
         });
       }
 
