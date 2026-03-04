@@ -9,7 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "format": "prettier --write src/**/*.ts",
-    "seed:plans": "tsx src/seeds/subscriptionPlans.seed.ts"
+    "seed:plans": "tsx src/seeds/subscriptionPlans.seed.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -59,11 +60,14 @@
     "@types/node": "^24.10.4",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.4",
+    "@types/supertest": "^7.2.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "prettier": "^3.7.4",
+    "supertest": "^7.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
