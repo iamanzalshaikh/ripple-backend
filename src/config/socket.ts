@@ -773,8 +773,31 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
               (conv.unreadCount as any)?.get?.(receiverId) || 0;
           }
 
-          // Broadcast to both users
+          // Broadcast to the room (for those already in it)
           io.to(`private:${roomId}`).emit("new-message-private", {
+            _id: message._id,
+            roomId,
+            senderId: userId,
+            senderName: sender?.name,
+            senderAvatar: sender?.avatarUrl,
+            text: message.text,
+            timestamp: new Date(),
+          });
+
+          // Also broadcast directly to participants' individual rooms
+          // This ensures the sender gets confirmation even if they haven't joined the private room yet
+          // and the receiver gets the message even if they are on another screen.
+          io.to(`user:${userId}`).emit("new-message-private", {
+            _id: message._id,
+            roomId,
+            senderId: userId,
+            senderName: sender?.name,
+            senderAvatar: sender?.avatarUrl,
+            text: message.text,
+            timestamp: new Date(),
+          });
+
+          io.to(`user:${receiverId}`).emit("new-message-private", {
             _id: message._id,
             roomId,
             senderId: userId,
