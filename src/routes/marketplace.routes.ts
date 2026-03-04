@@ -38,7 +38,7 @@ const upload = multer({
  * Public route (no auth required)
  * Supports filters: category, location, priceMin, priceMax, search, page, limit
  */
-router.get("/", isAuth, browseListings);
+router.get("/", browseListings);
 
 /**
  * GET /api/v1/marketplace/my-listings
