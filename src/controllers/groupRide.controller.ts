@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import GroupRide from "../models/groupRide.model.js";
+import User from "../models/user.model.js";
 import redisClient from "../config/redis.js";
 import logger from "../config/logger.js";
 import { generateJoinCode } from "../utils/groupRide.js";
@@ -29,6 +30,31 @@ const autoEndRide = async (rideId: string): Promise<void> => {
 export const createGroupRide = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    // ✅ Check subscription - group rides require Pro tier
+    const user = await User.findById(userId).select("subscription");
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    // Check if subscription is expired
+    const isExpired =
+      user.subscription.tier === "pro" &&
+      user.subscription.expiryDate &&
+      new Date() > user.subscription.expiryDate;
+
+    const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+    if (effectiveTier === "free") {
+      return res.status(403).json({
+        success: false,
+        message: "UPGRADE_REQUIRED",
+        error:
+          "Group rides are exclusive to Pro members. Upgrade to Pro to ride with friends!",
+        data: {
+          tier: effectiveTier,
+        },
+      });
+    }
 
     // Generate a unique join code (retry on collision — extremely rare)
     let joinCode = generateJoinCode();
@@ -71,6 +97,32 @@ export const joinGroupRide = async (req: AuthRequest, res: Response) => {
   try {
     const { joinCode } = req.body;
     const userId = req.userId;
+
+    // ✅ Check subscription - group rides require Pro tier
+    const user = await User.findById(userId).select("subscription");
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    // Check if subscription is expired
+    const isExpired =
+      user.subscription.tier === "pro" &&
+      user.subscription.expiryDate &&
+      new Date() > user.subscription.expiryDate;
+
+    const effectiveTier = isExpired ? "free" : user.subscription.tier;
+
+    if (effectiveTier === "free") {
+      return res.status(403).json({
+        success: false,
+        message: "UPGRADE_REQUIRED",
+        error:
+          "Group rides are exclusive to Pro members. Upgrade to Pro to ride with friends!",
+        data: {
+          tier: effectiveTier,
+        },
+      });
+    }
 
     if (!joinCode) {
       return res

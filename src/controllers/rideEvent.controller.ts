@@ -650,20 +650,14 @@ export const rsvpRideEvent = (req: AuthRequest, res: Response): void => {
           ? "free"
           : userSubscription.subscription.tier;
 
-        // Free tier cannot join paid events (price > 0 or privacy === 'private')
-        if (
-          effectiveTier === "free" &&
-          (ride.price > 0 || ride.privacy === "private")
-        ) {
+        // Free tier cannot join events
+        if (effectiveTier === "free") {
           return res.status(403).json({
             success: false,
             error: "UPGRADE_REQUIRED",
-            message:
-              "This is a paid event. Upgrade to Pro to join paid events.",
+            message: "Upgrade to Pro to join ride events.",
             data: {
               tier: effectiveTier,
-              eventPrice: ride.price,
-              eventPrivacy: ride.privacy,
             },
           });
         }
@@ -791,7 +785,27 @@ export const bookRideEvent = (req: AuthRequest, res: Response): void => {
           .json({ success: false, error: "Verification required to join" });
       }
 
-      // No subscription / payment gate — all verified users can join any event freely.
+      // Check subscription - free tier cannot book events
+      const userSubscription = await User.findById(userId).select("subscription");
+      if (userSubscription) {
+        const isExpired =
+          userSubscription.subscription.tier === "pro" &&
+          userSubscription.subscription.expiryDate &&
+          new Date() > userSubscription.subscription.expiryDate;
+
+        const effectiveTier = isExpired ? "free" : userSubscription.subscription.tier;
+
+        if (effectiveTier === "free") {
+          return res.status(403).json({
+            success: false,
+            error: "UPGRADE_REQUIRED",
+            message: "Upgrade to Pro to book ride events.",
+            data: {
+              tier: effectiveTier,
+            },
+          });
+        }
+      }
 
       const alreadyParticipant = ride.participants.find(
         (p: any) => p.userId.toString() === userId,
