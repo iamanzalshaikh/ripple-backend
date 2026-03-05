@@ -200,9 +200,6 @@ const bikeSchema = new Schema<IBike>(
       sparse: true,
       uppercase: true,
       trim: true,
-      minlength: 4,
-      maxlength: 20,
-      match: /^[A-Z]{2}\d{2}[A-Z]{2}\d{4}$/,
       validate: {
         async validator(this: IBike) {
           if (!this.registrationNumber) return true;
