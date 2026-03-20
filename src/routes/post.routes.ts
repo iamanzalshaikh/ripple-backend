@@ -189,12 +189,14 @@ import {
   deleteComment,
   deletePost,
   getComments,
+  getCommentReplies,
   getExploreFeed,
   getFeed,
   getMyPosts,
   getPostById,
   getUserPosts,
   likePost,
+  replyToComment,
   tagUsers,
   updatePost,
 } from "../controllers/post.controller.js";
@@ -208,6 +210,8 @@ const wrappedGetMyPosts: any = getMyPosts;
 const wrappedLikePost: any = likePost;
 const wrappedGetComments: any = getComments;
 const wrappedCommentPost: any = commentPost;
+const wrappedGetCommentReplies: any = getCommentReplies;
+const wrappedReplyToComment: any = replyToComment;
 const wrappedDeleteComment: any = deleteComment;
 const wrappedDeletePost: any = deletePost;
 const wrappedGetExploreFeed: any = getExploreFeed;
@@ -227,6 +231,16 @@ router.post("/:id/like", isAuth, wrappedLikePost);
 router.post("/:id/tag", isAuth, wrappedTagUsers);
 router.get("/:id/comments", isAuth, wrappedGetComments);
 router.post("/:id/comment", isAuth, wrappedCommentPost);
+router.get(
+  "/:id/comments/:commentId/replies",
+  isAuth,
+  wrappedGetCommentReplies
+);
+router.post(
+  "/:id/comments/:commentId/reply",
+  isAuth,
+  wrappedReplyToComment
+);
 router.delete("/:postId/comments/:commentId", isAuth, wrappedDeleteComment);
 // Generic /:id route comes last
 router.get("/:id", isAuth, wrappedGetPostById);

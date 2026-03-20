@@ -849,7 +849,7 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
     post.commentCount += 1;
     await post.save();
 
-    await comment.populate("userId", "name avatar handle");
+    await comment.populate("userId", "name avatarUrl avatar handle");
 
     logger.info(`[commentPost] Comment ${comment._id} created`);
 
@@ -897,14 +897,24 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(100, parseInt(limit as string) || 20);
     const skip = (pageNum - 1) * limitNum;
 
-    const comments = await Comment.find({ postId })
-      .populate("userId", "name avatar handle")
+    const topLevelFilter = {
+      postId,
+      // Replies are stored as Comment documents with `parentCommentId`.
+      // Top-level comments either have `parentCommentId: null` or no field at all (old data).
+      $or: [
+        { parentCommentId: null },
+        { parentCommentId: { $exists: false } },
+      ],
+    };
+
+    const comments = await Comment.find(topLevelFilter)
+      .populate("userId", "name avatarUrl avatar handle")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean();
 
-    const total = await Comment.countDocuments({ postId });
+    const total = await Comment.countDocuments(topLevelFilter);
 
     return res.json({
       success: true,
@@ -918,6 +928,101 @@ export const getComments = async (req: AuthRequest, res: Response) => {
     });
   } catch (error: any) {
     logger.error(`[getComments] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * POST /api/v1/posts/:id/comments/:commentId/reply
+ * Create a reply to a top-level comment.
+ *
+ * Note: replies are stored as Comment documents using `parentCommentId`
+ * but they are NOT counted in `post.commentCount` (only top-level comments are).
+ */
+export const replyToComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const postId = req.params.id;
+    const { commentId } = req.params;
+    const userId = req.userId;
+    const { text } = req.body;
+
+    if (!text || text.trim().length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Reply cannot be empty" });
+    }
+
+    if (text.length > 1000) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Reply too long" });
+    }
+
+    const parentComment = await Comment.findOne({ _id: commentId, postId });
+    if (!parentComment) {
+      return res.status(404).json({ success: false, error: "Comment not found" });
+    }
+
+    const reply = new Comment({
+      postId,
+      userId,
+      text: text.trim(),
+      parentCommentId: commentId,
+    });
+
+    await reply.save();
+    await reply.populate("userId", "name avatarUrl avatar handle");
+
+    return res.status(201).json({
+      success: true,
+      data: reply,
+    });
+  } catch (error: any) {
+    logger.error(`[replyToComment] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * GET /api/v1/posts/:id/comments/:commentId/replies
+ * Get replies for a specific comment (paginated).
+ */
+export const getCommentReplies = async (req: AuthRequest, res: Response) => {
+  try {
+    const postId = req.params.id;
+    const { commentId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(100, parseInt(limit as string) || 20);
+    const skip = (pageNum - 1) * limitNum;
+
+    const replies = await Comment.find({ postId, parentCommentId: commentId })
+      .populate("userId", "name avatarUrl avatar handle")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await Comment.countDocuments({
+      postId,
+      parentCommentId: commentId,
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        replies,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum),
+        },
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[getCommentReplies] Error: ${error.message}`);
     return res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -1239,6 +1344,9 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
     );
 
     await Comment.deleteOne({ _id: commentId });
+
+    // If this comment had replies, remove them too.
+    await Comment.deleteMany({ postId, parentCommentId: commentId });
 
     logger.info(`[deleteComment] Comment ${commentId} deleted`);
 

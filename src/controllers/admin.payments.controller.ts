@@ -69,11 +69,11 @@ export const getPaidRideEvents = async (
         $project: {
           _id: 1,
           title: 1,
-          price: 1,
+          price: 1,                                     
           participantCount: 1,
           totalRevenue: 1,
           status: 1,
-          scheduledAt: 1,
+          scheduledAt: 1,                 
           location: 1,
           category: 1,
           "organizer._id": 1,
