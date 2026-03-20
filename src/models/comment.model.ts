@@ -6,6 +6,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IComment extends Document {
   postId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
+  // If present, this comment is a reply to another top-level comment.
+  parentCommentId?: mongoose.Types.ObjectId | null;
   text: string;
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +27,14 @@ const commentSchema = new Schema<IComment>(
       ref: 'User',
       required: true,
       index: true
+    },
+
+    parentCommentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      required: false,
+      default: null,
+      index: true,
     },
 
     text: {
