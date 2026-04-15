@@ -9,7 +9,6 @@ import {
   signAdminRefreshToken,
 } from "../utils/jwtAdmin.js";
 import redisClient from "../config/redis.js";
-import { sendLoginOtpEmail } from "../config/mail.js";
 
 const ADMIN_LOGIN_OTP_TTL_SECONDS = 10 * 60; // 10 minutes
 const ADMIN_LOGIN_MAX_OTP_ATTEMPTS = 5;
@@ -239,31 +238,22 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
       await admin.save();
     }
 
-    const otp = generateOtp();
-    await setLoginOtp(admin.email, otp);
+    // Direct admin login: clear any stale OTP state from previous flow.
+    await clearLoginOtp(admin.email);
+    await admin.recordLogin(clientIP);
 
-    try {
-      await sendLoginOtpEmail(admin.email, otp, "");
-      logger.info(`Admin login OTP email sent to ${admin.email}`);
-    } catch (emailError: any) {
-      logger.error(
-        `Failed to send admin login OTP email to ${admin.email}: ${emailError.message}`
-      );
-      res.status(500).json({
-        success: false,
-        message: "Failed to send OTP email. Please try again.",
-      });
-      return;
-    }
+    const accessToken = signAdminAccessToken(admin._id.toString(), admin.role);
+    const refreshToken = signAdminRefreshToken(admin._id.toString(), admin.role);
 
-    logger.info(`Admin login OTP generated for ${admin.email} from IP ${clientIP}`);
+    logger.info(`✅ Admin login successful: ${admin.email}`);
 
     res.status(200).json({
       success: true,
-      message: "OTP sent successfully to admin email",
+      message: "Admin login successful",
       data: {
-        email: admin.email,
-        otpExpiresIn: `${ADMIN_LOGIN_OTP_TTL_SECONDS / 60} minutes`,
+        admin: admin.toJSON(),
+        accessToken,
+        refreshToken,
       },
     });
   } catch (error: any) {
