@@ -943,9 +943,47 @@ export const getRideEventPass = (req: AuthRequest, res: Response): void => {
       }
 
       if (!participant.ticketId || !participant.qrCode) {
-        return res.status(400).json({
-          success: false,
-          error: "No ticket found for this event",
+        // Organizer/participant may exist without ticket in older records.
+        // Auto-generate a pass so "View My Pass" works reliably.
+        const ticketId = `TCKT-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
+        const qrPayload = `event:${ride._id}:user:${userId}:ticket:${ticketId}`;
+
+        await Payment.create({
+          userId,
+          rideEventId: ride._id,
+          amount: 0,
+          status: "paid",
+          provider: "mock",
+          metadata: { ticketId },
+        });
+
+        await RideEvent.updateOne(
+          { _id: ride._id, "participants.userId": userId },
+          {
+            $set: {
+              "participants.$.ticketId": ticketId,
+              "participants.$.qrCode": qrPayload,
+            },
+          },
+        );
+
+        return res.json({
+          success: true,
+          data: {
+            event: {
+              id: ride._id,
+              title: ride.title,
+              scheduledAt: ride.scheduledAt,
+              location: (ride as any).location || null,
+            },
+            pass: {
+              ticketId,
+              qrPayload,
+              status: participant.status || "JOINED",
+            },
+          },
         });
       }
 
@@ -1818,7 +1856,7 @@ export const sendChatMessage = (req: AuthRequest, res: Response): void => {
 
       const message = await ChatMessage.create({
         rideEventId: id,
-        roomType: "event",
+        roomType: "ride",
         senderId: userId,
         text: text.trim(),
         timestamp: new Date(),
