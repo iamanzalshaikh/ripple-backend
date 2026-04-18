@@ -196,6 +196,7 @@ import {
   getPostById,
   getUserPosts,
   likePost,
+  boostPostRadar,
   replyToComment,
   tagUsers,
   updatePost,
@@ -208,6 +209,7 @@ const wrappedCreatePost: any = createPost;
 const wrappedGetFeed: any = getFeed;  
 const wrappedGetMyPosts: any = getMyPosts;
 const wrappedLikePost: any = likePost;
+const wrappedBoostPostRadar: any = boostPostRadar;
 const wrappedGetComments: any = getComments;
 const wrappedCommentPost: any = commentPost;
 const wrappedGetCommentReplies: any = getCommentReplies;
@@ -228,6 +230,7 @@ router.get("/user/:userId", isAuth, wrappedGetUserPosts);
 router.get("/me", isAuth, wrappedGetMyPosts);
 // Specific routes with /:id/* must come before /:id
 router.post("/:id/like", isAuth, wrappedLikePost);
+router.post("/:id/radar-boost", isAuth, wrappedBoostPostRadar);
 router.post("/:id/tag", isAuth, wrappedTagUsers);
 router.get("/:id/comments", isAuth, wrappedGetComments);
 router.post("/:id/comment", isAuth, wrappedCommentPost);

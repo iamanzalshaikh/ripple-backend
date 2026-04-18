@@ -17,6 +17,7 @@ import RideEvent from "../models/rideEvent.model.js";
 import Group from "../models/group.model.js";
 import User from "../models/user.model.js";
 import PrivateChatRoom from "../models/private.model.js";
+import Post from "../models/post.model.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {
@@ -702,23 +703,22 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
      */
     socket.on(
       "send-message-private",
-      async (data: { roomId: string; text: string }) => {
+      async (
+        data: {
+          roomId: string;
+          text?: string;
+          messageType?: string;
+          postData?: {
+            postId: string;
+            imageUrl?: string;
+            captionPreview?: string;
+            authorName?: string;
+            mediaType?: "photo" | "video";
+          };
+        },
+      ) => {
         try {
-          const { roomId, text } = data;
-
-          if (!text || text.trim().length === 0) {
-            socket.emit("error", {
-              message: "Message cannot be empty",
-            });
-            return;
-          }
-
-          if (text.length > 500) {
-            socket.emit("error", {
-              message: "Message too long (max 500 chars)",
-            });
-            return;
-          }
+          const { roomId, text, messageType, postData } = data;
 
           // Get chat room to find receiver
           const chatRoom = await PrivateChatRoom.findOne({ roomId });
@@ -738,20 +738,102 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             .select("name avatarUrl")
             .lean();
 
-          // Save to database
-          const message = await ChatMessage.create({
-            privateRoomId: roomId,
-            roomType: "private",
-            senderId: userId,
-            text: text.trim(),
-            timestamp: new Date(),
-          });
+          let messageBody: {
+            privateRoomId: string;
+            roomType: "private";
+            senderId: string;
+            text: string;
+            messageType?: "text" | "product_card" | "post_share";
+            postData?: Record<string, unknown>;
+            timestamp: Date;
+          };
+
+          if (messageType === "post_share" && postData?.postId) {
+            const post = await Post.findById(postData.postId)
+              .populate("userId", "name avatarUrl")
+              .lean();
+            if (!post) {
+              socket.emit("error", { message: "Post not found" });
+              return;
+            }
+            const firstMedia = post.media?.[0];
+            const mediaList = Array.isArray(post.media) ? post.media : [];
+            const mediaCount = mediaList.length;
+            const imageUrl =
+              firstMedia?.url || postData.imageUrl || undefined;
+            const mediaType = firstMedia?.type === "video" ? "video" : "photo";
+            const postUser = post.userId as
+              | { name?: string; avatarUrl?: string }
+              | undefined;
+            const authorName =
+              postUser?.name || postData.authorName || "Someone";
+            const authorAvatarUrl =
+              postUser?.avatarUrl ||
+              (postData as { authorAvatarUrl?: string }).authorAvatarUrl;
+            const cap = (post.caption || postData.captionPreview || "").trim();
+            const captionPreview =
+              cap.length > 220 ? `${cap.slice(0, 217)}…` : cap;
+
+            const lineText = captionPreview
+              ? captionPreview.slice(0, 500)
+              : "Shared a post";
+
+            const storedPostData = {
+              postId: String(post._id),
+              imageUrl,
+              captionPreview:
+                captionPreview || postData.captionPreview?.slice(0, 220),
+              authorName,
+              mediaType,
+              ...(authorAvatarUrl
+                ? { authorAvatarUrl: String(authorAvatarUrl) }
+                : {}),
+              mediaCount,
+            };
+
+            messageBody = {
+              privateRoomId: roomId,
+              roomType: "private",
+              senderId: userId as unknown as string,
+              text: lineText,
+              messageType: "post_share",
+              postData: storedPostData,
+              timestamp: new Date(),
+            };
+          } else {
+            if (!text || text.trim().length === 0) {
+              socket.emit("error", {
+                message: "Message cannot be empty",
+              });
+              return;
+            }
+            if (text.length > 500) {
+              socket.emit("error", {
+                message: "Message too long (max 500 chars)",
+              });
+              return;
+            }
+            messageBody = {
+              privateRoomId: roomId,
+              roomType: "private",
+              senderId: userId as unknown as string,
+              text: text.trim(),
+              timestamp: new Date(),
+            };
+          }
+
+          const message = await ChatMessage.create(messageBody);
+
+          const lastPreview =
+            message.messageType === "post_share"
+              ? "📷 Shared a post"
+              : message.text.trim();
 
           // Update PrivateChatRoom with last message AND increment unread for receiver
           await PrivateChatRoom.updateOne(
             { roomId },
             {
-              lastMessage: text.trim(),
+              lastMessage: lastPreview,
               lastMessageAt: new Date(),
               $inc: { [`unreadCount.${receiverId}`]: 1 }, // Increment receiver's unread count
             },
@@ -773,39 +855,37 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
               (conv.unreadCount as any)?.get?.(receiverId) || 0;
           }
 
-          // Broadcast to the room (for those already in it)
-          io.to(`private:${roomId}`).emit("new-message-private", {
+          const plainPostData = (message as any).postData
+            ? { ...(message as any).postData }
+            : undefined;
+
+          const broadcastPayload: Record<string, unknown> = {
             _id: message._id,
             roomId,
             senderId: userId,
             senderName: sender?.name,
             senderAvatar: sender?.avatarUrl,
             text: message.text,
-            timestamp: new Date(),
-          });
+            timestamp: (message as any).timestamp ?? new Date(),
+          };
+          if (message.messageType === "post_share" && plainPostData) {
+            broadcastPayload.messageType = "post_share";
+            broadcastPayload.postData = plainPostData;
+          }
+
+          // Broadcast to the room (for those already in it)
+          io.to(`private:${roomId}`).emit(
+            "new-message-private",
+            broadcastPayload,
+          );
 
           // Also broadcast directly to participants' individual rooms
-          // This ensures the sender gets confirmation even if they haven't joined the private room yet
-          // and the receiver gets the message even if they are on another screen.
-          io.to(`user:${userId}`).emit("new-message-private", {
-            _id: message._id,
-            roomId,
-            senderId: userId,
-            senderName: sender?.name,
-            senderAvatar: sender?.avatarUrl,
-            text: message.text,
-            timestamp: new Date(),
-          });
+          io.to(`user:${userId}`).emit("new-message-private", broadcastPayload);
 
-          io.to(`user:${receiverId}`).emit("new-message-private", {
-            _id: message._id,
-            roomId,
-            senderId: userId,
-            senderName: sender?.name,
-            senderAvatar: sender?.avatarUrl,
-            text: message.text,
-            timestamp: new Date(),
-          });
+          io.to(`user:${receiverId}`).emit(
+            "new-message-private",
+            broadcastPayload,
+          );
 
           // Emit unread count update to receiver only (not sender)
           io.to(`user:${receiverId}`).emit("unread-count-updated", {

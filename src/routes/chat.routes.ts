@@ -16,7 +16,7 @@
 // /**
 //  * POST /api/v1/chat/private/start/:targetUserId
 //  * Start or get private chat with another user
-//  * Body: { context?: 'marketplace' | 'mentor' | 'general', contextId?: string }
+//  * Body: { context?: 'marketplace' | 'mentor' | 'general' | 'post', contextId?: string }
 //  */
 // router.post('/private/start/:targetUserId', startPrivateChat);
 
