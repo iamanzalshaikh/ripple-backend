@@ -27,6 +27,8 @@ export interface IPost extends Document {
   sponsorBrandId?: mongoose.Types.ObjectId;
   contractId?: mongoose.Types.ObjectId;
   disclosureLabel?: string; // e.g. "Sponsored by BrandName"
+  /** Increments when the author uses Rider Radar boost (Explore sharing). */
+  radarBoostCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -133,7 +135,12 @@ const postSchema = new Schema<IPost>(
       ref: 'Contract',
       sparse: true
     },
-    disclosureLabel: String
+    disclosureLabel: String,
+    radarBoostCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,

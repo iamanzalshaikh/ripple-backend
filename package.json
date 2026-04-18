@@ -10,7 +10,6 @@
     "start": "node dist/server.js",
     "format": "prettier --write src/**/*.ts",
     "seed:plans": "tsx src/seeds/subscriptionPlans.seed.ts",
-    "seed:admin": "tsx src/seeds/adminUser.seed.ts",
     "test": "vitest run"
   },
   "dependencies": {

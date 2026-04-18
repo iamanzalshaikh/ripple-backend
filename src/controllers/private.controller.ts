@@ -422,7 +422,7 @@ export const getPrivateChatMessages = (
         privateRoomId: roomId,
         roomType: "private",
       })
-        .select("_id senderId receiverId text messageType productData timestamp createdAt")
+        .select("_id senderId receiverId text messageType productData postData timestamp createdAt")
         .populate("senderId", "name avatarUrl")
         .sort({ timestamp: -1 })
         .skip(skip)

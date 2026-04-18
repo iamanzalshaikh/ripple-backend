@@ -809,6 +809,44 @@ export const likePost = async (req: AuthRequest, res: Response) => {
 };
 
 /**
+ * POST /api/v1/posts/:id/radar-boost
+ * Author-only: register a Rider Radar boost for this post (visibility signal).
+ */
+export const boostPostRadar = async (req: AuthRequest, res: Response) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.userId;
+
+    logger.info(`[boostPostRadar] User ${userId} boosting post ${postId}`);
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ success: false, error: "Post not found" });
+    }
+
+    if (post.userId.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: "Only the post author can use Rider Radar boost",
+      });
+    }
+
+    post.radarBoostCount = (post.radarBoostCount || 0) + 1;
+    await post.save();
+
+    return res.json({
+      success: true,
+      data: {
+        radarBoostCount: post.radarBoostCount,
+      },
+    });
+  } catch (error: any) {
+    logger.error(`[boostPostRadar] Error: ${error.message}`);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
  * POST /api/v1/posts/:id/comment
  * Add comment to post
  */

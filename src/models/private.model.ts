@@ -5,8 +5,8 @@ export interface IPrivateChatRoom extends Document {
   roomId: string; // user1_user2 format (sorted)
   user1: mongoose.Types.ObjectId;
   user2: mongoose.Types.ObjectId;
-  context?: "marketplace" | "mentor" | "general";
-  contextId?: mongoose.Types.ObjectId; // For item/mentor reference
+  context?: "marketplace" | "mentor" | "general" | "post";
+  contextId?: mongoose.Types.ObjectId; // listing / mentor / post reference
   // Product context (for marketplace listings)
   productTitle?: string;
   productImage?: string;
@@ -38,7 +38,7 @@ const PrivateChatRoomSchema = new Schema<IPrivateChatRoom>(
     },
     context: {
       type: String,
-      enum: ["marketplace", "mentor", "general"],
+      enum: ["marketplace", "mentor", "general", "post"],
       default: "general",
     },
     contextId: {
