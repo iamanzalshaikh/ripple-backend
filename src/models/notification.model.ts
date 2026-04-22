@@ -31,6 +31,8 @@ export interface INotification extends Document {
     | "contract_completed";
   fromUserId?: mongoose.Types.ObjectId;
   fromUserName?: string;
+  /** Snapshot of actor avatar at send time (fills gaps when populate is empty or for realtime payloads). */
+  fromUserAvatar?: string;
   postId?: mongoose.Types.ObjectId;
   commentId?: mongoose.Types.ObjectId;
   commentText?: string; // Store actual comment text for better UX
@@ -94,6 +96,11 @@ const notificationSchema = new Schema<INotification>(
     },
 
     fromUserName: {
+      type: String,
+      sparse: true,
+    },
+
+    fromUserAvatar: {
       type: String,
       sparse: true,
     },

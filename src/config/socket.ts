@@ -613,6 +613,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
                     groupName: group.name,
                     messageId: message._id.toString(),
                     actionUrl: `/groups/chat?groupId=${groupId}`,
+                    fromUserAvatar: sender?.avatarUrl,
                   },
                   io,
                   priority: "default",
@@ -1115,6 +1116,7 @@ export const sendNotificationToUser = (
     message: string;
     fromUserId?: string;
     fromUserName?: string;
+    fromUserAvatar?: string;
     rideEventId?: string;
     groupId?: string;
     postId?: string;

@@ -93,6 +93,7 @@ export const followUser = async (
         data: {
           userHandle: currentUser.handle,
           actionUrl: `/profile/${currentUser.handle || currentUserId}`,
+          fromUserAvatar: currentUser.avatarUrl,
         },
         io: (req.app as any).io,
       });

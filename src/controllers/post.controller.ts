@@ -789,6 +789,7 @@ export const likePost = async (req: AuthRequest, res: Response) => {
           data: {
             postId: post._id.toString(),
             actionUrl: `/posts/${post._id}`,
+            fromUserAvatar: liker?.avatarUrl,
           },
           io: (req.app as any).io,
         });
@@ -907,6 +908,7 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
           commentId: comment._id.toString(),
           commentText: comment.text,
           actionUrl: `/posts/${post._id}`,
+          fromUserAvatar: commenter?.avatarUrl,
         },
         io: (req.app as any).io,
       });
@@ -1168,6 +1170,7 @@ export const tagUsers = async (req: AuthRequest, res: Response) => {
           data: {
             postId: post._id.toString(),
             actionUrl: `/posts/${post._id}`,
+            fromUserAvatar: tagger?.avatarUrl,
           },
           io: (req.app as any).io,
         });

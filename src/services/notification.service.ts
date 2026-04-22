@@ -228,6 +228,7 @@ const sendNotificationImmediately = async (
         type,
         fromUserId: fromUserId ? new Types.ObjectId(fromUserId) : undefined,
         fromUserName,
+        ...(data?.fromUserAvatar && { fromUserAvatar: data.fromUserAvatar }),
         message,
         read: false,
         // Spread additional data (postId, commentId, etc.)
@@ -257,6 +258,7 @@ const sendNotificationImmediately = async (
           message,
           fromUserId,
           fromUserName,
+          fromUserAvatar: data?.fromUserAvatar,
           ...data,
         });
         logger.info(

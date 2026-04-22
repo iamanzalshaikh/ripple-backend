@@ -551,6 +551,7 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
             roomId,
             messageId: message._id.toString(),
             actionUrl: `/chat/private/${roomId}`,
+            fromUserAvatar: sender?.avatarUrl,
           },
           io: (req.app as any).io,
           // For direct chat, send instantly (no batching delay)
