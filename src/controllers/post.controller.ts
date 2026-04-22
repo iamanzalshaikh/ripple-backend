@@ -776,7 +776,7 @@ export const likePost = async (req: AuthRequest, res: Response) => {
       logger.info(`[likePost] Post ${postId} liked by ${userId}`);
 
       if (post.userId.toString() !== userId) {
-        const liker = await User.findById(userId).select("name avatar");
+        const liker = await User.findById(userId).select("name avatarUrl");
 
         const { sendNotification } =
           await import("../services/notification.service.js");
@@ -892,7 +892,7 @@ export const commentPost = async (req: AuthRequest, res: Response) => {
     logger.info(`[commentPost] Comment ${comment._id} created`);
 
     if (post.userId.toString() !== userId) {
-      const commenter = await User.findById(userId).select("name avatar");
+      const commenter = await User.findById(userId).select("name avatarUrl");
 
       const { sendNotification } =
         await import("../services/notification.service.js");
