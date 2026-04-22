@@ -381,14 +381,21 @@ export const getGroupDetail = async (
       return;
     }
 
+    const refUserId = (ref: any): string | undefined => {
+      if (ref == null) return undefined;
+      if (typeof ref === "object" && ref._id != null)
+        return ref._id.toString();
+      return ref.toString();
+    };
+
     const isMember = group.members.some(
-      (m: any) => m.userId._id.toString() === userId,
+      (m: any) => refUserId(m.userId) === userId,
     );
     const isAdmin = group.members.some(
-      (m: any) => m.userId._id.toString() === userId && m.role === "admin",
+      (m: any) => refUserId(m.userId) === userId && m.role === "admin",
     );
     const hasRequestPending = group.joinRequests.some(
-      (r: any) => r.userId._id.toString() === userId,
+      (r: any) => refUserId(r.userId) === userId,
     );
 
     res.json({
