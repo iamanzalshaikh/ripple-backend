@@ -29,7 +29,7 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
     }
 
     const notifications = await Notification.find(filter)
-      .populate('fromUserId', 'name avatar handle')
+      .populate('fromUserId', 'name avatarUrl handle')
       .populate('postId', 'caption media')
       .sort({ createdAt: -1 })
       .skip(skip)
