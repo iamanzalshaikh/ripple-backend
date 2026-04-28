@@ -637,6 +637,8 @@ export const sendSignupOtpSms = async (
       data: {
         phone: normalizedPhone,
         otpExpiresIn: "10 minutes",
+        // Local/QA only: set DEV_OTP_ECHO=true so Postman can read OTP without SMS.
+        ...(process.env.DEV_OTP_ECHO === "true" ? { devOtp: otp } : {}),
       },
     });
   } catch (error: any) {

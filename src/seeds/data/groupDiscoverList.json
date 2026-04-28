@@ -1,0 +1,182 @@
+[
+  {
+    "name": "HerRidez Mumbai Night Riders",
+    "description": "Weekend chai rides, MH44 meets, and safe city night runs.",
+    "location": "Mumbai, MH",
+    "creatorIndex": 0,
+    "privacy": "public",
+    "tags": ["Night", "City", "Weekend"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Delhi Track & Coffee",
+    "description": "Track days, skills sessions, and post-ride debriefs over coffee.",
+    "location": "Delhi, DL",
+    "creatorIndex": 1,
+    "privacy": "public",
+    "tags": ["Track", "Sport", "Community"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Bangalore Naked & Adventure",
+    "description": "Naked bikes, short hill rides Nandi side, tyre & setup tips.",
+    "location": "Bangalore, KA",
+    "creatorIndex": 2,
+    "privacy": "public",
+    "tags": ["Adventure", "Naked", "Hills"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Western Ghats Touring Club",
+    "description": "Multi-day touring, baggage lists, stays and safety planning.",
+    "location": "Mumbai → Pune, MH",
+    "creatorIndex": 3,
+    "privacy": "public",
+    "tags": ["Touring", "LongRide", "Planning"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1588627541420-fce3f661b779?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Delhi Female Riders Collective",
+    "description": "Peer rides, mentorship, gear fit & confidence on road.",
+    "location": "Delhi NCR",
+    "creatorIndex": 4,
+    "privacy": "public",
+    "tags": ["Community", "Mentorship", "Safety"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1572452571879-3d67d5b2a39f?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Bangalore Commute & Tech",
+    "description": "Daily commute routes, traffic hacks, chain lube & quick checks.",
+    "location": "Bangalore, KA",
+    "creatorIndex": 5,
+    "privacy": "public",
+    "tags": ["Commute", "Maintenance", "City"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1596687760372-4c0d266059a7?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Mumbai Monsoon Riders",
+    "description": "Wet weather gear, aquaplaning awareness, visor film tips.",
+    "location": "Mumbai, MH",
+    "creatorIndex": 6,
+    "privacy": "public",
+    "tags": ["Monsoon", "Gear", "Safety"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Desert Runs — Rajasthan circuit",
+    "description": "Highway etiquette, hydration, dunes near Jaisalmer loops.",
+    "location": "Delhi / RJ",
+    "creatorIndex": 7,
+    "privacy": "public",
+    "tags": ["Highway", "Touring", "Desert"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1559289431-9f12ee08f8b6?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "KTM Duke & RC Owners — South",
+    "description": "BS6 maps, coolant checks, stunt-free street fun.",
+    "location": "Bangalore, KA",
+    "creatorIndex": 8,
+    "privacy": "public",
+    "tags": ["KTM", "Street", "Owners"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1558979159-2b18a4070a87?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "RE Classic & Meteor Riders",
+    "description": "Thump meets, saddle bags, saddle height & ergonomics.",
+    "location": "Mumbai, MH",
+    "creatorIndex": 9,
+    "privacy": "public",
+    "tags": ["Cruiser", "Retro", "Meetups"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1588756681780-9d5859fc2ca0?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Delhi Aero & Fairing Junkies",
+    "description": "Wind tunnel chat, tuck position, litre-class track prep.",
+    "location": "Delhi, DL",
+    "creatorIndex": 10,
+    "privacy": "public",
+    "tags": ["Sport", "Track", "Aero"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Coastal Konkan Riders",
+    "description": "Coastal MH routes, corrosion care, seaside photo stops.",
+    "location": "Mumbai coastline",
+    "creatorIndex": 11,
+    "privacy": "public",
+    "tags": ["Coastal", "Touring", "Photo"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1531327431456-837da4b1d562?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Bangalore Sunday Breakfast Ride",
+    "description": "Early rollouts, brunch spots, 80–120 km loops.",
+    "location": "Bangalore, KA",
+    "creatorIndex": 12,
+    "privacy": "public",
+    "tags": ["Sunday", "Breakfast", "Loop"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1558981033-0f0309284409?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Helmet & Armour IQ",
+    "description": "ISI/ECE nerd talk, visor swaps, armour fit for Indian heat.",
+    "location": "Pan-India · online",
+    "creatorIndex": 13,
+    "privacy": "public",
+    "tags": ["Gear", "Safety", "Helmet"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1558981359-219d6364c9c8?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Mumbai Apex Corner Crew",
+    "description": "Line choice, braking markers, disciplined canyon-style runs.",
+    "location": "MH hills",
+    "creatorIndex": 14,
+    "privacy": "public",
+    "tags": ["Corners", "Skill", "Hills"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1552306062-29a5560e1c31?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Delhi Winter Fog Protocol",
+    "description": "Visibility layers, amber visors, group spacing when smog+fog hits.",
+    "location": "Delhi, DL",
+    "creatorIndex": 15,
+    "privacy": "public",
+    "tags": ["Winter", "Visibility", "GroupRide"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1595691403533-7f4a52a5b189?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Electric Urban Pilots · BLR",
+    "description": "EV bikes, charger maps, torque tips for city commuting.",
+    "location": "Bangalore, KA",
+    "creatorIndex": 16,
+    "privacy": "public",
+    "tags": ["Electric", "City", "Future"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1591378603223-e15b45a81640?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Iron Butt lite — MH chapter",
+    "description": "Saddle stamina, butt breaks, litre bottles & route timing.",
+    "location": "Mumbai, MH",
+    "creatorIndex": 17,
+    "privacy": "public",
+    "tags": ["Endurance", "Distance", "Planning"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1560319734-fe91ab681d85?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "Photography Pace — no racing",
+    "description": "Scenic pacing, DSLR on tail bag, cinematic rolling shots.",
+    "location": "Delhi / Jaipur routes",
+    "creatorIndex": 18,
+    "privacy": "public",
+    "tags": ["Photo", "Slowride", "Scenic"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1589560551995-babb81aa192d?auto=format&fit=crop&w=1400&q=80"
+  },
+  {
+    "name": "HerRidez Squad — discover chat beta",
+    "description": "Default discover group · share ride plans & link group voice rooms.",
+    "location": "India",
+    "creatorIndex": 19,
+    "privacy": "public",
+    "tags": ["HerRidez", "Discover", "Beta"],
+    "bannerSourceUrl": "https://images.unsplash.com/photo-1673357688094-b8224b1b8200?auto=format&fit=crop&w=1400&q=80"
+  }
+]

@@ -1,0 +1,302 @@
+[
+  {
+    "sellerIndex": 0,
+    "title": "Cordura touring jacket XL — armoured",
+    "description": "CE pads shoulders/elbows; removable thermal liner.",
+    "price": 7499,
+    "category": "gear",
+    "subCategory": "Jacket",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122242.png"
+    ]
+  },
+  {
+    "sellerIndex": 1,
+    "title": "Full-face helmet M — ISI + sun visor",
+    "description": "Inner padding fresh; visor has light wear.",
+    "price": 5200,
+    "category": "gear",
+    "subCategory": "Helmet",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122252.png"
+    ]
+  },
+  {
+    "sellerIndex": 2,
+    "title": "Phone mount + rain pouch — 22mm bars",
+    "description": "Vibration dampener; fits most naked bikes.",
+    "price": 2890,
+    "category": "gear",
+    "subCategory": "Electronics",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122259.png"
+    ]
+  },
+  {
+    "sellerIndex": 3,
+    "title": "Yamaha R15 V4 — single owner, serviced",
+    "description": "2022; low km; papers and service history available.",
+    "price": 195000,
+    "category": "bike",
+    "subCategory": "Sport",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122310.png"
+    ]
+  },
+  {
+    "sellerIndex": 4,
+    "title": "Perforated summer gloves — size L",
+    "description": "Knuckle armour; vented back; washed once.",
+    "price": 1650,
+    "category": "gear",
+    "subCategory": "Gloves",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122921.png"
+    ]
+  },
+  {
+    "sellerIndex": 5,
+    "title": "Expandable magnetic tank bag 12–18L",
+    "description": "Rain fly; waist strap spare; reflective trim.",
+    "price": 3200,
+    "category": "gear",
+    "subCategory": "Luggage",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122941.png"
+    ]
+  },
+  {
+    "sellerIndex": 6,
+    "title": "Aux LED lamp pair spot/flood relay kit",
+    "description": "Complete harness + switches; fork clamps included.",
+    "price": 4100,
+    "category": "gear",
+    "subCategory": "Lighting",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122954.png"
+    ]
+  },
+  {
+    "sellerIndex": 7,
+    "title": "CE Level 2 knee guards — strap style",
+    "description": "Adventure fit; straps replaced last season.",
+    "price": 2100,
+    "category": "gear",
+    "subCategory": "Protection",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 123014.png"
+    ]
+  },
+  {
+    "sellerIndex": 8,
+    "title": "KTM Duke 390 BS6 — city kms",
+    "description": "~18k km; tyres ~40%; stock map.",
+    "price": 218000,
+    "category": "bike",
+    "subCategory": "Street",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 123050.png"
+    ]
+  },
+  {
+    "sellerIndex": 9,
+    "title": "Two-piece rain suit fluorescent — XL",
+    "description": "Sealed cuffs; pouch pack; wore twice.",
+    "price": 1999,
+    "category": "gear",
+    "subCategory": "Riding Wear",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122242.png"
+    ]
+  },
+  {
+    "sellerIndex": 10,
+    "title": "Touring boots EU 44 — waterproof liner",
+    "description": "Toe sliders; slight scuffs on shift pad.",
+    "price": 6800,
+    "category": "gear",
+    "subCategory": "Boots",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122252.png"
+    ]
+  },
+  {
+    "sellerIndex": 11,
+    "title": "Bluetooth headset intercom duo pack",
+    "description": "Pairing confirmed; chargers and mounts in box.",
+    "price": 7990,
+    "category": "gear",
+    "subCategory": "Electronics",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122259.png"
+    ]
+  },
+  {
+    "sellerIndex": 12,
+    "title": "Bajaj Dominar 400 — ABS dual-channel",
+    "description": "Highway tourer; new chain+sprocket at 12k km.",
+    "price": 168000,
+    "category": "bike",
+    "subCategory": "Touring",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122310.png"
+    ]
+  },
+  {
+    "sellerIndex": 13,
+    "title": "Engine cage + sliders — naked bike universal",
+    "description": "Fits bolt-on bosses; bolts included metric set.",
+    "price": 4500,
+    "category": "gear",
+    "subCategory": "Protection",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122921.png"
+    ]
+  },
+  {
+    "sellerIndex": 14,
+    "title": "Motul 7100 10W40 — four 1L bottles sealed",
+    "description": "Batch purchase surplus; expiry dates on label.",
+    "price": 3800,
+    "category": "gear",
+    "subCategory": "Consumables",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122941.png"
+    ]
+  },
+  {
+    "sellerIndex": 15,
+    "title": "Paddock stands front spindle + rear L",
+    "description": "Alloy; rubber feet; roller rear optional.",
+    "price": 5500,
+    "category": "gear",
+    "subCategory": "Garage",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122954.png"
+    ]
+  },
+  {
+    "sellerIndex": 16,
+    "title": "TVS Apache RR310 — aftermarket exhaust note legal",
+    "description": "2021; dual ABS; BMC filter extra.",
+    "price": 185000,
+    "category": "bike",
+    "subCategory": "Sport",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 123014.png"
+    ]
+  },
+  {
+    "sellerIndex": 17,
+    "title": "Handlebar risers 28mm aluminium black",
+    "description": "Longer braided lines not included; bolts M8.",
+    "price": 2200,
+    "category": "gear",
+    "subCategory": "Controls",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 123050.png"
+    ]
+  },
+  {
+    "sellerIndex": 18,
+    "title": "Heated grips 5-level + throttle sleeve",
+    "description": "Fused harness; grips 22mm; installed once.",
+    "price": 3600,
+    "category": "gear",
+    "subCategory": "Comfort",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122242.png"
+    ]
+  },
+  {
+    "sellerIndex": 19,
+    "title": "Mesh airflow jacket XL — hi-viz stripes",
+    "description": "Back protector pocket; armour ready.",
+    "price": 4200,
+    "category": "gear",
+    "subCategory": "Jacket",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122252.png"
+    ]
+  },
+  {
+    "sellerIndex": 20,
+    "title": "Royal Enfield Meteor 350 — touring screen",
+    "description": "2023; alloys; RE service history SMS.",
+    "price": 198000,
+    "category": "bike",
+    "subCategory": "Cruiser",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122259.png"
+    ]
+  },
+  {
+    "sellerIndex": 21,
+    "title": "Universal air filter washable — cylindrical",
+    "description": "Fits quoted inner diameter kit; serviced once.",
+    "price": 1850,
+    "category": "gear",
+    "subCategory": "Performance",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122310.png"
+    ]
+  },
+  {
+    "sellerIndex": 22,
+    "title": "Disc brake lock neon + 1.8m reminder cable",
+    "description": "Three keys; carry pouch included.",
+    "price": 950,
+    "category": "gear",
+    "subCategory": "Security",
+    "location": "Delhi",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122921.png"
+    ]
+  },
+  {
+    "sellerIndex": 23,
+    "title": "Suzuki Gixxer SF 250 — commuter friendly",
+    "description": "2020; commuter kms; tyre swap recently.",
+    "price": 145000,
+    "category": "bike",
+    "subCategory": "Sport",
+    "location": "Bangalore",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122941.png"
+    ]
+  },
+  {
+    "sellerIndex": 24,
+    "title": "Tail bag 25L expandable — rain cover",
+    "description": "Bungees and shoulder strap; expandable gussets.",
+    "price": 2800,
+    "category": "gear",
+    "subCategory": "Luggage",
+    "location": "Mumbai",
+    "imageFiles": [
+      "Screenshot 2026-04-28 122954.png"
+    ]
+  }
+]
