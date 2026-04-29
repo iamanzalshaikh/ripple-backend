@@ -299,6 +299,7 @@ import { Request, Response } from "express";
 import PrivateChatRoom from "../models/private.model.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import User from "../models/user.model.js";
+import Post from "../models/post.model.js";
 import logger from "../config/logger.js";
 
 interface AuthRequest extends Request {
@@ -476,23 +477,9 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
     try {
       const { roomId } = req.params;
       const userId = req.userId;
-      const { text } = req.body;
+      const { text, messageType, postData } = req.body;
 
       logger.info(`[sendPrivateMessage] Message in room ${roomId}`);
-
-      if (!text || text.trim().length === 0) {
-        res
-          .status(400)
-          .json({ success: false, error: "Message cannot be empty" });
-        return;
-      }
-
-      if (text.length > 500) {
-        res
-          .status(400)
-          .json({ success: false, error: "Message too long (max 500 chars)" });
-        return;
-      }
 
       const chatRoom = await PrivateChatRoom.findOne({ roomId });
       if (!chatRoom) {
@@ -512,28 +499,97 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         .select("name avatarUrl")
         .lean();
 
-      const message = await ChatMessage.create({
-        privateRoomId: roomId,
-        roomType: "private",
-        senderId: userId,
-        receiverId:
-          chatRoom.user1.toString() === userId
-            ? chatRoom.user2
-            : chatRoom.user1,
-        text: text.trim(),
-        timestamp: new Date(),
-      });
+      const receiverId =
+        chatRoom.user1.toString() === userId
+          ? chatRoom.user2
+          : chatRoom.user1;
+
+      let messageBody: Record<string, unknown>;
+      let notificationMessage = "";
+
+      if (messageType === "post_share" && postData?.postId) {
+        const post = await Post.findById(postData.postId)
+          .populate("userId", "name avatarUrl")
+          .lean();
+        if (!post) {
+          res.status(404).json({ success: false, error: "Post not found" });
+          return;
+        }
+
+        const firstMedia = post.media?.[0];
+        const mediaList = Array.isArray(post.media) ? post.media : [];
+        const mediaCount = mediaList.length;
+        const imageUrl = firstMedia?.url || postData.imageUrl || undefined;
+        const mediaType = firstMedia?.type === "video" ? "video" : "photo";
+        const postUser = post.userId as { name?: string; avatarUrl?: string } | undefined;
+        const authorName = postUser?.name || postData.authorName || "Someone";
+        const authorAvatarUrl = postUser?.avatarUrl || postData.authorAvatarUrl;
+        const cap = (post.caption || postData.captionPreview || "").trim();
+        const captionPreview = cap.length > 220 ? `${cap.slice(0, 217)}…` : cap;
+        const lineText = captionPreview ? captionPreview.slice(0, 500) : "Shared a post";
+
+        const storedPostData = {
+          postId: String(post._id),
+          imageUrl,
+          captionPreview: captionPreview || postData.captionPreview?.slice(0, 220),
+          authorName,
+          mediaType,
+          ...(authorAvatarUrl ? { authorAvatarUrl: String(authorAvatarUrl) } : {}),
+          mediaCount,
+        };
+
+        messageBody = {
+          privateRoomId: roomId,
+          roomType: "private",
+          senderId: userId,
+          receiverId,
+          text: lineText,
+          messageType: "post_share",
+          postData: storedPostData,
+          timestamp: new Date(),
+        };
+        notificationMessage = "📷 Shared a post";
+      } else {
+        if (!text || text.trim().length === 0) {
+          res
+            .status(400)
+            .json({ success: false, error: "Message cannot be empty" });
+          return;
+        }
+
+        if (text.length > 500) {
+          res
+            .status(400)
+            .json({ success: false, error: "Message too long (max 500 chars)" });
+          return;
+        }
+
+        messageBody = {
+          privateRoomId: roomId,
+          roomType: "private",
+          senderId: userId,
+          receiverId,
+          text: text.trim(),
+          timestamp: new Date(),
+        };
+        notificationMessage = text.trim();
+      }
+
+      const message = await ChatMessage.create(messageBody);
 
       await PrivateChatRoom.updateOne(
         { roomId },
         {
-          lastMessage: text.trim(),
+          lastMessage:
+            message.messageType === "post_share"
+              ? "📷 Shared a post"
+              : message.text.trim(),
           lastMessageAt: new Date(),
         },
       );
 
       // Send notification (for chat we want it to be as real-time as possible)
-      const receiverId =
+      const receiverIdStr =
         chatRoom.user1.toString() === userId
           ? chatRoom.user2.toString()
           : chatRoom.user1.toString();
@@ -542,11 +598,11 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
         const { sendNotification } =
           await import("../services/notification.service.js");
         await sendNotification({
-          userId: receiverId,
+          userId: receiverIdStr,
           type: "chat",
           fromUserId: userId!,
           fromUserName: sender?.name || "Someone",
-          message: text.trim(),
+          message: notificationMessage,
           data: {
             roomId,
             messageId: message._id.toString(),
@@ -575,6 +631,8 @@ export const sendPrivateMessage = (req: AuthRequest, res: Response): void => {
           senderName: sender?.name,
           senderAvatar: sender?.avatarUrl,
           text: message.text,
+          messageType: (message as any).messageType,
+          postData: (message as any).postData,
           timestamp: message.timestamp,
         },
       });

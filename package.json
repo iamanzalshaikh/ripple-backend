@@ -12,6 +12,7 @@
     "seed:plans": "tsx src/seeds/subscriptionPlans.seed.ts",
     "seed:dummy-riders": "tsx src/seeds/dummyRiders.seed.ts",
     "seed:data-users-bikes": "tsx src/seeds/dataUsersAndBikes.seed.ts",
+    "seed:mock-city-users": "tsx src/seeds/realisticMockUsers.seed.ts",
     "seed:bike-images-missing": "tsx src/seeds/backfillBikeImages.seed.ts",
     "upload:bike-images-s3": "tsx src/seeds/uploadLocalBikeImagesToS3.ts",
     "seed:extract-json": "node scripts/extract-user-md.cjs && node scripts/extract-userbike-md.cjs && node scripts/extract-marketplace-md.cjs",

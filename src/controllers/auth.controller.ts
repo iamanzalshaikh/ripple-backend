@@ -52,8 +52,16 @@ function formatAuthUser(user: any): IAuthUser {
 // In-memory OTP storage (use Redis in production)
 const otpStore = new Map<
   string,
-  { otp: string; expiresAt: number; phone: string }
+  { otp: string; expiresAt: number; phone: string; sentAt?: number }
 >();
+
+/** Avoid parallel send-otp calls for the same phone (double-tap / Strict Mode). */
+const loginOtpSendInFlight = new Set<string>();
+const signupOtpSendInFlight = new Set<string>();
+
+const OTP_RESEND_COOLDOWN_MS = Number(
+  process.env.OTP_RESEND_COOLDOWN_MS || 45_000,
+);
 
 // ============================================
 // SIGNUP FLOW - Email & Phone Required
@@ -590,6 +598,44 @@ export const sendSignupOtpSms = async (
       return;
     }
 
+    if (signupOtpSendInFlight.has(normalizedPhone)) {
+      logger.info(
+        `[SMS] Signup OTP: send already in progress for ${normalizedPhone} (idempotent OK)`,
+      );
+      res.status(200).json({
+        success: true,
+        message: "OTP sent successfully to your phone via SMS",
+        data: {
+          phone: normalizedPhone,
+          otpExpiresIn: "10 minutes",
+        },
+      });
+      return;
+    }
+
+    const existingSignupOtp = otpStore.get(normalizedPhone);
+    if (
+      existingSignupOtp &&
+      !isOTPExpired(new Date(existingSignupOtp.expiresAt)) &&
+      existingSignupOtp.sentAt != null &&
+      Date.now() - existingSignupOtp.sentAt < OTP_RESEND_COOLDOWN_MS
+    ) {
+      logger.info(
+        `[SMS] Signup OTP: resend within cooldown for ${normalizedPhone} — keeping current OTP`,
+      );
+      res.status(200).json({
+        success: true,
+        message: "OTP sent successfully to your phone via SMS",
+        data: {
+          phone: normalizedPhone,
+          otpExpiresIn: "10 minutes",
+        },
+      });
+      return;
+    }
+
+    signupOtpSendInFlight.add(normalizedPhone);
+    try {
     // Generate OTP
     const otp = generateOTP();
     const expiresAt = calculateOTPExpiry(10); // 10 minutes
@@ -627,6 +673,7 @@ export const sendSignupOtpSms = async (
       otp: otpHash,
       expiresAt,
       phone: normalizedPhone,
+      sentAt: Date.now(),
     });
 
     logger.info(`[SMS] OTP sent to ${normalizedPhone} - User NOT created yet`);
@@ -641,6 +688,9 @@ export const sendSignupOtpSms = async (
         ...(process.env.DEV_OTP_ECHO === "true" ? { devOtp: otp } : {}),
       },
     });
+    } finally {
+      signupOtpSendInFlight.delete(normalizedPhone);
+    }
   } catch (error: any) {
     logger.error(`[SMS] Signup OTP error: ${error.message}`);
     res.status(500).json({
@@ -862,6 +912,46 @@ export const sendLoginOtpSms = async (
       return;
     }
 
+    // Only one OTP per phone should be “live”: overlapping sends overwrite otpStore and
+    // the SMS the user reads may not match what the server last stored.
+    if (loginOtpSendInFlight.has(normalizedPhone)) {
+      logger.info(
+        `[SMS] Login OTP: send already in progress for ${normalizedPhone} (idempotent OK)`,
+      );
+      res.status(200).json({
+        success: true,
+        message: "OTP sent successfully to your phone via SMS",
+        data: {
+          phone: normalizedPhone,
+          otpExpiresIn: "10 minutes",
+        },
+      });
+      return;
+    }
+
+    const existingLoginOtp = otpStore.get(normalizedPhone);
+    if (
+      existingLoginOtp &&
+      !isOTPExpired(new Date(existingLoginOtp.expiresAt)) &&
+      existingLoginOtp.sentAt != null &&
+      Date.now() - existingLoginOtp.sentAt < OTP_RESEND_COOLDOWN_MS
+    ) {
+      logger.info(
+        `[SMS] Login OTP: resend within cooldown for ${normalizedPhone} — keeping current OTP`,
+      );
+      res.status(200).json({
+        success: true,
+        message: "OTP sent successfully to your phone via SMS",
+        data: {
+          phone: normalizedPhone,
+          otpExpiresIn: "10 minutes",
+        },
+      });
+      return;
+    }
+
+    loginOtpSendInFlight.add(normalizedPhone);
+    try {
     // Generate OTP
     const otp = generateOTP();
     const expiresAt = calculateOTPExpiry(10); // 10 minutes
@@ -886,6 +976,7 @@ export const sendLoginOtpSms = async (
       otp: otpHash,
       expiresAt,
       phone: normalizedPhone,
+      sentAt: Date.now(),
     });
 
     // Send OTP via SMS (with fallback: Techmore → Twilio)
@@ -922,6 +1013,9 @@ export const sendLoginOtpSms = async (
         otpExpiresIn: "10 minutes",
       },
     });
+    } finally {
+      loginOtpSendInFlight.delete(normalizedPhone);
+    }
   } catch (error: any) {
     logger.error(
       `[SMS] Login OTP error in outer catch: ${error?.message || "Unknown error"}`,

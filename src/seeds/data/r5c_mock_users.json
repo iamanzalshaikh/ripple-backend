@@ -1,0 +1,7367 @@
+[
+  {
+    "userId": "USR-MUM-001",
+    "name": "Reyansh Malhotra",
+    "gender": "Male",
+    "age": 23,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1032,
+    "safetyScore": 69,
+    "followers": 2306,
+    "following": 208,
+    "latitude": 18.9733,
+    "longitude": 72.826231,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-002",
+    "name": "Tara Reddy",
+    "gender": "Female",
+    "age": 23,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser",
+      "Sport"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 3068,
+    "safetyScore": 97,
+    "followers": 2204,
+    "following": 132,
+    "latitude": 28.597168,
+    "longitude": 77.15429,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-003",
+    "name": "Arjun Nair",
+    "gender": "Male",
+    "age": 24,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "Sport"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1535,
+    "safetyScore": 81,
+    "followers": 1101,
+    "following": 78,
+    "latitude": 12.8734,
+    "longitude": 77.534227,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-004",
+    "name": "Vihaan Nair",
+    "gender": "Male",
+    "age": 22,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 7,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3020,
+    "safetyScore": 88,
+    "followers": 878,
+    "following": 516,
+    "latitude": 18.532713,
+    "longitude": 73.898797,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-005",
+    "name": "Rahul Nair",
+    "gender": "Male",
+    "age": 25,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 706,
+    "safetyScore": 78,
+    "followers": 1737,
+    "following": 70,
+    "latitude": 17.438408,
+    "longitude": 78.470486,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-006",
+    "name": "Rohit Gupta",
+    "gender": "Male",
+    "age": 45,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1938,
+    "safetyScore": 68,
+    "followers": 1086,
+    "following": 517,
+    "latitude": 19.171661,
+    "longitude": 72.918945,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-007",
+    "name": "Kiara Malhotra",
+    "gender": "Female",
+    "age": 45,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring",
+      "City"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 3486,
+    "safetyScore": 87,
+    "followers": 988,
+    "following": 64,
+    "latitude": 28.643943,
+    "longitude": 77.235839,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-008",
+    "name": "Kabir Gupta",
+    "gender": "Male",
+    "age": 37,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Jayanagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 7,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1356,
+    "safetyScore": 93,
+    "followers": 1537,
+    "following": 453,
+    "latitude": 12.890683,
+    "longitude": 77.630045,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-009",
+    "name": "Vihaan Nair",
+    "gender": "Male",
+    "age": 23,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 8,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2820,
+    "safetyScore": 99,
+    "followers": 885,
+    "following": 557,
+    "latitude": 18.539522,
+    "longitude": 73.744327,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-010",
+    "name": "Aisha Reddy",
+    "gender": "Female",
+    "age": 22,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2276,
+    "safetyScore": 96,
+    "followers": 582,
+    "following": 437,
+    "latitude": 17.370092,
+    "longitude": 78.469386,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-011",
+    "name": "Aarav Patel",
+    "gender": "Male",
+    "age": 45,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 16,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 955,
+    "safetyScore": 93,
+    "followers": 248,
+    "following": 173,
+    "latitude": 19.086881,
+    "longitude": 72.774884,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-012",
+    "name": "Myra Kulkarni",
+    "gender": "Female",
+    "age": 25,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 3143,
+    "safetyScore": 88,
+    "followers": 242,
+    "following": 56,
+    "latitude": 28.675321,
+    "longitude": 77.197919,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-013",
+    "name": "Kavya Nair",
+    "gender": "Female",
+    "age": 39,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1148,
+    "safetyScore": 81,
+    "followers": 1294,
+    "following": 249,
+    "latitude": 12.878186,
+    "longitude": 77.67488,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-014",
+    "name": "Vikram Reddy",
+    "gender": "Male",
+    "age": 23,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street",
+      "Sport"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1593,
+    "safetyScore": 86,
+    "followers": 654,
+    "following": 453,
+    "latitude": 18.614613,
+    "longitude": 73.744811,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-015",
+    "name": "Myra Singh",
+    "gender": "Female",
+    "age": 29,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street",
+      "Track"
+    ],
+    "yearsOfExperience": 9,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2081,
+    "safetyScore": 84,
+    "followers": 216,
+    "following": 99,
+    "latitude": 17.466757,
+    "longitude": 78.433336,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-016",
+    "name": "Aarohi Reddy",
+    "gender": "Female",
+    "age": 23,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2343,
+    "safetyScore": 77,
+    "followers": 1768,
+    "following": 135,
+    "latitude": 19.128158,
+    "longitude": 72.889523,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-017",
+    "name": "Sneha Chopra",
+    "gender": "Female",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 181,
+    "safetyScore": 79,
+    "followers": 1368,
+    "following": 426,
+    "latitude": 28.559744,
+    "longitude": 77.111169,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-018",
+    "name": "Zara Shetty",
+    "gender": "Female",
+    "age": 28,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 11,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 364,
+    "safetyScore": 85,
+    "followers": 1446,
+    "following": 526,
+    "latitude": 12.965263,
+    "longitude": 77.527942,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-019",
+    "name": "Riya Khan",
+    "gender": "Female",
+    "age": 24,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track",
+      "Sport"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2174,
+    "safetyScore": 75,
+    "followers": 1585,
+    "following": 595,
+    "latitude": 18.622108,
+    "longitude": 73.783405,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-020",
+    "name": "Ishaan Jain",
+    "gender": "Male",
+    "age": 34,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 10,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1346,
+    "safetyScore": 94,
+    "followers": 1344,
+    "following": 417,
+    "latitude": 17.425402,
+    "longitude": 78.586449,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-021",
+    "name": "Aarav Shetty",
+    "gender": "Male",
+    "age": 30,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 955,
+    "safetyScore": 98,
+    "followers": 703,
+    "following": 91,
+    "latitude": 19.100976,
+    "longitude": 72.832161,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-022",
+    "name": "Rhea Chopra",
+    "gender": "Female",
+    "age": 45,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track",
+      "Adventure"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2932,
+    "safetyScore": 92,
+    "followers": 2032,
+    "following": 414,
+    "latitude": 28.548847,
+    "longitude": 77.091867,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-023",
+    "name": "Myra Nair",
+    "gender": "Female",
+    "age": 24,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track",
+      "Adventure"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 1379,
+    "safetyScore": 96,
+    "followers": 2075,
+    "following": 441,
+    "latitude": 13.037353,
+    "longitude": 77.638069,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-024",
+    "name": "Nisha Gupta",
+    "gender": "Female",
+    "age": 35,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2292,
+    "safetyScore": 73,
+    "followers": 574,
+    "following": 159,
+    "latitude": 18.550165,
+    "longitude": 73.917312,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-025",
+    "name": "Yash Rao",
+    "gender": "Male",
+    "age": 45,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring",
+      "City"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3166,
+    "safetyScore": 92,
+    "followers": 1724,
+    "following": 556,
+    "latitude": 17.394213,
+    "longitude": 78.467617,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-026",
+    "name": "Priya Singh",
+    "gender": "Female",
+    "age": 40,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2712,
+    "safetyScore": 95,
+    "followers": 563,
+    "following": 477,
+    "latitude": 19.114733,
+    "longitude": 72.85581,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-027",
+    "name": "Sneha Gupta",
+    "gender": "Female",
+    "age": 23,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 8,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 361,
+    "safetyScore": 70,
+    "followers": 135,
+    "following": 258,
+    "latitude": 28.695984,
+    "longitude": 77.154385,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-028",
+    "name": "Zara Mehta",
+    "gender": "Female",
+    "age": 40,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 185,
+    "safetyScore": 87,
+    "followers": 2366,
+    "following": 389,
+    "latitude": 13.068412,
+    "longitude": 77.586842,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-029",
+    "name": "Vikram Khan",
+    "gender": "Male",
+    "age": 32,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1800,
+    "safetyScore": 99,
+    "followers": 440,
+    "following": 448,
+    "latitude": 18.596139,
+    "longitude": 73.879596,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-030",
+    "name": "Nikhil Bose",
+    "gender": "Male",
+    "age": 34,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Kondapur",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser",
+      "Street"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1926,
+    "safetyScore": 83,
+    "followers": 1911,
+    "following": 588,
+    "latitude": 17.335288,
+    "longitude": 78.556527,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-031",
+    "name": "Riya Malhotra",
+    "gender": "Female",
+    "age": 21,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2354,
+    "safetyScore": 83,
+    "followers": 1958,
+    "following": 507,
+    "latitude": 19.140396,
+    "longitude": 72.841173,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-032",
+    "name": "Sneha Malhotra",
+    "gender": "Female",
+    "age": 31,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 3034,
+    "safetyScore": 80,
+    "followers": 1300,
+    "following": 127,
+    "latitude": 28.631534,
+    "longitude": 77.202414,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-033",
+    "name": "Ishaan Shetty",
+    "gender": "Male",
+    "age": 28,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Whitefield",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City",
+      "Track"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1203,
+    "safetyScore": 70,
+    "followers": 231,
+    "following": 571,
+    "latitude": 12.976927,
+    "longitude": 77.546452,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-034",
+    "name": "Aisha Gupta",
+    "gender": "Female",
+    "age": 36,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring",
+      "City"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 691,
+    "safetyScore": 87,
+    "followers": 356,
+    "following": 259,
+    "latitude": 18.473771,
+    "longitude": 73.851846,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-035",
+    "name": "Yash Shetty",
+    "gender": "Male",
+    "age": 39,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 944,
+    "safetyScore": 84,
+    "followers": 340,
+    "following": 165,
+    "latitude": 17.473325,
+    "longitude": 78.440787,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-036",
+    "name": "Aryan Bose",
+    "gender": "Male",
+    "age": 23,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser",
+      "Track"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 550,
+    "safetyScore": 82,
+    "followers": 618,
+    "following": 277,
+    "latitude": 19.069495,
+    "longitude": 72.770778,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-037",
+    "name": "Aryan Rao",
+    "gender": "Male",
+    "age": 29,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3088,
+    "safetyScore": 88,
+    "followers": 2480,
+    "following": 261,
+    "latitude": 28.704969,
+    "longitude": 77.194014,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-038",
+    "name": "Nikhil Verma",
+    "gender": "Male",
+    "age": 41,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3415,
+    "safetyScore": 99,
+    "followers": 381,
+    "following": 486,
+    "latitude": 12.921765,
+    "longitude": 77.492587,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-039",
+    "name": "Myra Khan",
+    "gender": "Female",
+    "age": 35,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 13,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3458,
+    "safetyScore": 68,
+    "followers": 2230,
+    "following": 478,
+    "latitude": 18.562275,
+    "longitude": 73.808408,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-040",
+    "name": "Dev Kulkarni",
+    "gender": "Male",
+    "age": 24,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2342,
+    "safetyScore": 94,
+    "followers": 389,
+    "following": 235,
+    "latitude": 17.320904,
+    "longitude": 78.497852,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-041",
+    "name": "Sairaj Kapoor",
+    "gender": "Male",
+    "age": 36,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Powai",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure",
+      "Street"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2535,
+    "safetyScore": 76,
+    "followers": 293,
+    "following": 287,
+    "latitude": 19.001183,
+    "longitude": 72.976682,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-042",
+    "name": "Vikram Pillai",
+    "gender": "Male",
+    "age": 42,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure",
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2340,
+    "safetyScore": 92,
+    "followers": 1873,
+    "following": 334,
+    "latitude": 28.683208,
+    "longitude": 77.155514,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-043",
+    "name": "Aditya Kulkarni",
+    "gender": "Male",
+    "age": 22,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2234,
+    "safetyScore": 97,
+    "followers": 70,
+    "following": 152,
+    "latitude": 13.015974,
+    "longitude": 77.663695,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-044",
+    "name": "Rohit Rao",
+    "gender": "Male",
+    "age": 31,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Camp",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2665,
+    "safetyScore": 86,
+    "followers": 939,
+    "following": 97,
+    "latitude": 18.552797,
+    "longitude": 73.936911,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-045",
+    "name": "Aryan Jain",
+    "gender": "Male",
+    "age": 32,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2872,
+    "safetyScore": 79,
+    "followers": 704,
+    "following": 184,
+    "latitude": 17.472227,
+    "longitude": 78.383837,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-046",
+    "name": "Aarohi Bose",
+    "gender": "Female",
+    "age": 30,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 1305,
+    "safetyScore": 95,
+    "followers": 1032,
+    "following": 472,
+    "latitude": 19.0676,
+    "longitude": 72.821415,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-047",
+    "name": "Aryan Shetty",
+    "gender": "Male",
+    "age": 21,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3132,
+    "safetyScore": 99,
+    "followers": 1180,
+    "following": 240,
+    "latitude": 28.528852,
+    "longitude": 77.17978,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-048",
+    "name": "Vihaan Shetty",
+    "gender": "Male",
+    "age": 35,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3141,
+    "safetyScore": 94,
+    "followers": 727,
+    "following": 210,
+    "latitude": 13.006018,
+    "longitude": 77.66967,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-049",
+    "name": "Kunal Reddy",
+    "gender": "Male",
+    "age": 35,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 13,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1578,
+    "safetyScore": 73,
+    "followers": 1624,
+    "following": 19,
+    "latitude": 18.516475,
+    "longitude": 73.926587,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-050",
+    "name": "Aarav Chopra",
+    "gender": "Male",
+    "age": 38,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1317,
+    "safetyScore": 94,
+    "followers": 485,
+    "following": 148,
+    "latitude": 17.480198,
+    "longitude": 78.397965,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-051",
+    "name": "Rohit Kapoor",
+    "gender": "Male",
+    "age": 39,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1751,
+    "safetyScore": 85,
+    "followers": 142,
+    "following": 384,
+    "latitude": 18.997225,
+    "longitude": 72.867095,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-052",
+    "name": "Aman Gupta",
+    "gender": "Male",
+    "age": 27,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2699,
+    "safetyScore": 69,
+    "followers": 215,
+    "following": 346,
+    "latitude": 28.623514,
+    "longitude": 77.326691,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-053",
+    "name": "Aditya Chopra",
+    "gender": "Male",
+    "age": 21,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Whitefield",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 530,
+    "safetyScore": 69,
+    "followers": 547,
+    "following": 20,
+    "latitude": 12.990277,
+    "longitude": 77.66406,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-054",
+    "name": "Priya Jain",
+    "gender": "Female",
+    "age": 37,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure",
+      "Street"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 3288,
+    "safetyScore": 87,
+    "followers": 1884,
+    "following": 36,
+    "latitude": 18.50331,
+    "longitude": 73.768602,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-055",
+    "name": "Arjun Desai",
+    "gender": "Male",
+    "age": 40,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1411,
+    "safetyScore": 92,
+    "followers": 2454,
+    "following": 548,
+    "latitude": 17.300235,
+    "longitude": 78.534823,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-056",
+    "name": "Meera Kapoor",
+    "gender": "Female",
+    "age": 35,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser",
+      "Touring"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 3068,
+    "safetyScore": 74,
+    "followers": 1288,
+    "following": 442,
+    "latitude": 19.109451,
+    "longitude": 72.964111,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-057",
+    "name": "Aditya Malhotra",
+    "gender": "Male",
+    "age": 22,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3153,
+    "safetyScore": 95,
+    "followers": 218,
+    "following": 299,
+    "latitude": 28.52595,
+    "longitude": 77.109635,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-058",
+    "name": "Reyansh Gupta",
+    "gender": "Male",
+    "age": 39,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 818,
+    "safetyScore": 85,
+    "followers": 1273,
+    "following": 352,
+    "latitude": 13.046686,
+    "longitude": 77.561344,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-059",
+    "name": "Aman Kapoor",
+    "gender": "Male",
+    "age": 35,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Hinjewadi",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport",
+      "Track"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2522,
+    "safetyScore": 73,
+    "followers": 223,
+    "following": 164,
+    "latitude": 18.622413,
+    "longitude": 73.76361,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-060",
+    "name": "Reyansh Jain",
+    "gender": "Male",
+    "age": 34,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure",
+      "Track"
+    ],
+    "yearsOfExperience": 10,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 983,
+    "safetyScore": 93,
+    "followers": 2462,
+    "following": 61,
+    "latitude": 17.372469,
+    "longitude": 78.435307,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-061",
+    "name": "Ira Rao",
+    "gender": "Female",
+    "age": 38,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City",
+      "Touring"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 156,
+    "safetyScore": 97,
+    "followers": 326,
+    "following": 325,
+    "latitude": 18.993834,
+    "longitude": 72.877102,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-062",
+    "name": "Zara Patel",
+    "gender": "Female",
+    "age": 34,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 402,
+    "safetyScore": 93,
+    "followers": 1278,
+    "following": 352,
+    "latitude": 28.576012,
+    "longitude": 77.283215,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-063",
+    "name": "Aditya Nair",
+    "gender": "Male",
+    "age": 24,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 388,
+    "safetyScore": 79,
+    "followers": 2031,
+    "following": 480,
+    "latitude": 12.905417,
+    "longitude": 77.655889,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-064",
+    "name": "Aryan Gupta",
+    "gender": "Male",
+    "age": 39,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 234,
+    "safetyScore": 71,
+    "followers": 1518,
+    "following": 298,
+    "latitude": 18.444931,
+    "longitude": 73.758258,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-065",
+    "name": "Vikram Iyer",
+    "gender": "Male",
+    "age": 31,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3401,
+    "safetyScore": 89,
+    "followers": 353,
+    "following": 521,
+    "latitude": 17.448096,
+    "longitude": 78.576392,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-066",
+    "name": "Kunal Chopra",
+    "gender": "Male",
+    "age": 22,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2858,
+    "safetyScore": 92,
+    "followers": 1171,
+    "following": 263,
+    "latitude": 19.046573,
+    "longitude": 72.973315,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-067",
+    "name": "Anaya Shetty",
+    "gender": "Female",
+    "age": 38,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2726,
+    "safetyScore": 95,
+    "followers": 2090,
+    "following": 375,
+    "latitude": 28.647642,
+    "longitude": 77.248933,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-068",
+    "name": "Reyansh Verma",
+    "gender": "Male",
+    "age": 45,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser",
+      "Adventure"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1623,
+    "safetyScore": 77,
+    "followers": 672,
+    "following": 190,
+    "latitude": 12.912474,
+    "longitude": 77.514184,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-069",
+    "name": "Rohan Shetty",
+    "gender": "Male",
+    "age": 36,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track",
+      "Adventure"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3231,
+    "safetyScore": 86,
+    "followers": 1572,
+    "following": 519,
+    "latitude": 18.574971,
+    "longitude": 73.921414,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-070",
+    "name": "Avni Reddy",
+    "gender": "Female",
+    "age": 30,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring",
+      "Adventure"
+    ],
+    "yearsOfExperience": 5,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 455,
+    "safetyScore": 82,
+    "followers": 1855,
+    "following": 362,
+    "latitude": 17.380803,
+    "longitude": 78.457521,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-071",
+    "name": "Kunal Singh",
+    "gender": "Male",
+    "age": 25,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "Street"
+    ],
+    "yearsOfExperience": 16,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2600,
+    "safetyScore": 68,
+    "followers": 332,
+    "following": 24,
+    "latitude": 19.048954,
+    "longitude": 72.769759,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-072",
+    "name": "Karan Bose",
+    "gender": "Male",
+    "age": 23,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1070,
+    "safetyScore": 77,
+    "followers": 1201,
+    "following": 444,
+    "latitude": 28.557174,
+    "longitude": 77.115862,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-073",
+    "name": "Avni Verma",
+    "gender": "Female",
+    "age": 38,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Track"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1118,
+    "safetyScore": 69,
+    "followers": 1470,
+    "following": 74,
+    "latitude": 13.074228,
+    "longitude": 77.498677,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-074",
+    "name": "Kabir Bose",
+    "gender": "Male",
+    "age": 43,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Kothrud",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1281,
+    "safetyScore": 80,
+    "followers": 187,
+    "following": 209,
+    "latitude": 18.484188,
+    "longitude": 73.752797,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-075",
+    "name": "Ishaan Shetty",
+    "gender": "Male",
+    "age": 32,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Kondapur",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1718,
+    "safetyScore": 96,
+    "followers": 1591,
+    "following": 352,
+    "latitude": 17.490756,
+    "longitude": 78.496449,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-076",
+    "name": "Kiara Malhotra",
+    "gender": "Female",
+    "age": 30,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 10,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1906,
+    "safetyScore": 95,
+    "followers": 690,
+    "following": 459,
+    "latitude": 19.059676,
+    "longitude": 72.861824,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-077",
+    "name": "Aman Jain",
+    "gender": "Male",
+    "age": 37,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 597,
+    "safetyScore": 72,
+    "followers": 974,
+    "following": 380,
+    "latitude": 28.644056,
+    "longitude": 77.28079,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-078",
+    "name": "Priya Patel",
+    "gender": "Female",
+    "age": 39,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "Track"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 544,
+    "safetyScore": 69,
+    "followers": 770,
+    "following": 516,
+    "latitude": 12.896668,
+    "longitude": 77.583489,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-079",
+    "name": "Aditya Patel",
+    "gender": "Male",
+    "age": 35,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1503,
+    "safetyScore": 72,
+    "followers": 2260,
+    "following": 560,
+    "latitude": 18.562342,
+    "longitude": 73.9704,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-080",
+    "name": "Sahil Nair",
+    "gender": "Male",
+    "age": 24,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 16,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1558,
+    "safetyScore": 91,
+    "followers": 1922,
+    "following": 569,
+    "latitude": 17.477394,
+    "longitude": 78.517898,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-081",
+    "name": "Arjun Bose",
+    "gender": "Male",
+    "age": 35,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2487,
+    "safetyScore": 79,
+    "followers": 536,
+    "following": 448,
+    "latitude": 19.145911,
+    "longitude": 72.780183,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-082",
+    "name": "Aryan Patel",
+    "gender": "Male",
+    "age": 29,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2265,
+    "safetyScore": 73,
+    "followers": 2066,
+    "following": 177,
+    "latitude": 28.554542,
+    "longitude": 77.319214,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-083",
+    "name": "Vikram Gupta",
+    "gender": "Male",
+    "age": 41,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2709,
+    "safetyScore": 87,
+    "followers": 1986,
+    "following": 255,
+    "latitude": 13.041921,
+    "longitude": 77.489956,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-084",
+    "name": "Kunal Jain",
+    "gender": "Male",
+    "age": 33,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 581,
+    "safetyScore": 85,
+    "followers": 1849,
+    "following": 258,
+    "latitude": 18.512712,
+    "longitude": 73.82026,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-085",
+    "name": "Kunal Iyer",
+    "gender": "Male",
+    "age": 45,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring",
+      "Sport"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 448,
+    "safetyScore": 93,
+    "followers": 2078,
+    "following": 473,
+    "latitude": 17.311422,
+    "longitude": 78.447603,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-086",
+    "name": "Aarav Reddy",
+    "gender": "Male",
+    "age": 34,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser",
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1720,
+    "safetyScore": 71,
+    "followers": 2343,
+    "following": 580,
+    "latitude": 19.15013,
+    "longitude": 72.917169,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-087",
+    "name": "Reyansh Singh",
+    "gender": "Male",
+    "age": 24,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure",
+      "Sport"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2547,
+    "safetyScore": 93,
+    "followers": 2056,
+    "following": 46,
+    "latitude": 28.566272,
+    "longitude": 77.329462,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-088",
+    "name": "Tara Mehta",
+    "gender": "Female",
+    "age": 33,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2982,
+    "safetyScore": 87,
+    "followers": 1953,
+    "following": 22,
+    "latitude": 13.056601,
+    "longitude": 77.514675,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-089",
+    "name": "Vikram Pillai",
+    "gender": "Male",
+    "age": 28,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Camp",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street",
+      "Adventure"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3445,
+    "safetyScore": 83,
+    "followers": 137,
+    "following": 591,
+    "latitude": 18.561058,
+    "longitude": 73.748763,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-090",
+    "name": "Vihaan Singh",
+    "gender": "Male",
+    "age": 37,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure",
+      "Touring"
+    ],
+    "yearsOfExperience": 11,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1962,
+    "safetyScore": 89,
+    "followers": 2245,
+    "following": 367,
+    "latitude": 17.365622,
+    "longitude": 78.548999,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-091",
+    "name": "Meera Kulkarni",
+    "gender": "Female",
+    "age": 31,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Powai",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1696,
+    "safetyScore": 90,
+    "followers": 607,
+    "following": 302,
+    "latitude": 19.178251,
+    "longitude": 72.831398,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-092",
+    "name": "Meera Iyer",
+    "gender": "Female",
+    "age": 38,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 287,
+    "safetyScore": 82,
+    "followers": 961,
+    "following": 58,
+    "latitude": 28.705578,
+    "longitude": 77.247415,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-093",
+    "name": "Rhea Kulkarni",
+    "gender": "Female",
+    "age": 41,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "Track"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2751,
+    "safetyScore": 82,
+    "followers": 2199,
+    "following": 43,
+    "latitude": 13.072036,
+    "longitude": 77.700638,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-094",
+    "name": "Rhea Mehta",
+    "gender": "Female",
+    "age": 44,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2548,
+    "safetyScore": 74,
+    "followers": 1380,
+    "following": 296,
+    "latitude": 18.611132,
+    "longitude": 73.970068,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-095",
+    "name": "Tara Mehta",
+    "gender": "Female",
+    "age": 44,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 11,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2405,
+    "safetyScore": 80,
+    "followers": 726,
+    "following": 420,
+    "latitude": 17.385911,
+    "longitude": 78.435233,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-096",
+    "name": "Nisha Bose",
+    "gender": "Female",
+    "age": 45,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure",
+      "Track"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2757,
+    "safetyScore": 91,
+    "followers": 975,
+    "following": 68,
+    "latitude": 19.03786,
+    "longitude": 72.820058,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-097",
+    "name": "Aryan Jain",
+    "gender": "Male",
+    "age": 40,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3142,
+    "safetyScore": 91,
+    "followers": 1711,
+    "following": 567,
+    "latitude": 28.672244,
+    "longitude": 77.255868,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-098",
+    "name": "Rohit Verma",
+    "gender": "Male",
+    "age": 27,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 556,
+    "safetyScore": 81,
+    "followers": 2396,
+    "following": 505,
+    "latitude": 12.941716,
+    "longitude": 77.687178,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-099",
+    "name": "Aarav Rao",
+    "gender": "Male",
+    "age": 29,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1815,
+    "safetyScore": 90,
+    "followers": 269,
+    "following": 559,
+    "latitude": 18.424776,
+    "longitude": 73.848121,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-100",
+    "name": "Yash Jain",
+    "gender": "Male",
+    "age": 33,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Track"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2756,
+    "safetyScore": 90,
+    "followers": 493,
+    "following": 187,
+    "latitude": 17.338966,
+    "longitude": 78.414195,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-101",
+    "name": "Aman Nair",
+    "gender": "Male",
+    "age": 28,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Powai",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3215,
+    "safetyScore": 75,
+    "followers": 139,
+    "following": 434,
+    "latitude": 19.068001,
+    "longitude": 72.927824,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-102",
+    "name": "Dev Nair",
+    "gender": "Male",
+    "age": 38,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3421,
+    "safetyScore": 88,
+    "followers": 2373,
+    "following": 333,
+    "latitude": 28.694378,
+    "longitude": 77.146129,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-103",
+    "name": "Rohit Pillai",
+    "gender": "Male",
+    "age": 44,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Sport"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1385,
+    "safetyScore": 94,
+    "followers": 1680,
+    "following": 157,
+    "latitude": 12.976195,
+    "longitude": 77.575421,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-104",
+    "name": "Aisha Malhotra",
+    "gender": "Female",
+    "age": 34,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Kothrud",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street",
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2728,
+    "safetyScore": 73,
+    "followers": 1850,
+    "following": 384,
+    "latitude": 18.597706,
+    "longitude": 73.775603,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-105",
+    "name": "Rhea Iyer",
+    "gender": "Female",
+    "age": 31,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 3169,
+    "safetyScore": 98,
+    "followers": 1001,
+    "following": 214,
+    "latitude": 17.441583,
+    "longitude": 78.53752,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-106",
+    "name": "Nikhil Bose",
+    "gender": "Male",
+    "age": 24,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street",
+      "Sport"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 267,
+    "safetyScore": 82,
+    "followers": 605,
+    "following": 21,
+    "latitude": 19.04557,
+    "longitude": 72.82315,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-107",
+    "name": "Kunal Gupta",
+    "gender": "Male",
+    "age": 45,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring",
+      "Street"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 653,
+    "safetyScore": 99,
+    "followers": 761,
+    "following": 560,
+    "latitude": 28.558923,
+    "longitude": 77.221473,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-108",
+    "name": "Aarav Iyer",
+    "gender": "Male",
+    "age": 37,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 16,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2078,
+    "safetyScore": 69,
+    "followers": 35,
+    "following": 549,
+    "latitude": 13.045664,
+    "longitude": 77.535011,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-109",
+    "name": "Kiara Reddy",
+    "gender": "Female",
+    "age": 24,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 3419,
+    "safetyScore": 90,
+    "followers": 1102,
+    "following": 411,
+    "latitude": 18.520879,
+    "longitude": 73.901817,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-110",
+    "name": "Arjun Khan",
+    "gender": "Male",
+    "age": 23,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure",
+      "Touring"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 118,
+    "safetyScore": 78,
+    "followers": 346,
+    "following": 516,
+    "latitude": 17.329477,
+    "longitude": 78.531387,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-111",
+    "name": "Vikram Kulkarni",
+    "gender": "Male",
+    "age": 29,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1368,
+    "safetyScore": 69,
+    "followers": 856,
+    "following": 152,
+    "latitude": 19.017571,
+    "longitude": 72.969503,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-112",
+    "name": "Aditya Patel",
+    "gender": "Male",
+    "age": 37,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "India Gate",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 391,
+    "safetyScore": 89,
+    "followers": 2486,
+    "following": 411,
+    "latitude": 28.652178,
+    "longitude": 77.21899,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-113",
+    "name": "Arafiya Patel",
+    "gender": "Female",
+    "age": 45,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 1177,
+    "safetyScore": 77,
+    "followers": 1564,
+    "following": 162,
+    "latitude": 13.066982,
+    "longitude": 77.579479,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-114",
+    "name": "Yash Bose",
+    "gender": "Male",
+    "age": 38,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2350,
+    "safetyScore": 73,
+    "followers": 2453,
+    "following": 337,
+    "latitude": 18.576907,
+    "longitude": 73.765999,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-115",
+    "name": "Aman Mehta",
+    "gender": "Male",
+    "age": 25,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring",
+      "Street"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1860,
+    "safetyScore": 85,
+    "followers": 1732,
+    "following": 311,
+    "latitude": 17.491536,
+    "longitude": 78.428414,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-116",
+    "name": "Tara Chopra",
+    "gender": "Female",
+    "age": 33,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "Touring"
+    ],
+    "yearsOfExperience": 5,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1393,
+    "safetyScore": 80,
+    "followers": 1970,
+    "following": 326,
+    "latitude": 18.991021,
+    "longitude": 72.83301,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-117",
+    "name": "Nisha Desai",
+    "gender": "Female",
+    "age": 33,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2314,
+    "safetyScore": 79,
+    "followers": 2261,
+    "following": 32,
+    "latitude": 28.656053,
+    "longitude": 77.206785,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-118",
+    "name": "Rohan Gupta",
+    "gender": "Male",
+    "age": 42,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Touring"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1721,
+    "safetyScore": 94,
+    "followers": 2234,
+    "following": 42,
+    "latitude": 12.951955,
+    "longitude": 77.594445,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-119",
+    "name": "Kunal Kapoor",
+    "gender": "Male",
+    "age": 24,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street",
+      "Adventure"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2457,
+    "safetyScore": 82,
+    "followers": 1833,
+    "following": 388,
+    "latitude": 18.534069,
+    "longitude": 73.889771,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-120",
+    "name": "Arjun Reddy",
+    "gender": "Male",
+    "age": 44,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport",
+      "Touring"
+    ],
+    "yearsOfExperience": 7,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2058,
+    "safetyScore": 90,
+    "followers": 1958,
+    "following": 104,
+    "latitude": 17.381275,
+    "longitude": 78.440352,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-121",
+    "name": "Kiara Nair",
+    "gender": "Female",
+    "age": 37,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure",
+      "Touring"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 3347,
+    "safetyScore": 93,
+    "followers": 763,
+    "following": 195,
+    "latitude": 19.151498,
+    "longitude": 72.911552,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-122",
+    "name": "Arjun Pillai",
+    "gender": "Male",
+    "age": 24,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport",
+      "Street"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1154,
+    "safetyScore": 99,
+    "followers": 2169,
+    "following": 325,
+    "latitude": 28.506754,
+    "longitude": 77.138755,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-123",
+    "name": "Karan Pillai",
+    "gender": "Male",
+    "age": 23,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Electronic City",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City",
+      "Street"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 829,
+    "safetyScore": 91,
+    "followers": 587,
+    "following": 528,
+    "latitude": 13.039435,
+    "longitude": 77.640304,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-124",
+    "name": "Kabir Malhotra",
+    "gender": "Male",
+    "age": 26,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Kothrud",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 11,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2617,
+    "safetyScore": 71,
+    "followers": 1478,
+    "following": 14,
+    "latitude": 18.528482,
+    "longitude": 73.952279,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-125",
+    "name": "Nikhil Mehta",
+    "gender": "Male",
+    "age": 23,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 2,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1000,
+    "safetyScore": 86,
+    "followers": 696,
+    "following": 473,
+    "latitude": 17.424934,
+    "longitude": 78.467585,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-126",
+    "name": "Myra Iyer",
+    "gender": "Female",
+    "age": 34,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser",
+      "City"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1507,
+    "safetyScore": 73,
+    "followers": 1806,
+    "following": 125,
+    "latitude": 19.145754,
+    "longitude": 72.77283,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-127",
+    "name": "Ishaan Khan",
+    "gender": "Male",
+    "age": 39,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 10,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2425,
+    "safetyScore": 85,
+    "followers": 2115,
+    "following": 102,
+    "latitude": 28.598369,
+    "longitude": 77.237608,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-128",
+    "name": "Rohan Singh",
+    "gender": "Male",
+    "age": 43,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Whitefield",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring",
+      "Street"
+    ],
+    "yearsOfExperience": 9,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1776,
+    "safetyScore": 92,
+    "followers": 1859,
+    "following": 82,
+    "latitude": 13.050962,
+    "longitude": 77.511815,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-129",
+    "name": "Arjun Bose",
+    "gender": "Male",
+    "age": 41,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Camp",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 972,
+    "safetyScore": 95,
+    "followers": 875,
+    "following": 511,
+    "latitude": 18.53812,
+    "longitude": 73.94082,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-130",
+    "name": "Vihaan Khan",
+    "gender": "Male",
+    "age": 24,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Madhapur",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1949,
+    "safetyScore": 68,
+    "followers": 1760,
+    "following": 212,
+    "latitude": 17.38183,
+    "longitude": 78.451297,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-131",
+    "name": "Arafiya Shetty",
+    "gender": "Female",
+    "age": 44,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 954,
+    "safetyScore": 98,
+    "followers": 327,
+    "following": 140,
+    "latitude": 19.048291,
+    "longitude": 72.970081,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-132",
+    "name": "Aman Patel",
+    "gender": "Male",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Faridabad",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 641,
+    "safetyScore": 92,
+    "followers": 553,
+    "following": 151,
+    "latitude": 28.597103,
+    "longitude": 77.118406,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-133",
+    "name": "Priya Iyer",
+    "gender": "Female",
+    "age": 23,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1838,
+    "safetyScore": 88,
+    "followers": 580,
+    "following": 258,
+    "latitude": 13.02528,
+    "longitude": 77.687765,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-134",
+    "name": "Sahil Chopra",
+    "gender": "Male",
+    "age": 37,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1660,
+    "safetyScore": 75,
+    "followers": 995,
+    "following": 516,
+    "latitude": 18.59562,
+    "longitude": 73.89282,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-135",
+    "name": "Rahul Malhotra",
+    "gender": "Male",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1153,
+    "safetyScore": 81,
+    "followers": 171,
+    "following": 66,
+    "latitude": 17.305429,
+    "longitude": 78.568448,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-136",
+    "name": "Arjun Shetty",
+    "gender": "Male",
+    "age": 23,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2482,
+    "safetyScore": 72,
+    "followers": 1278,
+    "following": 452,
+    "latitude": 19.106386,
+    "longitude": 72.886315,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-137",
+    "name": "Reyansh Sharma",
+    "gender": "Male",
+    "age": 43,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2198,
+    "safetyScore": 84,
+    "followers": 691,
+    "following": 385,
+    "latitude": 28.572665,
+    "longitude": 77.268528,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-138",
+    "name": "Arjun Kulkarni",
+    "gender": "Male",
+    "age": 35,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 6,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 724,
+    "safetyScore": 84,
+    "followers": 429,
+    "following": 592,
+    "latitude": 12.976758,
+    "longitude": 77.542004,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-139",
+    "name": "Kiara Khan",
+    "gender": "Female",
+    "age": 38,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 8,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3030,
+    "safetyScore": 88,
+    "followers": 1119,
+    "following": 84,
+    "latitude": 18.422234,
+    "longitude": 73.825683,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-140",
+    "name": "Aryan Shetty",
+    "gender": "Male",
+    "age": 31,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2389,
+    "safetyScore": 87,
+    "followers": 1001,
+    "following": 480,
+    "latitude": 17.286822,
+    "longitude": 78.464253,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-141",
+    "name": "Aditya Sharma",
+    "gender": "Male",
+    "age": 34,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 1,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 85,
+    "safetyScore": 92,
+    "followers": 1267,
+    "following": 111,
+    "latitude": 19.126262,
+    "longitude": 72.888352,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-142",
+    "name": "Zara Bose",
+    "gender": "Female",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2504,
+    "safetyScore": 71,
+    "followers": 1789,
+    "following": 138,
+    "latitude": 28.704986,
+    "longitude": 77.306851,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-143",
+    "name": "Ishaan Singh",
+    "gender": "Male",
+    "age": 45,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Jayanagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1988,
+    "safetyScore": 88,
+    "followers": 1673,
+    "following": 128,
+    "latitude": 12.932261,
+    "longitude": 77.544002,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-144",
+    "name": "Anika Khan",
+    "gender": "Female",
+    "age": 27,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1703,
+    "safetyScore": 71,
+    "followers": 1232,
+    "following": 271,
+    "latitude": 18.586907,
+    "longitude": 73.812056,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-145",
+    "name": "Reyansh Singh",
+    "gender": "Male",
+    "age": 24,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1604,
+    "safetyScore": 73,
+    "followers": 2393,
+    "following": 270,
+    "latitude": 17.397098,
+    "longitude": 78.498056,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-146",
+    "name": "Tara Reddy",
+    "gender": "Female",
+    "age": 22,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Powai",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 1697,
+    "safetyScore": 99,
+    "followers": 128,
+    "following": 396,
+    "latitude": 19.107565,
+    "longitude": 72.948461,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-147",
+    "name": "Aryan Kulkarni",
+    "gender": "Male",
+    "age": 34,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 642,
+    "safetyScore": 94,
+    "followers": 824,
+    "following": 543,
+    "latitude": 28.513284,
+    "longitude": 77.238353,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-148",
+    "name": "Vikram Verma",
+    "gender": "Male",
+    "age": 31,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 977,
+    "safetyScore": 69,
+    "followers": 1158,
+    "following": 64,
+    "latitude": 12.941138,
+    "longitude": 77.604478,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-149",
+    "name": "Vihaan Nair",
+    "gender": "Male",
+    "age": 39,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser",
+      "Street"
+    ],
+    "yearsOfExperience": 6,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2506,
+    "safetyScore": 88,
+    "followers": 1477,
+    "following": 33,
+    "latitude": 18.469919,
+    "longitude": 73.928821,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-150",
+    "name": "Aarohi Verma",
+    "gender": "Female",
+    "age": 36,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 3016,
+    "safetyScore": 79,
+    "followers": 1333,
+    "following": 65,
+    "latitude": 17.2851,
+    "longitude": 78.386143,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-151",
+    "name": "Aman Pillai",
+    "gender": "Male",
+    "age": 24,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2075,
+    "safetyScore": 88,
+    "followers": 721,
+    "following": 580,
+    "latitude": 19.17558,
+    "longitude": 72.84878,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-152",
+    "name": "Vikram Rao",
+    "gender": "Male",
+    "age": 45,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 984,
+    "safetyScore": 74,
+    "followers": 2040,
+    "following": 149,
+    "latitude": 28.569471,
+    "longitude": 77.12962,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-153",
+    "name": "Kunal Bose",
+    "gender": "Male",
+    "age": 21,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Whitefield",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1131,
+    "safetyScore": 74,
+    "followers": 13,
+    "following": 54,
+    "latitude": 13.041148,
+    "longitude": 77.632325,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-154",
+    "name": "Kavya Nair",
+    "gender": "Female",
+    "age": 26,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Kothrud",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1149,
+    "safetyScore": 74,
+    "followers": 311,
+    "following": 355,
+    "latitude": 18.530351,
+    "longitude": 73.765816,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-155",
+    "name": "Aarav Kapoor",
+    "gender": "Male",
+    "age": 41,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 4,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 921,
+    "safetyScore": 80,
+    "followers": 1684,
+    "following": 572,
+    "latitude": 17.349962,
+    "longitude": 78.596647,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-156",
+    "name": "Arjun Shetty",
+    "gender": "Male",
+    "age": 42,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 779,
+    "safetyScore": 86,
+    "followers": 343,
+    "following": 489,
+    "latitude": 19.074043,
+    "longitude": 72.77578,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-157",
+    "name": "Arafiya Jain",
+    "gender": "Female",
+    "age": 26,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 1180,
+    "safetyScore": 71,
+    "followers": 627,
+    "following": 104,
+    "latitude": 28.644574,
+    "longitude": 77.181298,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-158",
+    "name": "Nikhil Pillai",
+    "gender": "Male",
+    "age": 28,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2419,
+    "safetyScore": 77,
+    "followers": 500,
+    "following": 464,
+    "latitude": 13.040444,
+    "longitude": 77.576546,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-159",
+    "name": "Yash Iyer",
+    "gender": "Male",
+    "age": 41,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2358,
+    "safetyScore": 93,
+    "followers": 2269,
+    "following": 338,
+    "latitude": 18.439575,
+    "longitude": 73.839228,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-160",
+    "name": "Diya Kapoor",
+    "gender": "Female",
+    "age": 25,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2273,
+    "safetyScore": 90,
+    "followers": 1691,
+    "following": 275,
+    "latitude": 17.428332,
+    "longitude": 78.506542,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-161",
+    "name": "Aman Desai",
+    "gender": "Male",
+    "age": 43,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3428,
+    "safetyScore": 87,
+    "followers": 1281,
+    "following": 292,
+    "latitude": 19.101566,
+    "longitude": 72.919066,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-162",
+    "name": "Tara Gupta",
+    "gender": "Female",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 3114,
+    "safetyScore": 99,
+    "followers": 2123,
+    "following": 387,
+    "latitude": 28.570761,
+    "longitude": 77.269028,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-163",
+    "name": "Ishaan Khan",
+    "gender": "Male",
+    "age": 28,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1588,
+    "safetyScore": 97,
+    "followers": 2076,
+    "following": 411,
+    "latitude": 12.976851,
+    "longitude": 77.609837,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-164",
+    "name": "Sairaj Patel",
+    "gender": "Male",
+    "age": 30,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2731,
+    "safetyScore": 82,
+    "followers": 854,
+    "following": 280,
+    "latitude": 18.539185,
+    "longitude": 73.822441,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-165",
+    "name": "Kabir Chopra",
+    "gender": "Male",
+    "age": 21,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1622,
+    "safetyScore": 90,
+    "followers": 1888,
+    "following": 263,
+    "latitude": 17.424395,
+    "longitude": 78.480831,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-166",
+    "name": "Myra Chopra",
+    "gender": "Female",
+    "age": 40,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1212,
+    "safetyScore": 88,
+    "followers": 1142,
+    "following": 272,
+    "latitude": 19.183985,
+    "longitude": 72.984422,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-167",
+    "name": "Aditya Sharma",
+    "gender": "Male",
+    "age": 41,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 224,
+    "safetyScore": 80,
+    "followers": 1413,
+    "following": 232,
+    "latitude": 28.679276,
+    "longitude": 77.233638,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-168",
+    "name": "Sairaj Malhotra",
+    "gender": "Male",
+    "age": 45,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3128,
+    "safetyScore": 87,
+    "followers": 1730,
+    "following": 344,
+    "latitude": 12.902656,
+    "longitude": 77.505317,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-169",
+    "name": "Ishaan Verma",
+    "gender": "Male",
+    "age": 24,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring",
+      "City"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 900,
+    "safetyScore": 89,
+    "followers": 1684,
+    "following": 588,
+    "latitude": 18.53847,
+    "longitude": 73.958012,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-170",
+    "name": "Aarav Bose",
+    "gender": "Male",
+    "age": 29,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 3,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2596,
+    "safetyScore": 95,
+    "followers": 1766,
+    "following": 418,
+    "latitude": 17.413331,
+    "longitude": 78.413479,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-171",
+    "name": "Meera Sharma",
+    "gender": "Female",
+    "age": 42,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 608,
+    "safetyScore": 74,
+    "followers": 1579,
+    "following": 520,
+    "latitude": 18.970936,
+    "longitude": 72.837026,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-172",
+    "name": "Aditya Desai",
+    "gender": "Male",
+    "age": 36,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1015,
+    "safetyScore": 82,
+    "followers": 545,
+    "following": 221,
+    "latitude": 28.618287,
+    "longitude": 77.21494,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-173",
+    "name": "Vihaan Reddy",
+    "gender": "Male",
+    "age": 41,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Jayanagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1899,
+    "safetyScore": 92,
+    "followers": 514,
+    "following": 565,
+    "latitude": 13.030249,
+    "longitude": 77.621921,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-174",
+    "name": "Aditya Kapoor",
+    "gender": "Male",
+    "age": 24,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "City",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2574,
+    "safetyScore": 80,
+    "followers": 1085,
+    "following": 540,
+    "latitude": 18.555531,
+    "longitude": 73.804249,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-175",
+    "name": "Aarav Sharma",
+    "gender": "Male",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street",
+      "City"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3043,
+    "safetyScore": 74,
+    "followers": 1056,
+    "following": 241,
+    "latitude": 17.321799,
+    "longitude": 78.584831,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-176",
+    "name": "Yash Reddy",
+    "gender": "Male",
+    "age": 24,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2730,
+    "safetyScore": 78,
+    "followers": 1354,
+    "following": 371,
+    "latitude": 19.152162,
+    "longitude": 72.84572,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-177",
+    "name": "Priya Gupta",
+    "gender": "Female",
+    "age": 33,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "India Gate",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track",
+      "Street"
+    ],
+    "yearsOfExperience": 4,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2931,
+    "safetyScore": 71,
+    "followers": 660,
+    "following": 111,
+    "latitude": 28.682,
+    "longitude": 77.130892,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-178",
+    "name": "Ira Kulkarni",
+    "gender": "Female",
+    "age": 36,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 1367,
+    "safetyScore": 68,
+    "followers": 2157,
+    "following": 595,
+    "latitude": 12.941027,
+    "longitude": 77.490055,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-179",
+    "name": "Aditya Malhotra",
+    "gender": "Male",
+    "age": 40,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 757,
+    "safetyScore": 72,
+    "followers": 2021,
+    "following": 333,
+    "latitude": 18.516493,
+    "longitude": 73.89403,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-HYD-180",
+    "name": "Nisha Patel",
+    "gender": "Female",
+    "age": 35,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1374,
+    "safetyScore": 75,
+    "followers": 2045,
+    "following": 23,
+    "latitude": 17.325045,
+    "longitude": 78.519171,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-181",
+    "name": "Avni Malhotra",
+    "gender": "Female",
+    "age": 27,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1439,
+    "safetyScore": 98,
+    "followers": 1496,
+    "following": 468,
+    "latitude": 19.09853,
+    "longitude": 72.90494,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-182",
+    "name": "Reyansh Khan",
+    "gender": "Male",
+    "age": 26,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City",
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 574,
+    "safetyScore": 93,
+    "followers": 891,
+    "following": 473,
+    "latitude": 28.714318,
+    "longitude": 77.157766,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-183",
+    "name": "Vikram Verma",
+    "gender": "Male",
+    "age": 25,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2058,
+    "safetyScore": 79,
+    "followers": 2377,
+    "following": 182,
+    "latitude": 12.990802,
+    "longitude": 77.654983,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-184",
+    "name": "Sairaj Rao",
+    "gender": "Male",
+    "age": 31,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Hinjewadi",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2947,
+    "safetyScore": 87,
+    "followers": 2251,
+    "following": 326,
+    "latitude": 18.624076,
+    "longitude": 73.951538,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-185",
+    "name": "Kabir Verma",
+    "gender": "Male",
+    "age": 38,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Madhapur",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2047,
+    "safetyScore": 94,
+    "followers": 2194,
+    "following": 297,
+    "latitude": 17.305578,
+    "longitude": 78.534369,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-186",
+    "name": "Aryan Gupta",
+    "gender": "Male",
+    "age": 25,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Thane",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street",
+      "Adventure"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3414,
+    "safetyScore": 96,
+    "followers": 427,
+    "following": 580,
+    "latitude": 19.011114,
+    "longitude": 72.934937,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-187",
+    "name": "Tara Malhotra",
+    "gender": "Female",
+    "age": 22,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2675,
+    "safetyScore": 91,
+    "followers": 2418,
+    "following": 564,
+    "latitude": 28.588296,
+    "longitude": 77.18845,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-188",
+    "name": "Myra Gupta",
+    "gender": "Female",
+    "age": 25,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Koramangala",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 714,
+    "safetyScore": 70,
+    "followers": 637,
+    "following": 335,
+    "latitude": 12.974594,
+    "longitude": 77.567353,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-189",
+    "name": "Arjun Verma",
+    "gender": "Male",
+    "age": 26,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Kothrud",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2797,
+    "safetyScore": 89,
+    "followers": 1364,
+    "following": 374,
+    "latitude": 18.481018,
+    "longitude": 73.792844,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-190",
+    "name": "Aarav Reddy",
+    "gender": "Male",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 8,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2875,
+    "safetyScore": 88,
+    "followers": 1570,
+    "following": 121,
+    "latitude": 17.379564,
+    "longitude": 78.500596,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-191",
+    "name": "Vihaan Shetty",
+    "gender": "Male",
+    "age": 41,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2264,
+    "safetyScore": 68,
+    "followers": 276,
+    "following": 220,
+    "latitude": 19.048964,
+    "longitude": 72.946978,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-192",
+    "name": "Arjun Singh",
+    "gender": "Male",
+    "age": 21,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 3,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 809,
+    "safetyScore": 84,
+    "followers": 2293,
+    "following": 77,
+    "latitude": 28.666089,
+    "longitude": 77.193049,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-193",
+    "name": "Anika Patel",
+    "gender": "Female",
+    "age": 45,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Electronic City",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 1267,
+    "safetyScore": 87,
+    "followers": 2492,
+    "following": 93,
+    "latitude": 13.00907,
+    "longitude": 77.602329,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-194",
+    "name": "Rohit Shetty",
+    "gender": "Male",
+    "age": 41,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 584,
+    "safetyScore": 70,
+    "followers": 28,
+    "following": 591,
+    "latitude": 18.44178,
+    "longitude": 73.831844,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-195",
+    "name": "Karan Gupta",
+    "gender": "Male",
+    "age": 27,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2720,
+    "safetyScore": 72,
+    "followers": 1198,
+    "following": 73,
+    "latitude": 17.460991,
+    "longitude": 78.405692,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-MUM-196",
+    "name": "Anaya Iyer",
+    "gender": "Female",
+    "age": 31,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Powai",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure",
+      "Track"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2472,
+    "safetyScore": 77,
+    "followers": 2324,
+    "following": 585,
+    "latitude": 19.113037,
+    "longitude": 72.816967,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-197",
+    "name": "Sneha Gupta",
+    "gender": "Female",
+    "age": 32,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Gurugram",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2074,
+    "safetyScore": 74,
+    "followers": 727,
+    "following": 88,
+    "latitude": 28.573514,
+    "longitude": 77.279357,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-198",
+    "name": "Aarohi Verma",
+    "gender": "Female",
+    "age": 41,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Indiranagar",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2306,
+    "safetyScore": 98,
+    "followers": 616,
+    "following": 379,
+    "latitude": 13.022096,
+    "longitude": 77.622694,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-199",
+    "name": "Arjun Rao",
+    "gender": "Male",
+    "age": 32,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Viman Nagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 654,
+    "safetyScore": 96,
+    "followers": 660,
+    "following": 188,
+    "latitude": 18.597625,
+    "longitude": 73.773216,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-200",
+    "name": "Nisha Khan",
+    "gender": "Female",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Touring",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2736,
+    "safetyScore": 88,
+    "followers": 430,
+    "following": 538,
+    "latitude": 17.441535,
+    "longitude": 78.425924,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-201",
+    "name": "Riya Rao",
+    "gender": "Female",
+    "age": 28,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser",
+      "Sport"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2554,
+    "safetyScore": 68,
+    "followers": 2063,
+    "following": 147,
+    "latitude": 19.094958,
+    "longitude": 72.968806,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-202",
+    "name": "Nisha Kapoor",
+    "gender": "Female",
+    "age": 31,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "India Gate",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Track",
+      "Touring"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2499,
+    "safetyScore": 78,
+    "followers": 1691,
+    "following": 27,
+    "latitude": 28.58411,
+    "longitude": 77.262521,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-203",
+    "name": "Kabir Verma",
+    "gender": "Male",
+    "age": 33,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "City",
+      "Street"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 2010,
+    "safetyScore": 98,
+    "followers": 706,
+    "following": 229,
+    "latitude": 13.056097,
+    "longitude": 77.516247,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-204",
+    "name": "Karan Pillai",
+    "gender": "Male",
+    "age": 23,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Baner",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street",
+      "City"
+    ],
+    "yearsOfExperience": 1,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2221,
+    "safetyScore": 94,
+    "followers": 620,
+    "following": 103,
+    "latitude": 18.448556,
+    "longitude": 73.89902,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-205",
+    "name": "Arjun Kulkarni",
+    "gender": "Male",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Hitech City",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure",
+      "Touring"
+    ],
+    "yearsOfExperience": 12,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2937,
+    "safetyScore": 95,
+    "followers": 947,
+    "following": 498,
+    "latitude": 17.466676,
+    "longitude": 78.493821,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-206",
+    "name": "Anika Malhotra",
+    "gender": "Female",
+    "age": 34,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2220,
+    "safetyScore": 75,
+    "followers": 2136,
+    "following": 12,
+    "latitude": 19.133483,
+    "longitude": 72.971519,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-207",
+    "name": "Sneha Pillai",
+    "gender": "Female",
+    "age": 32,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser",
+      "Street"
+    ],
+    "yearsOfExperience": 14,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 3290,
+    "safetyScore": 98,
+    "followers": 740,
+    "following": 384,
+    "latitude": 28.646673,
+    "longitude": 77.14832,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-208",
+    "name": "Reyansh Nair",
+    "gender": "Male",
+    "age": 35,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Jayanagar",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3299,
+    "safetyScore": 89,
+    "followers": 2263,
+    "following": 58,
+    "latitude": 13.030885,
+    "longitude": 77.571997,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-209",
+    "name": "Sneha Patel",
+    "gender": "Female",
+    "age": 23,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Hinjewadi",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City",
+      "Adventure"
+    ],
+    "yearsOfExperience": 2,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1654,
+    "safetyScore": 93,
+    "followers": 2142,
+    "following": 298,
+    "latitude": 18.431987,
+    "longitude": 73.775826,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-210",
+    "name": "Karan Verma",
+    "gender": "Male",
+    "age": 37,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Madhapur",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1059,
+    "safetyScore": 68,
+    "followers": 652,
+    "following": 93,
+    "latitude": 17.45071,
+    "longitude": 78.438216,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-211",
+    "name": "Aryan Malhotra",
+    "gender": "Male",
+    "age": 39,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street",
+      "Adventure"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1734,
+    "safetyScore": 68,
+    "followers": 1077,
+    "following": 184,
+    "latitude": 19.127227,
+    "longitude": 72.779008,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-212",
+    "name": "Kavya Gupta",
+    "gender": "Female",
+    "age": 43,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser",
+      "Street"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2871,
+    "safetyScore": 97,
+    "followers": 2411,
+    "following": 33,
+    "latitude": 28.616773,
+    "longitude": 77.149321,
+    "status": "Nearby",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-213",
+    "name": "Aarohi Gupta",
+    "gender": "Female",
+    "age": 28,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Whitefield",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Track",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Free",
+    "xp": 2351,
+    "safetyScore": 79,
+    "followers": 1959,
+    "following": 326,
+    "latitude": 12.931758,
+    "longitude": 77.695653,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-214",
+    "name": "Rhea Iyer",
+    "gender": "Female",
+    "age": 28,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Camp",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 7,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2613,
+    "safetyScore": 90,
+    "followers": 646,
+    "following": 114,
+    "latitude": 18.617074,
+    "longitude": 73.898453,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-HYD-215",
+    "name": "Karan Desai",
+    "gender": "Male",
+    "age": 36,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street",
+      "Adventure"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 989,
+    "safetyScore": 76,
+    "followers": 229,
+    "following": 543,
+    "latitude": 17.393967,
+    "longitude": 78.382992,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-216",
+    "name": "Priya Reddy",
+    "gender": "Female",
+    "age": 43,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Track",
+      "City"
+    ],
+    "yearsOfExperience": 1,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 943,
+    "safetyScore": 92,
+    "followers": 2387,
+    "following": 108,
+    "latitude": 19.042981,
+    "longitude": 72.960152,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-217",
+    "name": "Rhea Kapoor",
+    "gender": "Female",
+    "age": 27,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Dwarka",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Cruiser",
+      "Touring"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 816,
+    "safetyScore": 76,
+    "followers": 2366,
+    "following": 239,
+    "latitude": 28.607704,
+    "longitude": 77.236852,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-BLR-218",
+    "name": "Aarohi Mehta",
+    "gender": "Female",
+    "age": 34,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "MG Road",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser",
+      "Touring"
+    ],
+    "yearsOfExperience": 10,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2382,
+    "safetyScore": 71,
+    "followers": 1639,
+    "following": 106,
+    "latitude": 13.036473,
+    "longitude": 77.647527,
+    "status": "Riding",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-PUN-219",
+    "name": "Myra Gupta",
+    "gender": "Female",
+    "age": 32,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 7,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2438,
+    "safetyScore": 79,
+    "followers": 1173,
+    "following": 368,
+    "latitude": 18.573285,
+    "longitude": 73.801921,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-220",
+    "name": "Tara Kapoor",
+    "gender": "Female",
+    "age": 41,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Secunderabad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 6,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1014,
+    "safetyScore": 88,
+    "followers": 1305,
+    "following": 303,
+    "latitude": 17.413478,
+    "longitude": 78.406235,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-221",
+    "name": "Aditya Nair",
+    "gender": "Male",
+    "age": 42,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Worli",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 13,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 471,
+    "safetyScore": 72,
+    "followers": 1946,
+    "following": 566,
+    "latitude": 19.065252,
+    "longitude": 72.801589,
+    "status": "Available",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-222",
+    "name": "Rohan Nair",
+    "gender": "Male",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 197,
+    "safetyScore": 70,
+    "followers": 1469,
+    "following": 338,
+    "latitude": 28.524021,
+    "longitude": 77.315299,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-223",
+    "name": "Rohit Mehta",
+    "gender": "Male",
+    "age": 39,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure",
+      "Track"
+    ],
+    "yearsOfExperience": 18,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1502,
+    "safetyScore": 98,
+    "followers": 2218,
+    "following": 237,
+    "latitude": 12.922392,
+    "longitude": 77.582362,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-224",
+    "name": "Saanvi Kulkarni",
+    "gender": "Female",
+    "age": 38,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Koregaon Park",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Sport",
+      "City"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2525,
+    "safetyScore": 82,
+    "followers": 37,
+    "following": 566,
+    "latitude": 18.525441,
+    "longitude": 73.915597,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-225",
+    "name": "Riya Patel",
+    "gender": "Female",
+    "age": 34,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Madhapur",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport",
+      "Track"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 1771,
+    "safetyScore": 80,
+    "followers": 288,
+    "following": 191,
+    "latitude": 17.436269,
+    "longitude": 78.461715,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-226",
+    "name": "Rohit Sharma",
+    "gender": "Male",
+    "age": 26,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Bandra",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street",
+      "Track"
+    ],
+    "yearsOfExperience": 15,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 113,
+    "safetyScore": 82,
+    "followers": 377,
+    "following": 159,
+    "latitude": 19.008495,
+    "longitude": 72.767748,
+    "status": "Available",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-DEL-227",
+    "name": "Arjun Singh",
+    "gender": "Male",
+    "age": 22,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 867,
+    "safetyScore": 84,
+    "followers": 1570,
+    "following": 17,
+    "latitude": 28.586094,
+    "longitude": 77.257505,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-228",
+    "name": "Meera Kulkarni",
+    "gender": "Female",
+    "age": 33,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Electronic City",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Street",
+      "Track"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2331,
+    "safetyScore": 75,
+    "followers": 1045,
+    "following": 497,
+    "latitude": 12.963132,
+    "longitude": 77.654728,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-229",
+    "name": "Kavya Reddy",
+    "gender": "Female",
+    "age": 33,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 2522,
+    "safetyScore": 77,
+    "followers": 1529,
+    "following": 96,
+    "latitude": 18.506165,
+    "longitude": 73.746123,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-230",
+    "name": "Rohit Reddy",
+    "gender": "Male",
+    "age": 25,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Adventure",
+      "Track"
+    ],
+    "yearsOfExperience": 12,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3083,
+    "safetyScore": 80,
+    "followers": 95,
+    "following": 391,
+    "latitude": 17.412056,
+    "longitude": 78.38696,
+    "status": "Offline",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-MUM-231",
+    "name": "Rohit Jain",
+    "gender": "Male",
+    "age": 31,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Marine Drive",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Cruiser",
+      "Adventure"
+    ],
+    "yearsOfExperience": 18,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 362,
+    "safetyScore": 77,
+    "followers": 1848,
+    "following": 307,
+    "latitude": 19.08524,
+    "longitude": 72.875433,
+    "status": "Offline",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-232",
+    "name": "Nisha Desai",
+    "gender": "Female",
+    "age": 44,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure"
+    ],
+    "yearsOfExperience": 16,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 711,
+    "safetyScore": 86,
+    "followers": 1329,
+    "following": 424,
+    "latitude": 28.509839,
+    "longitude": 77.296886,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-233",
+    "name": "Ishaan Reddy",
+    "gender": "Male",
+    "age": 22,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Adventure",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1580,
+    "safetyScore": 82,
+    "followers": 2489,
+    "following": 77,
+    "latitude": 12.902116,
+    "longitude": 77.4906,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-PUN-234",
+    "name": "Rahul Khan",
+    "gender": "Male",
+    "age": 40,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Hinjewadi",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Cruiser"
+    ],
+    "yearsOfExperience": 10,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 964,
+    "safetyScore": 74,
+    "followers": 422,
+    "following": 241,
+    "latitude": 18.49033,
+    "longitude": 73.912219,
+    "status": "Nearby",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-235",
+    "name": "Vikram Jain",
+    "gender": "Male",
+    "age": 42,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 6,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1724,
+    "safetyScore": 89,
+    "followers": 655,
+    "following": 551,
+    "latitude": 17.397632,
+    "longitude": 78.499873,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-236",
+    "name": "Yash Desai",
+    "gender": "Male",
+    "age": 40,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Andheri",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Cruiser",
+      "Adventure"
+    ],
+    "yearsOfExperience": 9,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1933,
+    "safetyScore": 96,
+    "followers": 1634,
+    "following": 5,
+    "latitude": 19.183427,
+    "longitude": 72.956596,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-DEL-237",
+    "name": "Aarohi Gupta",
+    "gender": "Female",
+    "age": 38,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Saket",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 15,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 719,
+    "safetyScore": 76,
+    "followers": 1093,
+    "following": 380,
+    "latitude": 28.570729,
+    "longitude": 77.140501,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-BLR-238",
+    "name": "Nikhil Mehta",
+    "gender": "Male",
+    "age": 36,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Jayanagar",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "City",
+      "Track"
+    ],
+    "yearsOfExperience": 13,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 3275,
+    "safetyScore": 71,
+    "followers": 1377,
+    "following": 361,
+    "latitude": 12.910505,
+    "longitude": 77.50079,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-PUN-239",
+    "name": "Aarohi Rao",
+    "gender": "Female",
+    "age": 22,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Hinjewadi",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Adventure",
+      "Cruiser"
+    ],
+    "yearsOfExperience": 5,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2137,
+    "safetyScore": 82,
+    "followers": 635,
+    "following": 56,
+    "latitude": 18.578863,
+    "longitude": 73.913177,
+    "status": "Nearby",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-240",
+    "name": "Nikhil Pillai",
+    "gender": "Male",
+    "age": 44,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Banjara Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "City",
+      "Touring"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 3249,
+    "safetyScore": 76,
+    "followers": 560,
+    "following": 497,
+    "latitude": 17.446917,
+    "longitude": 78.406952,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-MUM-241",
+    "name": "Yash Desai",
+    "gender": "Male",
+    "age": 42,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Track"
+    ],
+    "yearsOfExperience": 14,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 1576,
+    "safetyScore": 90,
+    "followers": 788,
+    "following": 333,
+    "latitude": 19.081243,
+    "longitude": 72.818747,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-DEL-242",
+    "name": "Rohan Iyer",
+    "gender": "Male",
+    "age": 42,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Noida",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 2,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 2623,
+    "safetyScore": 77,
+    "followers": 1186,
+    "following": 19,
+    "latitude": 28.601405,
+    "longitude": 77.121766,
+    "status": "Offline",
+    "trustedContactsCount": 1
+  },
+  {
+    "userId": "USR-BLR-243",
+    "name": "Rohit Kulkarni",
+    "gender": "Male",
+    "age": 40,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Electronic City",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 17,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Free",
+    "xp": 1126,
+    "safetyScore": 78,
+    "followers": 254,
+    "following": 295,
+    "latitude": 12.909303,
+    "longitude": 77.604901,
+    "status": "Riding",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-244",
+    "name": "Reyansh Sharma",
+    "gender": "Male",
+    "age": 30,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Wakad",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Touring"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 487,
+    "safetyScore": 88,
+    "followers": 1993,
+    "following": 549,
+    "latitude": 18.555639,
+    "longitude": 73.950845,
+    "status": "Available",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-HYD-245",
+    "name": "Arafiya Mehta",
+    "gender": "Female",
+    "age": 21,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Gachibowli",
+    "ridingLevel": "Advanced",
+    "ridingStyle": [
+      "Track",
+      "Sport"
+    ],
+    "yearsOfExperience": 8,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Premium",
+    "xp": 1209,
+    "safetyScore": 71,
+    "followers": 1063,
+    "following": 401,
+    "latitude": 17.330382,
+    "longitude": 78.493365,
+    "status": "Available",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-MUM-246",
+    "name": "Nisha Kapoor",
+    "gender": "Female",
+    "age": 28,
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Navi Mumbai",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Sport",
+      "Adventure"
+    ],
+    "yearsOfExperience": 11,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": true
+    },
+    "subscription": "Plus",
+    "xp": 2300,
+    "safetyScore": 76,
+    "followers": 854,
+    "following": 146,
+    "latitude": 19.050531,
+    "longitude": 72.983077,
+    "status": "Riding",
+    "trustedContactsCount": 2
+  },
+  {
+    "userId": "USR-DEL-247",
+    "name": "Vikram Mehta",
+    "gender": "Male",
+    "age": 31,
+    "city": "Delhi NCR",
+    "state": "Delhi",
+    "country": "India",
+    "area": "Connaught Place",
+    "ridingLevel": "Beginner",
+    "ridingStyle": [
+      "Sport"
+    ],
+    "yearsOfExperience": 5,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 200,
+    "safetyScore": 88,
+    "followers": 1703,
+    "following": 426,
+    "latitude": 28.702333,
+    "longitude": 77.275513,
+    "status": "Offline",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-BLR-248",
+    "name": "Anika Gupta",
+    "gender": "Female",
+    "age": 40,
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "area": "Hebbal",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 1,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 405,
+    "safetyScore": 98,
+    "followers": 557,
+    "following": 519,
+    "latitude": 12.891934,
+    "longitude": 77.489474,
+    "status": "Nearby",
+    "trustedContactsCount": 3
+  },
+  {
+    "userId": "USR-PUN-249",
+    "name": "Riya Kapoor",
+    "gender": "Female",
+    "age": 28,
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "area": "Camp",
+    "ridingLevel": "Intermediate",
+    "ridingStyle": [
+      "City"
+    ],
+    "yearsOfExperience": 6,
+    "verified": false,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Plus",
+    "xp": 2607,
+    "safetyScore": 99,
+    "followers": 1338,
+    "following": 473,
+    "latitude": 18.461216,
+    "longitude": 73.835856,
+    "status": "Riding",
+    "trustedContactsCount": 4
+  },
+  {
+    "userId": "USR-HYD-250",
+    "name": "Vihaan Verma",
+    "gender": "Male",
+    "age": 24,
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "area": "Jubilee Hills",
+    "ridingLevel": "Pro",
+    "ridingStyle": [
+      "Street"
+    ],
+    "yearsOfExperience": 17,
+    "verified": true,
+    "modeAccess": {
+      "ridez": true,
+      "herRidez": false
+    },
+    "subscription": "Premium",
+    "xp": 1700,
+    "safetyScore": 70,
+    "followers": 2292,
+    "following": 401,
+    "latitude": 17.479949,
+    "longitude": 78.502998,
+    "status": "Available",
+    "trustedContactsCount": 2
+  }
+]
