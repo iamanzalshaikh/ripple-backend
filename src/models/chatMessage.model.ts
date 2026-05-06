@@ -100,7 +100,7 @@ export interface IChatMessage extends Document {
   receiverId?: mongoose.Types.ObjectId; // For private chats
   text: string;
   media?: string[];
-  messageType?: "text" | "product_card" | "post_share"; // Message type
+  messageType?: "text" | "product_card" | "post_share" | "story_share";
   productData?: {
     listingId: string;
     title: string;
@@ -118,6 +118,14 @@ export interface IChatMessage extends Document {
     authorAvatarUrl?: string;
     /** Number of media items (carousel badge when > 1) */
     mediaCount?: number;
+  };
+  /** Story shared/replied to in DM */
+  storyData?: {
+    storyId: string;
+    mediaUrl: string;
+    mediaType?: "photo" | "video";
+    authorName?: string;
+    authorAvatarUrl?: string;
   };
   timestamp: Date;
   createdAt: Date;
@@ -175,7 +183,7 @@ const chatMessageSchema = new Schema<IChatMessage>(
     media: [String],
     messageType: {
       type: String,
-      enum: ["text", "product_card", "post_share"],
+      enum: ["text", "product_card", "post_share", "story_share"],
       default: "text",
     },
     productData: {
@@ -196,6 +204,16 @@ const chatMessageSchema = new Schema<IChatMessage>(
         mediaType: { type: String, enum: ["photo", "video"] },
         authorAvatarUrl: String,
         mediaCount: Number,
+      },
+      _id: false,
+    },
+    storyData: {
+      type: {
+        storyId: String,
+        mediaUrl: String,
+        mediaType: { type: String, enum: ["photo", "video"] },
+        authorName: String,
+        authorAvatarUrl: String,
       },
       _id: false,
     },

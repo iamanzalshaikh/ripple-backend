@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AdminAuthRequest } from "../middlewares/adminAuth.middleware.js";
 import logger from "../config/logger.js";
 import User, { IUser } from "../models/user.model.js";
+import { recordAuditAction } from "./admin.audit.controller.js";
 
 /**
  * @route   GET /api/admin/users
@@ -241,6 +242,16 @@ export const suspendUser = async (
 
     await user.save();
 
+    // Record Audit Log
+    await recordAuditAction({
+      adminId: (req as any).admin._id,
+      action: "USER_SUSPENDED",
+      targetType: "USER",
+      targetId: user._id as any,
+      details: `Admin suspended user: ${user.name} (ID: ${user._id}) for: ${user.suspensionReason}`,
+      metadata: { reason: user.suspensionReason, until: user.suspendedUntil }
+    });
+
     logger.info(`User suspended by admin: ${id} (Reason: ${reason})`);
 
     res.status(200).json({
@@ -299,6 +310,15 @@ export const activateUser = async (
     user.suspendedUntil = undefined;
 
     await user.save();
+
+    // Record Audit Log
+    await recordAuditAction({
+      adminId: (req as any).admin._id,
+      action: "USER_ACTIVATED",
+      targetType: "USER",
+      targetId: user._id as any,
+      details: `Admin activated user: ${user.name} (ID: ${user._id})`,
+    });
 
     logger.info(`User activated by admin: ${id}`);
 

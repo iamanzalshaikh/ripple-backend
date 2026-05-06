@@ -12,6 +12,7 @@ import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import logger from "./logger.js";
 import { verifyUserAccessToken, UserTokenPayload } from "../utils/jwt.js";
+import { verifyAdminAccessToken, AdminTokenPayload } from "../utils/jwtAdmin.js";
 import ChatMessage from "../models/chatMessage.model.js";
 import RideEvent from "../models/rideEvent.model.js";
 import Group from "../models/group.model.js";
@@ -21,8 +22,11 @@ import Post from "../models/post.model.js";
 
 export interface AuthenticatedSocket extends Socket {
   data: {
-    userId: string;
-    phone: string;
+    userId?: string;
+    phone?: string;
+    adminId?: string;
+    role?: string;
+    type: "user" | "admin";
   };
 }
 
@@ -52,20 +56,28 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
         return next(new Error("No token provided"));
       }
 
-      const decoded = verifyUserAccessToken(token) as UserTokenPayload;
-
-      if (!decoded || !decoded.userId) {
-        logger.warn("[Socket Auth] Invalid token");
-        return next(new Error("Invalid token"));
+      // Try Admin Token first
+      const adminDecoded = verifyAdminAccessToken(token);
+      if (adminDecoded) {
+        socket.data.adminId = adminDecoded.adminId;
+        socket.data.role = adminDecoded.role;
+        socket.data.type = "admin";
+        logger.info(`[Socket Auth] Admin ${adminDecoded.adminId} authenticated`);
+        return next();
       }
 
-      socket.data.userId = decoded.userId;
-      socket.data.phone = decoded.phone;
+      // Try User Token
+      const userDecoded = verifyUserAccessToken(token) as UserTokenPayload;
+      if (userDecoded && userDecoded.userId) {
+        socket.data.userId = userDecoded.userId;
+        socket.data.phone = userDecoded.phone;
+        socket.data.type = "user";
+        logger.info(`[Socket Auth] User ${userDecoded.userId} authenticated`);
+        return next();
+      }
 
-      logger.info(
-        `[Socket Auth] User ${decoded.userId} authenticated (Socket ID: ${socket.id})`,
-      );
-      next();
+      logger.warn("[Socket Auth] Invalid token (failed both admin and user checks)");
+      next(new Error("Invalid token"));
     } catch (error: any) {
       logger.error(`[Socket Auth] Error: ${error.message}`);
       next(new Error("Authentication failed"));
@@ -74,7 +86,13 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
 
   // ==================== CONNECTION HANDLER ====================
   io.on("connection", (socket: AuthenticatedSocket) => {
-    const userId = socket.data.userId;
+    if (socket.data.type === "admin") {
+      socket.join("admin");
+      logger.info(`[Socket] Admin ${socket.data.adminId} joined global admin room`);
+      return;
+    }
+
+    const userId = socket.data.userId!;
 
     // Join user-specific room for direct notifications (e.g., unread count updates)
     socket.join(`user:${userId}`);
@@ -397,6 +415,18 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             timestamp: new Date(),
           });
 
+          // Broadcast to global admin room
+          io.to("admin").emit("global-sos-alert", {
+            userId,
+            userName: user?.name,
+            userAvatar: user?.avatarUrl,
+            phone: (user as any)?.phone,
+            lat,
+            lng,
+            rideEventId,
+            timestamp: new Date(),
+          });
+
           // Send HIGH PRIORITY push notifications to all participants
           const { sendPushNotificationToUsers } =
             await import("../services/push-notification.service.js");
@@ -716,10 +746,17 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             authorName?: string;
             mediaType?: "photo" | "video";
           };
+          storyData?: {
+            storyId: string;
+            mediaUrl: string;
+            mediaType?: "photo" | "video";
+            authorName?: string;
+            authorAvatarUrl?: string;
+          };
         },
       ) => {
         try {
-          const { roomId, text, messageType, postData } = data;
+          const { roomId, text, messageType, postData, storyData } = data;
 
           // Get chat room to find receiver
           const chatRoom = await PrivateChatRoom.findOne({ roomId });
@@ -744,12 +781,31 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
             roomType: "private";
             senderId: string;
             text: string;
-            messageType?: "text" | "product_card" | "post_share";
+            messageType?: "text" | "product_card" | "post_share" | "story_share";
             postData?: Record<string, unknown>;
+            storyData?: Record<string, unknown>;
             timestamp: Date;
           };
 
-          if (messageType === "post_share" && postData?.postId) {
+          if (messageType === "story_share" && storyData?.storyId && storyData?.mediaUrl) {
+            // ── Story Share / Reply ──
+            const replyText = (text || "Shared a story").trim().slice(0, 500);
+            messageBody = {
+              privateRoomId: roomId,
+              roomType: "private",
+              senderId: userId as unknown as string,
+              text: replyText,
+              messageType: "story_share",
+              storyData: {
+                storyId: storyData.storyId,
+                mediaUrl: storyData.mediaUrl,
+                mediaType: storyData.mediaType || "photo",
+                authorName: storyData.authorName || "",
+                authorAvatarUrl: storyData.authorAvatarUrl || "",
+              },
+              timestamp: new Date(),
+            };
+          } else if (messageType === "post_share" && postData?.postId) {
             const post = await Post.findById(postData.postId)
               .populate("userId", "name avatarUrl")
               .lean();
@@ -828,6 +884,8 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           const lastPreview =
             message.messageType === "post_share"
               ? "📷 Shared a post"
+              : message.messageType === "story_share"
+              ? "📱 Replied to a story"
               : message.text.trim();
 
           // Update PrivateChatRoom with last message AND increment unread for receiver
@@ -859,6 +917,9 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           const plainPostData = (message as any).postData
             ? { ...(message as any).postData }
             : undefined;
+          const plainStoryData = (message as any).storyData
+            ? { ...(message as any).storyData }
+            : undefined;
 
           const broadcastPayload: Record<string, unknown> = {
             _id: message._id,
@@ -872,6 +933,10 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
           if (message.messageType === "post_share" && plainPostData) {
             broadcastPayload.messageType = "post_share";
             broadcastPayload.postData = plainPostData;
+          }
+          if (message.messageType === "story_share" && plainStoryData) {
+            broadcastPayload.messageType = "story_share";
+            broadcastPayload.storyData = plainStoryData;
           }
 
           // Broadcast to the room (for those already in it)
