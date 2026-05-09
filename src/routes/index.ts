@@ -1,6 +1,5 @@
 import express, { type Router } from "express";
 import authRoutes from "./auth.routes.js";
-import adminAuthRoutes from "./admin.auth.routes.js";
 import publicRoutes from "./public.routes.js";
 import userRoutes from "./user.routes.js";
 import voiceRoutes from "./voice.routes.js";
@@ -25,6 +24,5 @@ router.use("/voice", voiceRoutes);
 router.use("/transcripts", transcriptRoutes);
 router.use("/session", sessionRoutes);
 router.use("/commands", commandRoutes);
-router.use("/admin/auth", adminAuthRoutes);
 
 export default router;
