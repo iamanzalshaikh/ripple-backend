@@ -1,12 +1,11 @@
-
-
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import type { Response, NextFunction } from "express";
+import type { AuthRequest } from "../types/auth.types.js";
+import {
+  verifyUserAccessToken,
+  type UserTokenPayload,
+} from "../utils/jwt.js";
 import logger from "../config/logger.js";
-import { AuthRequest } from "../types/auth.types.js";
-import { verifyUserAccessToken } from "../utils/jwt.js";
-import { UserTokenPayload } from "../utils/jwt.js";
-// import { verifyUserAccessToken } from "../utils/jwtService.js";
+import config from "../config/config.js";
 
 const isAuth = async (
   req: AuthRequest,
@@ -14,7 +13,7 @@ const isAuth = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    let token = req.cookies?.token;
+    let token: string | undefined = req.cookies?.[config.AUTH_COOKIE_NAME];
 
     if (!token && req.headers.authorization) {
       const parts = req.headers.authorization.split(" ");
@@ -24,39 +23,22 @@ const isAuth = async (
     }
 
     if (!token) {
-      res.status(401).json({ 
-        success: false,
-        message: "No token provided" 
-      });
+      res.status(401).json({ success: false, message: "No token provided" });
       return;
     }
 
-    logger.info(`Token received: ${token.substring(0, 30)}...`);
-
-
-
-    const decoded = verifyUserAccessToken(token) as UserTokenPayload;
-    if (!decoded || !decoded.userId) {
-      logger.error("Token decoded but no userId found");
-      res.status(401).json({ 
-        success: false,
-        message: "Invalid token" 
-      });
+    const decoded = verifyUserAccessToken(token) as UserTokenPayload | null;
+    if (!decoded?.userId) {
+      res.status(401).json({ success: false, message: "Invalid token" });
       return;
     }
 
-    logger.info(`User authenticated: ${decoded.userId}`);
-    
     req.userId = decoded.userId;
     next();
-  } catch (error: any) {
-    logger.error(`Auth Error: ${error.message}`);
-    res.status(401).json({ 
-      success: false,
-      message: "Authentication failed",
-      error: error.message
-    });
-    return;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Auth failed";
+    logger.error("Auth middleware", message);
+    res.status(401).json({ success: false, message: "Authentication failed" });
   }
 };
 

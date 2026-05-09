@@ -1,43 +1,41 @@
 import { Router } from "express";
 import {
   getCurrentUser,
-  getSuggestedUsers,
+  login,
   logout,
-  searchUsers,
-  sendLoginOtp,
-  sendSignupOtp,
-  verifyLoginOtp,
-  verifySignupOtp,
-  sendSignupOtpSms,
-  verifySignupOtpSms,
-  sendLoginOtpSms,
-  verifyLoginOtpSms,
+  refresh,
+  signup,
 } from "../controllers/auth.controller.js";
 import isAuth from "../middlewares/auth.middleware.js";
+import { loginLimiter, signupLimiter } from "../middlewares/rateLimit.middleware.js";
+import { validateBody } from "../middlewares/validate.middleware.js";
+import { z } from "zod";
 
 const router: Router = Router();
 
-// Signup Routes (Email-based - existing)
-router.post("/signup/send-otp", sendSignupOtp);
-router.post("/signup/verify-otp", verifySignupOtp);
+// Phase 1 (docphase1.md) + Phase 2 refresh-token rotation
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().min(1).max(80).optional(),
+  device: z.string().min(1).max(120).optional(),
+});
 
-// Signup Routes (SMS-based - new)
-router.post("/signup/send-otp-sms", sendSignupOtpSms);
-router.post("/signup/verify-otp-sms", verifySignupOtpSms);
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+  device: z.string().min(1).max(120).optional(),
+});
 
-// Login Routes (Email-based - existing)
-router.post("/login/send-otp", sendLoginOtp);
-router.post("/login/verify-otp", verifyLoginOtp);
+const refreshSchema = z.object({
+  refresh_token: z.string().min(10).optional(),
+});
 
-// Login Routes (SMS-based - new)
-router.post("/login/send-otp-sms", sendLoginOtpSms);
-router.post("/login/verify-otp-sms", verifyLoginOtpSms);
+router.post("/signup", signupLimiter, validateBody(signupSchema), signup);
+router.post("/login", loginLimiter, validateBody(loginSchema), login);
+router.post("/refresh", validateBody(refreshSchema), refresh);
 
-// Logout Route
 router.post("/logout", isAuth, logout);
-
 router.get("/me", isAuth, getCurrentUser);
-router.get("/suggested-users", isAuth, getSuggestedUsers);
-router.get("/search-users", isAuth, searchUsers);
 
 export default router;

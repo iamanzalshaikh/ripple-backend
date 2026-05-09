@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  rider
+  creator
+  brand_partner
+  admin
+  super_admin
+  moderator
+}
+
+model User {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  passwordHash        String
+  name                String?
+  onboardingCompleted Boolean  @default(false)
+  preferences         Json?
+  role                UserRole @default(rider)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  transcripts   Transcript[]
+  sessions      Session[]
+  commands      CommandHistory[]
+  appUsages     AppUsage[]
+  refreshTokens RefreshToken[]
+}
+
+model Transcript {
+  id            String   @id @default(uuid())
+  userId        String
+  rawText       String
+  processedText String?
+  action        String
+  language      String?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// ============================================================
+// Phase 2 — Session, CommandHistory, AppUsage, RefreshToken
+// ============================================================
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  isActive     Boolean   @default(true)
+  device       String?
+  context      Json?
+  lastActiveAt DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  endedAt      DateTime?
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commands CommandHistory[]
+  usages   AppUsage[]
+
+  @@index([userId, isActive])
+  @@index([userId, lastActiveAt])
+}
+
+model CommandHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  sessionId    String?
+  command      String
+  intent       String
+  steps        Json
+  result       String?
+  actions      Json?
+  outputType   String   @default("text")
+  confidence   Float?
+  contextType  String?
+  actionSource String?
+  promptTokens Int?
+  completionTokens Int?
+  totalTokens  Int?
+  estimatedCost Float?
+  durationMs   Int?
+  status       String   @default("success")
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([sessionId, createdAt])
+  @@index([userId, intent])
+}
+
+model AppUsage {
+  id           String   @id @default(uuid())
+  userId       String
+  sessionId    String?
+  event        String
+  action       String?
+  contextType  String?
+  actionSource String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([userId, event])
+}
+
+model RefreshToken {
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+  device       String?
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}

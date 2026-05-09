@@ -1,16 +1,21 @@
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
 import config from "./config.js";
+import logger from "./logger.js";
+
+export const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: config.DATABASE_URL,
+    },
+  },
+});
 
 const connectDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(config.MONGO_URI, {
-      serverSelectionTimeoutMS: 10000, // 10 seconds to select a server
-      connectTimeoutMS: 20000, // 20 seconds for initial connection
-      socketTimeoutMS: 45000, // 45 seconds for inactive sockets
-    });
-    console.log("✅ MongoDB connected successfully");
+    await prisma.$connect();
+    logger.info("PostgreSQL connected (Prisma)");
   } catch (error) {
-    console.error("❌ MongoDB connection failed", error);
+    logger.error("PostgreSQL connection failed", error);
     process.exit(1);
   }
 };

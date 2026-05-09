@@ -1,13 +1,10 @@
-version: "3.8"
-
 services:
-  herridez-backend:
+  ripple-backend:
     build: .
-    container_name: herridez-backend
-    restart: always
-    network_mode: "host"
-    env_file:
-      - .env.production
+    container_name: ripple-backend
+    ports:
+      - "3001:3001"
     environment:
-      - NODE_ENV=production
-      - PORT=3001
+      NODE_ENV: development
+      PORT: 3001
+      FRONTEND_URL: http://localhost:8081

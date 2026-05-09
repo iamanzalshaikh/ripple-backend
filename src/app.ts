@@ -1,108 +1,77 @@
-
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import apiRoutes from "./routes/index.js";
-import logger from "./config/logger.js";
+import config from "./config/config.js";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger.js";
-
-// ✅ END NEW IMPORTS
+import logger from "./config/logger.js";
+import { ApiError } from "./utils/http.js";
 
 const app: express.Express = express();
-// ============================================
-// MIDDLEWARES
-// ============================================
 
-// CORS
 app.use(
   cors({
-    origin: true,
+    origin:
+      config.NODE_ENV === "development" ? true : config.FRONTEND_URL,
     credentials: true,
-  })
+  }),
 );
 
-// Security Headers with relaxed CSP for map resources
+app.use(helmet());
 app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "https://cdnjs.cloudflare.com",
-          "https://unpkg.com",
-        ],
-        styleSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "https://cdnjs.cloudflare.com",
-          "https://unpkg.com",
-        ],
-        imgSrc: ["'self'", "data:", "https:", "http:", "blob:"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'", "data:"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
-      },
+  morgan(config.NODE_ENV === "development" ? "dev" : "combined", {
+    stream: {
+      write: (msg) => logger.info(msg.trim()),
     },
-    crossOriginEmbedderPolicy: false,
-  })
+  }),
 );
-
-// Body Parser
 app.use(express.json());
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
-
-// Cookie Parser
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-// ============================================
-// API ROUTES
-// ============================================
 
 app.use("/api/v1", apiRoutes);
 
-// ============================================
-// SWAGGER DOCUMENTATION
-// ============================================
-
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
-// ============================================
-// 404 HANDLER
-// ============================================
 
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "Route not found",
-    route: req.originalUrl,
+    error: req.originalUrl,
   });
 });
 
-// ============================================
-// ERROR HANDLER (Global)
-// ============================================
-
 app.use(
   (
-    err: any,
-    req: express.Request,
+    err: unknown,
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction,
   ) => {
-    logger.error(`Error: ${err.message}`);
+    const isApiError = err instanceof ApiError;
+    const status = isApiError ? err.statusCode : 500;
 
-    res.status(err.statusCode || 500).json({
+    const message = isApiError
+      ? err.message
+      : "Internal Server Error";
+
+    const details =
+      config.NODE_ENV === "development"
+        ? err instanceof Error
+          ? err.message
+          : String(err)
+        : undefined;
+
+    logger.error("Unhandled error", err);
+    res.status(status).json({
       success: false,
-      message: err.message || "Internal Server Error",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+      message,
+      ...(details ? { error: details } : {}),
     });
-  }
+  },
 );
 
 export default app;

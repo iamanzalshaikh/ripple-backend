@@ -3,7 +3,6 @@ import DailyRotateFile from "winston-daily-rotate-file";
 import path from "path";
 import fs from "fs";
 
-// logs/error, logs/warn, logs/info folders
 const logDir = "logs";
 ["error", "warn", "info"].forEach((folder) => {
   const fullPath = path.join(logDir, folder);
@@ -12,7 +11,6 @@ const logDir = "logs";
   }
 });
 
-// JSON file log format
 const fileLogFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
@@ -20,7 +18,6 @@ const fileLogFormat = winston.format.combine(
   winston.format.json(),
 );
 
-// Colorful console logs
 const consoleLogFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -31,12 +28,11 @@ const consoleLogFormat = winston.format.combine(
   ),
 );
 
-// Typed rotating file creator
 const dailyRotateTransport = (
   filenamePrefix: string,
   level: string,
-): DailyRotateFile => {
-  return new DailyRotateFile({
+): DailyRotateFile =>
+  new DailyRotateFile({
     dirname: path.join(logDir, level),
     filename: `${filenamePrefix}-%DATE%.log`,
     datePattern: "YYYY-MM-DD",
@@ -46,7 +42,6 @@ const dailyRotateTransport = (
     level,
     format: fileLogFormat,
   });
-};
 
 const logger = winston.createLogger({
   level: "info",
@@ -54,9 +49,7 @@ const logger = winston.createLogger({
     dailyRotateTransport("error", "error"),
     dailyRotateTransport("warn", "warn"),
     dailyRotateTransport("combined", "info"),
-    new winston.transports.Console({
-      format: consoleLogFormat,
-    }),
+    new winston.transports.Console({ format: consoleLogFormat }),
   ],
   exitOnError: false,
 });
