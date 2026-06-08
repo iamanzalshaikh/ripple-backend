@@ -4,6 +4,8 @@ import { EMAIL_SYSTEM_PROMPT } from "./system.email.js";
 import { WHATSAPP_SYSTEM_PROMPT } from "./system.whatsapp.js";
 import { LINKEDIN_SYSTEM_PROMPT } from "./system.linkedin.js";
 import { SLACK_SYSTEM_PROMPT } from "./system.slack.js";
+import { NOTION_SYSTEM_PROMPT } from "./system.notion.js";
+import { INSTAGRAM_SYSTEM_PROMPT } from "./system.instagram.js";
 
 export function pickSystemPrompt(contextType?: ContextType | string): string {
   switch (contextType) {
@@ -15,6 +17,10 @@ export function pickSystemPrompt(contextType?: ContextType | string): string {
       return LINKEDIN_SYSTEM_PROMPT;
     case "slack":
       return SLACK_SYSTEM_PROMPT;
+    case "notion":
+      return NOTION_SYSTEM_PROMPT;
+    case "instagram":
+      return INSTAGRAM_SYSTEM_PROMPT;
     default:
       return GENERIC_SYSTEM_PROMPT;
   }
@@ -33,7 +39,7 @@ INTENTS:
 
 STEPS (closed vocabulary, in execution order):
 generate, rewrite_formal, rewrite_casual, rewrite_short, rewrite_long,
-rewrite_emotional, rewrite_professional, summarize, translate, fix_grammar,
+rewrite_emotional, rewrite_confident, rewrite_sad, rewrite_angry, rewrite_professional, summarize, translate, fix_grammar,
 copy, paste, open_app, undo
 
 RULES:

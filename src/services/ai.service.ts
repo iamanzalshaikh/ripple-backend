@@ -4,7 +4,7 @@ import { pickSystemPrompt } from "../prompts/index.js";
 import type { ContextType, ActionSource } from "../types/session.types.js";
 import type { AITextResult, TokenUsage } from "../types/command.types.js";
 
-const AI_TIMEOUT_MS = 10_000;
+const AI_TIMEOUT_MS = config.AI_TIMEOUT_MS;
 const MAX_OUTPUT_CHARS = 8000;
 const MODEL_PRICING_USD_PER_1M: Record<string, { input: number; output: number }> = {
   "gpt-4o-mini": { input: 0.15, output: 0.6 },
@@ -92,7 +92,11 @@ export interface AIContext {
 }
 
 function buildSystem(ctx: AIContext): string {
-  const base = pickSystemPrompt(ctx.contextType);
+  const type =
+    ctx.contextType === "general" && ctx.actionSource === "notion"
+      ? "notion"
+      : ctx.contextType;
+  const base = pickSystemPrompt(type);
   return ctx.actionSource
     ? `${base}\n\nDestination app: ${ctx.actionSource}.`
     : base;
@@ -115,6 +119,9 @@ const REWRITE_INSTRUCTIONS: Record<string, string> = {
   rewrite_short: "Rewrite the text more concisely. Cut redundancy. Keep the core meaning.",
   rewrite_long: "Expand the text with clearer detail. Keep the same intent and language.",
   rewrite_emotional: "Rewrite the text with warmer, more emotional, empathetic phrasing.",
+  rewrite_confident: "Rewrite the text in a confident, assured, self-assured tone.",
+  rewrite_sad: "Rewrite the text in a softer, melancholy, sad tone while keeping the meaning.",
+  rewrite_angry: "Rewrite the text in a firm, frustrated, angry tone while staying appropriate for messaging.",
   rewrite_professional: "Rewrite the text in a professional, polished tone.",
 };
 

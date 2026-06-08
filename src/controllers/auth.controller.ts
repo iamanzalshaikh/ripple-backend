@@ -18,31 +18,31 @@ import {
 import { createUser, findUserByEmail } from "../models/user.repo.js";
 import {
   findValidRefreshToken,
-  hashRefreshToken,
   revokeRefreshToken,
   rotateRefreshToken,
   storeRefreshToken,
 } from "../models/refreshToken.repo.js";
-import { fail, ok } from "../utils/http.js";
-import { z } from "zod";
+import { ok, fail } from "../utils/http.js";
+import {
+  DB_UNAVAILABLE_MESSAGE,
+  isDatabaseUnreachableError,
+} from "../utils/dbErrors.js";
 
-const passwordRule = z
-  .string()
-  .min(8)
-  .refine((s) => /[A-Z]/.test(s), "Must contain 1 uppercase letter")
-  .refine((s) => /[a-z]/.test(s), "Must contain 1 lowercase letter")
-  .refine((s) => /[0-9]/.test(s), "Must contain 1 number");
+const REFRESH_DAYS = 30;
 
-const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+function refreshExpiry(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + REFRESH_DAYS);
+  return d;
+}
 
-function readRefreshFromRequest(req: AuthRequest): string | undefined {
-  const cookieToken = req.cookies?.[config.REFRESH_COOKIE_NAME];
-  if (typeof cookieToken === "string" && cookieToken.length > 0) return cookieToken;
-  const body = req.body as { refresh_token?: unknown } | undefined;
-  if (body && typeof body.refresh_token === "string" && body.refresh_token.length > 0) {
+function readRefreshFromRequest(req: AuthRequest): string | null {
+  const body = req.body as { refresh_token?: string };
+  if (typeof body?.refresh_token === "string" && body.refresh_token.length > 0) {
     return body.refresh_token;
   }
-  return undefined;
+  const cookie = req.cookies?.[config.REFRESH_COOKIE_NAME];
+  return typeof cookie === "string" && cookie.length > 0 ? cookie : null;
 }
 
 async function issueTokenPair(args: {
@@ -52,19 +52,19 @@ async function issueTokenPair(args: {
 }): Promise<{ access: string; refresh: string; refresh_expires_at: Date }> {
   const access = signUserAccessToken(args.userId);
   const refresh = signUserRefreshToken(args.userId);
-  const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+  const refresh_expires_at = refreshExpiry();
 
   await storeRefreshToken({
     userId: args.userId,
     token: refresh,
-    expiresAt,
+    expiresAt: refresh_expires_at,
     device: args.device,
   });
 
   setAccessTokenCookie(args.res, access);
   setRefreshTokenCookie(args.res, refresh);
 
-  return { access, refresh, refresh_expires_at: expiresAt };
+  return { access, refresh, refresh_expires_at };
 }
 
 export async function signup(req: AuthRequest, res: Response): Promise<void> {
@@ -76,10 +76,8 @@ export async function signup(req: AuthRequest, res: Response): Promise<void> {
       device?: string;
     };
 
-    if (!email || !password) return fail(res, "email and password required", 400);
-    const pwCheck = passwordRule.safeParse(password);
-    if (!pwCheck.success) {
-      return fail(res, "Password too weak", 400, pwCheck.error.issues[0]?.message);
+    if (!email || !password) {
+      return fail(res, "email and password required", 400);
     }
 
     const normalized = email.trim().toLowerCase();
@@ -118,6 +116,9 @@ export async function signup(req: AuthRequest, res: Response): Promise<void> {
     );
   } catch (e: unknown) {
     logger.error("signup", e);
+    if (isDatabaseUnreachableError(e)) {
+      return fail(res, DB_UNAVAILABLE_MESSAGE, 503);
+    }
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
@@ -130,7 +131,9 @@ export async function login(req: AuthRequest, res: Response): Promise<void> {
       device?: string;
     };
 
-    if (!email || !password) return fail(res, "email and password required", 400);
+    if (!email || !password) {
+      return fail(res, "email and password required", 400);
+    }
 
     const normalized = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({ where: { email: normalized } });
@@ -162,6 +165,9 @@ export async function login(req: AuthRequest, res: Response): Promise<void> {
     });
   } catch (e: unknown) {
     logger.error("login", e);
+    if (isDatabaseUnreachableError(e)) {
+      return fail(res, DB_UNAVAILABLE_MESSAGE, 503);
+    }
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
@@ -169,26 +175,30 @@ export async function login(req: AuthRequest, res: Response): Promise<void> {
 export async function refresh(req: AuthRequest, res: Response): Promise<void> {
   try {
     const incoming = readRefreshFromRequest(req);
-    if (!incoming) return fail(res, "Refresh token required", 401);
-
-    const decoded = verifyUserRefreshToken(incoming);
-    if (!decoded?.userId) return fail(res, "Invalid refresh token", 401);
-
-    const stored = await findValidRefreshToken(incoming);
-    if (!stored || stored.userId !== decoded.userId) {
-      return fail(res, "Refresh token expired or revoked", 401);
+    if (!incoming) {
+      return fail(res, "Refresh token required", 401);
     }
 
-    const access = signUserAccessToken(decoded.userId);
+    const decoded = verifyUserRefreshToken(incoming);
+    if (!decoded?.userId) {
+      return fail(res, "Invalid refresh token", 401);
+    }
+
+    const row = await findValidRefreshToken(incoming);
+    if (!row || row.userId !== decoded.userId) {
+      return fail(res, "Invalid refresh token", 401);
+    }
+
     const newRefresh = signUserRefreshToken(decoded.userId);
-    const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+    const refresh_expires_at = refreshExpiry();
+    const access = signUserAccessToken(decoded.userId);
 
     await rotateRefreshToken({
-      oldId: stored.id,
+      oldId: row.id,
       userId: decoded.userId,
       newToken: newRefresh,
-      newExpiresAt: expiresAt,
-      device: stored.device ?? undefined,
+      newExpiresAt: refresh_expires_at,
+      device: row.device ?? undefined,
     });
 
     setAccessTokenCookie(res, access);
@@ -197,10 +207,13 @@ export async function refresh(req: AuthRequest, res: Response): Promise<void> {
     ok(res, {
       token: access,
       refresh_token: newRefresh,
-      refresh_expires_at: expiresAt.toISOString(),
+      refresh_expires_at: refresh_expires_at.toISOString(),
     });
   } catch (e: unknown) {
     logger.error("refresh", e);
+    if (isDatabaseUnreachableError(e)) {
+      return fail(res, DB_UNAVAILABLE_MESSAGE, 503);
+    }
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
@@ -209,15 +222,16 @@ export async function logout(req: AuthRequest, res: Response): Promise<void> {
   try {
     const incoming = readRefreshFromRequest(req);
     if (incoming) {
-      await revokeRefreshToken(incoming).catch((err) =>
-        logger.warn("logout revoke failed", err),
-      );
+      await revokeRefreshToken(incoming);
     }
     clearAccessTokenCookie(res);
     clearRefreshTokenCookie(res);
-    ok(res, { message: "Logged out" });
+    ok(res, { logged_out: true });
   } catch (e: unknown) {
     logger.error("logout", e);
+    if (isDatabaseUnreachableError(e)) {
+      return fail(res, DB_UNAVAILABLE_MESSAGE, 503);
+    }
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
@@ -227,35 +241,26 @@ export async function getCurrentUser(
   res: Response,
 ): Promise<void> {
   try {
+    if (!req.userId) {
+      return fail(res, "Unauthorized", 401);
+    }
+
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
     if (!user) {
       return fail(res, "User not found", 404);
     }
+
     ok(res, {
       id: user.id,
       email: user.email,
+      name: user.name,
       onboarding_completed: user.onboardingCompleted,
-      preferences: user.preferences ?? {},
     });
   } catch (e: unknown) {
     logger.error("getCurrentUser", e);
+    if (isDatabaseUnreachableError(e)) {
+      return fail(res, DB_UNAVAILABLE_MESSAGE, 503);
+    }
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
-
-export async function getSuggestedUsers(
-  _req: AuthRequest,
-  res: Response,
-): Promise<void> {
-  res.json({ success: true, data: { users: [] } });
-}
-
-export async function searchUsers(
-  _req: AuthRequest,
-  res: Response,
-): Promise<void> {
-  res.json({ success: true, data: { users: [] } });
-}
-
-// Silence unused-export warnings if any; re-export hash helper for tests/services.
-export { hashRefreshToken };

@@ -1,4 +1,5 @@
 import logger from "../config/logger.js";
+import { randomUUID } from "node:crypto";
 import { isOpenAIConfigured } from "./openai.service.js";
 import {
   detectIntent,
@@ -18,6 +19,7 @@ import {
   suggestionAction,
   workflowAction,
 } from "./execution.service.js";
+import { extractRecipientFromCommand } from "../utils/extractRecipient.js";
 import { addUsage, emptyUsage } from "./ai.service.js";
 import {
   HISTORY_WINDOW_SIZE,
@@ -134,6 +136,9 @@ async function runStep(args: {
     case "rewrite_short":
     case "rewrite_long":
     case "rewrite_emotional":
+    case "rewrite_confident":
+    case "rewrite_sad":
+    case "rewrite_angry":
     case "rewrite_professional":
       if (!args.workingText) {
         throw new CommandExecutionError(
@@ -236,9 +241,10 @@ export async function executeCommand(
       durationMs,
       status: "partial",
     });
+    const commandId = history?.id ?? randomUUID();
 
     return {
-      command_id: history.id,
+      command_id: commandId,
       intent: plan.intent,
       steps: plan.steps as Step[],
       result: null,
@@ -307,7 +313,15 @@ export async function executeCommand(
 
     if (isLastAiStep) {
       const action = actionForStep({ step, text: workingText });
-      if (action) actions.push(action);
+      if (action) {
+        if (action.type === "INSERT_TEXT") {
+          const recipient = extractRecipientFromCommand(input.command);
+          if (recipient) {
+            action.data = { ...action.data, recipient, text: workingText };
+          }
+        }
+        actions.push(action);
+      }
     }
   }
 
@@ -340,6 +354,7 @@ export async function executeCommand(
     durationMs,
     status: "success",
   });
+  const commandId = history?.id ?? randomUUID();
 
   // Analytics — fire and forget
   logAppUsage({
@@ -353,7 +368,7 @@ export async function executeCommand(
       steps: plan.steps,
       duration_ms: durationMs,
       source: detection.source,
-      command_id: history.id,
+      command_id: commandId,
       confidence: plan.confidence,
       output_type: outputType,
       token_usage: tokenUsage,
@@ -400,7 +415,7 @@ export async function executeCommand(
   }
 
   return {
-    command_id: history.id,
+    command_id: commandId,
     intent: plan.intent,
     steps: plan.steps as Step[],
     result: finalResult,

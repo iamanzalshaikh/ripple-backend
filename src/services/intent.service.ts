@@ -21,6 +21,7 @@ const APP_TARGETS: Record<string, { url: string; name: string }> = {
   whatsapp: { url: "https://web.whatsapp.com", name: "WhatsApp" },
   slack: { url: "https://app.slack.com", name: "Slack" },
   linkedin: { url: "https://www.linkedin.com", name: "LinkedIn" },
+  instagram: { url: "https://www.instagram.com", name: "Instagram" },
   notion: { url: "https://www.notion.so", name: "Notion" },
   twitter: { url: "https://twitter.com", name: "Twitter" },
   youtube: { url: "https://www.youtube.com", name: "YouTube" },
@@ -43,9 +44,61 @@ export interface DetectResult {
 
 const TRIM_RX = /[.\s!,?]+$/g;
 
+function detectToneStep(cmd: string): Step | null {
+  const c = cmd.toLowerCase();
+  if (/\b(emotional|emotionally|warm|empathetic)\b/.test(c)) return "rewrite_emotional";
+  if (/\b(confident|confidence|assertive)\b/.test(c)) return "rewrite_confident";
+  if (/\b(sad|sadly|sorrow|upset)\b/.test(c)) return "rewrite_sad";
+  if (/\b(angry|angrily|mad|furious)\b/.test(c)) return "rewrite_angry";
+  if (/\b(professional|professionally|polished)\b/.test(c)) return "rewrite_professional";
+  if (/\b(formal|formally)\b/.test(c)) return "rewrite_formal";
+  if (/\b(casual|friendly|relaxed)\b/.test(c)) return "rewrite_casual";
+  if (/\b(short|shorter|concise|brief)\b/.test(c)) return "rewrite_short";
+  if (/\b(long|longer|expand|detailed)\b/.test(c)) return "rewrite_long";
+  return null;
+}
+
 export function ruleClassify(input: DetectInput): DetectResult | null {
   const cmd = input.command.trim().toLowerCase().replace(TRIM_RX, "");
   if (!cmd) return null;
+
+  if (/\b(rephrase|rewrite|reword|revise)\b/.test(cmd)) {
+    const tone = detectToneStep(cmd);
+    const hasInlineText = /\b(rephrase|rewrite|reword|revise)\s*[,]?\s+\w/.test(
+      input.command,
+    );
+    return {
+      plan: {
+        intent: "edit",
+        steps: [tone ?? "generate"],
+        uses_context: !hasInlineText && !input.hasSelectedText,
+        needs_input: false,
+        confidence: 0.92,
+      },
+      source: "rule",
+      usage: emptyUsage(),
+    };
+  }
+
+  if (/\bmake\s+it\s+(more\s+)?(emotional|confident|sad|angry|formal|casual|professional|friendly|short|long)\b/.test(cmd)) {
+    const tone = detectToneStep(cmd);
+    if (tone) {
+      const hasInlineBody = /^.+\s+make\s+it\s+(?:more\s+)?(?:emotional|confident|sad|angry|formal|casual|professional|friendly|short|long)\b/i.test(
+        input.command.trim(),
+      );
+      return {
+        plan: {
+          intent: "edit",
+          steps: [tone],
+          uses_context: !hasInlineBody && !input.hasSelectedText,
+          needs_input: false,
+          confidence: 0.9,
+        },
+        source: "rule",
+        usage: emptyUsage(),
+      };
+    }
+  }
 
   if (cmd === "undo" || cmd === "revert" || cmd === "remove last line") {
     return {

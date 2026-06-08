@@ -72,11 +72,26 @@ function cleanupExpiredStreams(): void {
 }
 
 function normalizeMimeType(mimeType?: string): string {
-  return mimeType || "audio/webm";
+  const m = (mimeType ?? "").trim().toLowerCase();
+  if (!m) return "audio/webm";
+  if (m.includes("ogg")) return "audio/ogg";
+  if (m.includes("mp4") || m.includes("mpeg")) return "audio/mp4";
+  if (m.includes("wav")) return "audio/wav";
+  return mimeType!.split(";")[0]!.trim() || "audio/webm";
 }
 
-function normalizeFilename(filename?: string): string {
-  return filename || `voice-${randomUUID()}.webm`;
+function filenameForMime(mimeType: string, filename?: string): string {
+  if (filename?.trim()) return filename.trim();
+  const m = mimeType.toLowerCase();
+  const id = randomUUID();
+  if (m.includes("ogg")) return `voice-${id}.ogg`;
+  if (m.includes("mp4") || m.includes("mpeg")) return `voice-${id}.mp4`;
+  if (m.includes("wav")) return `voice-${id}.wav`;
+  return `voice-${id}.webm`;
+}
+
+function normalizeFilename(filename?: string, mimeType?: string): string {
+  return filenameForMime(normalizeMimeType(mimeType), filename);
 }
 
 export function appendVoiceChunk(input: VoiceChunkInput): VoiceChunkResult {
@@ -100,7 +115,7 @@ export function appendVoiceChunk(input: VoiceChunkInput): VoiceChunkResult {
       chunks: [],
       byteLength: 0,
       mimeType: normalizeMimeType(input.mimeType),
-      filename: normalizeFilename(input.filename),
+      filename: normalizeFilename(input.filename, input.mimeType),
       startedAt: now,
       lastChunkAt: now,
     };
@@ -114,7 +129,10 @@ export function appendVoiceChunk(input: VoiceChunkInput): VoiceChunkResult {
   stream.lastChunkAt = now;
   stream.sessionId = input.sessionId ?? stream.sessionId;
   stream.mimeType = normalizeMimeType(input.mimeType ?? stream.mimeType);
-  stream.filename = normalizeFilename(input.filename ?? stream.filename);
+  stream.filename = normalizeFilename(
+    input.filename ?? stream.filename,
+    stream.mimeType,
+  );
 
   streams.set(streamKey, stream);
 
@@ -145,23 +163,40 @@ export async function transcribeBufferedVoice(args: {
 
   const startedAt = Date.now();
   const buffer = Buffer.concat(stream.chunks, stream.byteLength);
-  const audioBlob = new Blob([buffer], { type: stream.mimeType });
-  const audioFile = new File([audioBlob], stream.filename, {
-    type: stream.mimeType,
-  });
+  const mimeType = normalizeMimeType(stream.mimeType);
+  const filename = filenameForMime(mimeType, stream.filename);
+
+  if (buffer.length < 16) {
+    throw new VoiceStreamingError("Audio recording too short", 400);
+  }
+
+  const audioBlob = new Blob([buffer], { type: mimeType });
+  const audioFile = new File([audioBlob], filename, { type: mimeType });
 
   const client = getOpenAIClient();
   const ac = new AbortController();
   const timeout = setTimeout(() => ac.abort(), 15_000);
 
   try {
-    const result = await client.audio.transcriptions.create(
-      {
-        file: audioFile,
-        model: config.OPENAI_TRANSCRIBE_MODEL,
-      },
-      { signal: ac.signal },
-    );
+    const transcribeParams: {
+      file: File;
+      model: string;
+      language?: string;
+      prompt?: string;
+    } = {
+      file: audioFile,
+      model: config.OPENAI_TRANSCRIBE_MODEL,
+    };
+    if (config.WHISPER_LANGUAGE) {
+      transcribeParams.language = config.WHISPER_LANGUAGE;
+    }
+    if (config.WHISPER_PROMPT) {
+      transcribeParams.prompt = config.WHISPER_PROMPT;
+    }
+
+    const result = await client.audio.transcriptions.create(transcribeParams, {
+      signal: ac.signal,
+    });
 
     const uploaded =
       args.uploadAudio && isCloudinaryConfigured()

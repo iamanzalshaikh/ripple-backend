@@ -19,6 +19,7 @@ const startSchema = z.object({
       "linkedin",
       "slack",
       "notion",
+      "instagram",
       "twitter",
       "code",
     ])
@@ -33,6 +34,7 @@ const startSchema = z.object({
       "slack",
       "linkedin",
       "notion",
+      "instagram",
       "twitter",
       "browser",
       "other",

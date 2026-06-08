@@ -1,4 +1,4 @@
-import { prisma } from "../config/db.js";
+import { isDbUnavailable, prisma } from "../config/db.js";
 import type { Prisma } from "@prisma/client";
 
 export async function createCommandHistory(args: {
@@ -21,28 +21,34 @@ export async function createCommandHistory(args: {
   status?: "success" | "error" | "partial";
   errorMessage?: string | null;
 }) {
-  return prisma.commandHistory.create({
-    data: {
-      userId: args.userId,
-      sessionId: args.sessionId ?? null,
-      command: args.command,
-      intent: args.intent,
-      steps: args.steps as unknown as Prisma.InputJsonValue,
-      result: args.result ?? null,
-      actions: (args.actions ?? null) as Prisma.InputJsonValue,
-      outputType: args.outputType ?? "text",
-      confidence: args.confidence ?? null,
-      contextType: args.contextType ?? null,
-      actionSource: args.actionSource ?? null,
-      promptTokens: args.promptTokens ?? null,
-      completionTokens: args.completionTokens ?? null,
-      totalTokens: args.totalTokens ?? null,
-      estimatedCost: args.estimatedCost ?? null,
-      durationMs: args.durationMs ?? null,
-      status: args.status ?? "success",
-      errorMessage: args.errorMessage ?? null,
-    },
-  });
+  try {
+    return await prisma.commandHistory.create({
+      data: {
+        userId: args.userId,
+        sessionId: args.sessionId ?? null,
+        command: args.command,
+        intent: args.intent,
+        steps: args.steps as unknown as Prisma.InputJsonValue,
+        result: args.result ?? null,
+        actions: (args.actions ?? null) as Prisma.InputJsonValue,
+        outputType: args.outputType ?? "text",
+        confidence: args.confidence ?? null,
+        contextType: args.contextType ?? null,
+        actionSource: args.actionSource ?? null,
+        promptTokens: args.promptTokens ?? null,
+        completionTokens: args.completionTokens ?? null,
+        totalTokens: args.totalTokens ?? null,
+        estimatedCost: args.estimatedCost ?? null,
+        durationMs: args.durationMs ?? null,
+        status: args.status ?? "success",
+        errorMessage: args.errorMessage ?? null,
+      },
+    });
+  } catch (e: unknown) {
+    // If DB is down, we still want command execution to succeed.
+    if (isDbUnavailable(e)) return null;
+    throw e;
+  }
 }
 
 export async function listCommandHistory(args: {

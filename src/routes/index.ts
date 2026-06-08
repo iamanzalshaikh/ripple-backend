@@ -1,4 +1,5 @@
 import express, { type Router } from "express";
+import { prisma } from "../config/db.js";
 import authRoutes from "./auth.routes.js";
 import publicRoutes from "./public.routes.js";
 import userRoutes from "./user.routes.js";
@@ -9,11 +10,23 @@ import commandRoutes from "./command.routes.js";
 
 const router: Router = express.Router();
 
-router.get("/health", (_req, res) => {
-  res.json({
-    ok: true,
+router.get("/health", async (_req, res) => {
+  let db = false;
+  let dbError: string | undefined;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    db = true;
+  } catch (e: unknown) {
+    dbError = e instanceof Error ? e.message : "Database unreachable";
+  }
+
+  const ok = db;
+  res.status(ok ? 200 : 503).json({
+    ok,
+    db,
     service: "ripple-backend",
     timestamp: new Date().toISOString(),
+    ...(dbError ? { db_error: dbError } : {}),
   });
 });
 

@@ -11,6 +11,7 @@ export type ContextType =
   | "linkedin"
   | "slack"
   | "notion"
+  | "instagram"
   | "twitter"
   | "code";
 
@@ -23,6 +24,7 @@ export type ActionSource =
   | "slack"
   | "linkedin"
   | "notion"
+  | "instagram"
   | "twitter"
   | "browser"
   | "other";

@@ -39,6 +39,14 @@ export default {
   OPENAI_API_KEY: opt("OPENAI_API_KEY"),
   OPENAI_MODEL: opt("OPENAI_MODEL") ?? "gpt-4o-mini",
   OPENAI_TRANSCRIBE_MODEL: opt("OPENAI_TRANSCRIBE_MODEL") ?? "whisper-1",
+  /** ISO-639-1 — set to `en` so English speech is not transcribed as Hindi. */
+  WHISPER_LANGUAGE: opt("WHISPER_LANGUAGE") ?? "en",
+  /** Hints Whisper about names/commands — improves "Saaliq" vs "Salik", etc. */
+  WHISPER_PROMPT:
+    opt("WHISPER_PROMPT") ??
+    "Ripple voice assistant. English. User may say person names, search, message, say, send, WhatsApp, Gmail.",
+  /** LLM chat timeout (ms) — increase for long generations (e.g. 500-word letters). */
+  AI_TIMEOUT_MS: Number(process.env.AI_TIMEOUT_MS) || 90_000,
 
   // Cloudinary (uploads)
   CLOUDINARY_CLOUD_NAME: opt("CLOUDINARY_CLOUD_NAME"),

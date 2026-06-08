@@ -1,4 +1,4 @@
-import { prisma } from "../config/db.js";
+import { isDbUnavailable, prisma } from "../config/db.js";
 import {
   CONTEXT_MAX_BYTES,
   type SessionContext,
@@ -40,29 +40,45 @@ export async function findSessionById(id: string) {
 }
 
 export async function findActiveSessionForUser(userId: string, sessionId: string) {
-  return prisma.session.findFirst({
-    where: { id: sessionId, userId, isActive: true, endedAt: null },
-  });
+  try {
+    return await prisma.session.findFirst({
+      where: { id: sessionId, userId, isActive: true, endedAt: null },
+    });
+  } catch (e: unknown) {
+    // In dev / offline mode we want commands to still run without session context.
+    if (isDbUnavailable(e)) return null;
+    throw e;
+  }
 }
 
 export async function touchSession(id: string) {
-  return prisma.session.update({
-    where: { id },
-    data: { lastActiveAt: new Date() },
-  });
+  try {
+    return await prisma.session.update({
+      where: { id },
+      data: { lastActiveAt: new Date() },
+    });
+  } catch (e: unknown) {
+    if (isDbUnavailable(e)) return null;
+    throw e;
+  }
 }
 
 export async function updateSessionContext(id: string, context: SessionContext) {
-  return prisma.session.update({
-    where: { id },
-    data: {
-      context: clampContext({
-        ...context,
-        updated_at: new Date().toISOString(),
-      }) as object,
-      lastActiveAt: new Date(),
-    },
-  });
+  try {
+    return await prisma.session.update({
+      where: { id },
+      data: {
+        context: clampContext({
+          ...context,
+          updated_at: new Date().toISOString(),
+        }) as object,
+        lastActiveAt: new Date(),
+      },
+    });
+  } catch (e: unknown) {
+    if (isDbUnavailable(e)) return null;
+    throw e;
+  }
 }
 
 export async function endSession(id: string) {

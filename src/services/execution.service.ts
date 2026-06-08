@@ -40,6 +40,9 @@ export function actionForStep(args: {
     case "rewrite_short":
     case "rewrite_long":
     case "rewrite_emotional":
+    case "rewrite_confident":
+    case "rewrite_sad":
+    case "rewrite_angry":
     case "rewrite_professional":
     case "summarize":
     case "fix_grammar":

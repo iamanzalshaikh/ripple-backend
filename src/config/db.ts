@@ -10,13 +10,22 @@ export const prisma = new PrismaClient({
   },
 });
 
-const connectDB = async (): Promise<void> => {
+export function isDbUnavailable(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return /Can't reach database server|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|Connection terminated unexpectedly/i.test(
+    msg,
+  );
+}
+
+const connectDB = async (): Promise<{ connected: boolean }> => {
   try {
     await prisma.$connect();
     logger.info("PostgreSQL connected (Prisma)");
+    return { connected: true };
   } catch (error) {
-    logger.error("PostgreSQL connection failed", error);
-    process.exit(1);
+    // Run in "offline" mode (no persistence) when DB is down.
+    logger.error("PostgreSQL connection failed (continuing without DB)", error);
+    return { connected: false };
   }
 };
 

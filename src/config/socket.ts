@@ -100,6 +100,12 @@ function registerCommandHandlers(socket: Socket): void {
           return;
         }
 
+        const cmd = payload.command ?? "";
+        const preview = cmd.length > 200 ? `${cmd.slice(0, 200)}…` : cmd;
+        logger.info(
+          `[socket] command:execute user=${userId} (${cmd.length} chars) command="${preview}"`,
+        );
+
         const result = await executeCommand({
           userId,
           sessionId: payload.session_id,
@@ -109,6 +115,10 @@ function registerCommandHandlers(socket: Socket): void {
           contextMetadata: payload.context_metadata as never,
           selectedText: payload.selected_text ?? null,
         });
+
+        logger.info(
+          `[socket] command:result intent=${result.intent} actions=${result.actions?.length ?? 0} command_id=${result.command_id}`,
+        );
 
         emitOrAck(socket, "command:result", { success: true, data: result }, ack);
       } catch (e: unknown) {
@@ -167,6 +177,10 @@ function registerCommandHandlers(socket: Socket): void {
           return;
         }
 
+        logger.info(
+          `[socket] action_ack command=${payload.command_id} index=${payload.action_index} status=${payload.status}`,
+        );
+
         logAppUsage({
           userId,
           event: "action_acknowledged",
@@ -219,6 +233,12 @@ function registerVoiceHandlers(socket: Socket): void {
           mimeType: payload.mime_type,
           filename: payload.filename,
         });
+
+        if (result.total_bytes === result.received_bytes) {
+          logger.info(
+            `[socket] voice:chunk stream=${result.stream_id} bytes=${result.total_bytes}`,
+          );
+        }
 
         emitOrAck(socket, "voice:chunk:ack", { success: true, data: result }, ack);
 
@@ -290,6 +310,10 @@ function registerVoiceHandlers(socket: Socket): void {
           isFinal: true,
           uploadAudio: payload.upload_audio,
         });
+
+        logger.info(
+          `[socket] voice:transcript stream=${transcript.stream_id} lang=${transcript.language ?? "?"} text="${transcript.text}"`,
+        );
 
         emitOrAck(socket, "voice:transcript", { success: true, data: transcript }, ack);
       } catch (e: unknown) {
