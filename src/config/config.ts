@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { WHISPER_PROMPT_VOCAB } from "./whisperPrompt.js";
 
 const raw = process.env.PORT;
 const port = raw ? Number(raw) : 3001;
@@ -39,12 +40,10 @@ export default {
   OPENAI_API_KEY: opt("OPENAI_API_KEY"),
   OPENAI_MODEL: opt("OPENAI_MODEL") ?? "gpt-4o-mini",
   OPENAI_TRANSCRIBE_MODEL: opt("OPENAI_TRANSCRIBE_MODEL") ?? "whisper-1",
-  /** ISO-639-1 — set to `en` so English speech is not transcribed as Hindi. */
-  WHISPER_LANGUAGE: opt("WHISPER_LANGUAGE") ?? "en",
-  /** Hints Whisper about names/commands — improves "Saaliq" vs "Salik", etc. */
-  WHISPER_PROMPT:
-    opt("WHISPER_PROMPT") ??
-    "Ripple voice assistant. English. User may say person names, search, message, say, send, WhatsApp, Gmail.",
+  /** ISO-639-1 — omit or set empty for Whisper auto-detect (Hindi/Urdu/Hinglish). */
+  WHISPER_LANGUAGE: opt("WHISPER_LANGUAGE"),
+  /** Hints Whisper — multilingual desktop + web vocabulary (see whisperPrompt.ts). */
+  WHISPER_PROMPT: opt("WHISPER_PROMPT") ?? WHISPER_PROMPT_VOCAB,
   /** LLM chat timeout (ms) — increase for long generations (e.g. 500-word letters). */
   AI_TIMEOUT_MS: Number(process.env.AI_TIMEOUT_MS) || 90_000,
 

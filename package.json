@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "dev:restart": "node scripts/free-port.mjs 3007 && tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "format": "prettier --write src/**/*.ts",

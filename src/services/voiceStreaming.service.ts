@@ -181,11 +181,13 @@ export async function transcribeBufferedVoice(args: {
     const transcribeParams: {
       file: File;
       model: string;
+      response_format: "verbose_json";
       language?: string;
       prompt?: string;
     } = {
       file: audioFile,
       model: config.OPENAI_TRANSCRIBE_MODEL,
+      response_format: "verbose_json",
     };
     if (config.WHISPER_LANGUAGE) {
       transcribeParams.language = config.WHISPER_LANGUAGE;
@@ -197,6 +199,16 @@ export async function transcribeBufferedVoice(args: {
     const result = await client.audio.transcriptions.create(transcribeParams, {
       signal: ac.signal,
     });
+
+    const verbose = result as { text: string; language?: string };
+    const detectedLang = verbose.language?.trim() || undefined;
+    const text = verbose.text?.trim() ?? "";
+
+    if (text) {
+      console.info(
+        `[ripple-backend] whisper transcript lang=${detectedLang ?? config.WHISPER_LANGUAGE ?? "auto"} len=${text.length} text=${JSON.stringify(text.slice(0, 120))}`,
+      );
+    }
 
     const uploaded =
       args.uploadAudio && isCloudinaryConfigured()
@@ -210,8 +222,8 @@ export async function transcribeBufferedVoice(args: {
     return {
       stream_id: stream.streamId,
       session_id: stream.sessionId,
-      text: result.text,
-      language: (result as { language?: string }).language,
+      text,
+      language: detectedLang,
       audio_url: uploaded?.url,
       duration_ms: Date.now() - startedAt,
       bytes: stream.byteLength,

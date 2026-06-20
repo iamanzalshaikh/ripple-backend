@@ -46,6 +46,11 @@ const TRIM_RX = /[.\s!,?]+$/g;
 
 function detectToneStep(cmd: string): Step | null {
   const c = cmd.toLowerCase();
+  if (/(?:جذباتی|جذبات)/u.test(cmd)) return "rewrite_emotional";
+  if (/(?:اعتماد|پراعتماد)/u.test(cmd)) return "rewrite_confident";
+  if (/(?:بہتر|بہترین|واضح|ضرورت|طریقہ)/u.test(cmd)) return "rewrite_professional";
+  if (/\b(jazbati)\b/.test(c)) return "rewrite_emotional";
+  if (/\b(behtar|behtareen)\b/.test(c)) return "rewrite_professional";
   if (/\b(emotional|emotionally|warm|empathetic)\b/.test(c)) return "rewrite_emotional";
   if (/\b(confident|confidence|assertive)\b/.test(c)) return "rewrite_confident";
   if (/\b(sad|sadly|sorrow|upset)\b/.test(c)) return "rewrite_sad";
@@ -61,6 +66,25 @@ function detectToneStep(cmd: string): Step | null {
 export function ruleClassify(input: DetectInput): DetectResult | null {
   const cmd = input.command.trim().toLowerCase().replace(TRIM_RX, "");
   if (!cmd) return null;
+
+  if (
+    /(?:بہتر|بہترین|جذباتی|اعتماد|واضح|تبدیل|دوبارہ|لکھ|ضرورت|ای\s*میل|طریقہ)/u.test(
+      input.command,
+    )
+  ) {
+    const tone = detectToneStep(input.command);
+    return {
+      plan: {
+        intent: "edit",
+        steps: [tone ?? "generate"],
+        uses_context: !input.hasSelectedText,
+        needs_input: false,
+        confidence: 0.9,
+      },
+      source: "rule",
+      usage: emptyUsage(),
+    };
+  }
 
   if (/\b(rephrase|rewrite|reword|revise)\b/.test(cmd)) {
     const tone = detectToneStep(cmd);
@@ -98,6 +122,46 @@ export function ruleClassify(input: DetectInput): DetectResult | null {
         usage: emptyUsage(),
       };
     }
+  }
+
+  if (
+    /\bmake\s+(?:this|that|these)\s+texts?\s+(?:more\s+)?(emotional|confident|sad|angry|formal|casual|professional|friendly|short|long)\b/.test(
+      cmd,
+    )
+  ) {
+    const tone = detectToneStep(cmd);
+    if (tone) {
+      const hasInlineBody =
+        /^.+\s+make\s+(?:this|that|these)\s+texts?\s+(?:more\s+)?/i.test(
+          input.command.trim(),
+        );
+      return {
+        plan: {
+          intent: "edit",
+          steps: [tone],
+          uses_context: !hasInlineBody && !input.hasSelectedText,
+          needs_input: false,
+          confidence: 0.92,
+        },
+        source: "rule",
+        usage: emptyUsage(),
+      };
+    }
+  }
+
+  if (/\b(refresh|improve|fix)\b/.test(cmd) && detectToneStep(cmd)) {
+    const tone = detectToneStep(cmd)!;
+    return {
+      plan: {
+        intent: "edit",
+        steps: [tone],
+        uses_context: !input.hasSelectedText,
+        needs_input: false,
+        confidence: 0.88,
+      },
+      source: "rule",
+      usage: emptyUsage(),
+    };
   }
 
   if (cmd === "undo" || cmd === "revert" || cmd === "remove last line") {

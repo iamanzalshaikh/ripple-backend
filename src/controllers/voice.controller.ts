@@ -21,21 +21,30 @@ export async function transcribeAudio(req: AuthRequest, res: Response): Promise<
 
     const tempId = randomUUID();
 
-    // Optional: store original audio in Cloudinary
-    const uploaded = isCloudinaryConfigured()
-      ? await uploadAudioBuffer({ buffer: file.buffer, filename: file.originalname || "audio" })
-      : undefined;
+    let uploaded: { url: string; publicId: string } | undefined;
+    if (isCloudinaryConfigured()) {
+      try {
+        uploaded = await uploadAudioBuffer({
+          buffer: file.buffer,
+          filename: file.originalname || "audio",
+        });
+      } catch (uploadErr: unknown) {
+        logger.warn(
+          "transcribeAudio.cloudinary_skip",
+          uploadErr instanceof Error ? uploadErr.message : uploadErr,
+        );
+      }
+    }
 
     const client = getOpenAIClient();
 
-    // openai SDK expects a File-like object in Node; we can use Blob via global in Node 18+
     const audioBlob = new Blob([file.buffer], { type: file.mimetype || "audio/mpeg" });
     const audioFile = new File([audioBlob], file.originalname || "audio", {
       type: file.mimetype || "audio/mpeg",
     });
 
     const ac = new AbortController();
-    const t = setTimeout(() => ac.abort(), 10_000);
+    const t = setTimeout(() => ac.abort(), 25_000);
     const result = await client.audio.transcriptions.create(
       { file: audioFile, model: config.OPENAI_TRANSCRIBE_MODEL },
       { signal: ac.signal },

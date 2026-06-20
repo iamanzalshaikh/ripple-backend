@@ -5,8 +5,10 @@ import isAuth from "../middlewares/auth.middleware.js";
 import { validateBody } from "../middlewares/validate.middleware.js";
 import {
   ackCommandActionHandler,
+  desktopIntentHandler,
   executeCommandHandler,
   listCommandHistoryHandler,
+  youtubeSearchQueryHandler,
 } from "../controllers/command.controller.js";
 
 const router: Router = Router();
@@ -80,6 +82,43 @@ const actionAckSchema = z.object({
   status: z.enum(["pending", "executed", "failed"]),
   error: z.string().max(1000).optional(),
 });
+
+router.post(
+  "/desktop-intent",
+  isAuth,
+  commandLimiter,
+  validateBody(z.object({
+    command: z.string().min(1).max(2000),
+    nlu: z.string().max(2000).optional(),
+    last_command: z.string().max(2000).optional(),
+    last_intent: z.string().max(200).optional(),
+    last_file: z.string().max(2000).optional(),
+    last_folder: z.string().max(2000).optional(),
+    last_contact: z.string().max(200).optional(),
+    recent_turns: z
+      .array(
+        z.object({
+          command: z.string(),
+          intent: z.string().optional(),
+          resolved_path: z.string().optional(),
+          outcome: z.string(),
+        }),
+      )
+      .max(5)
+      .optional(),
+  })),
+  desktopIntentHandler,
+);
+
+router.post(
+  "/youtube-search-query",
+  isAuth,
+  commandLimiter,
+  validateBody(z.object({
+    command: z.string().min(1).max(2000),
+  })),
+  youtubeSearchQueryHandler,
+);
 
 router.post(
   "/execute",

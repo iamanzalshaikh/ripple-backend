@@ -312,7 +312,7 @@ function registerVoiceHandlers(socket: Socket): void {
         });
 
         logger.info(
-          `[socket] voice:transcript stream=${transcript.stream_id} lang=${transcript.language ?? "?"} text="${transcript.text}"`,
+          `[socket] voice:transcript stream=${transcript.stream_id} lang=${transcript.language ?? "?"} len=${transcript.text.length} text=${JSON.stringify(transcript.text.slice(0, 120))}`,
         );
 
         emitOrAck(socket, "voice:transcript", { success: true, data: transcript }, ack);

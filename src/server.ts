@@ -14,13 +14,29 @@ const start = async () => {
   const httpServer = createServer(app);
   initializeSocket(httpServer);
 
-  const server = httpServer.listen(config.PORT, () => {
+  httpServer.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      logger.error(
+        `Port ${config.PORT} is already in use — another ripple-backend is running. ` +
+          `On Windows: netstat -ano | findstr :${config.PORT} then taskkill /PID <pid> /F`,
+      );
+      process.exit(1);
+    }
+    throw err;
+  });
+
+  httpServer.listen(config.PORT, () => {
     logger.info(`ripple-backend http://localhost:${config.PORT}`);
     logger.info(`swagger http://localhost:${config.PORT}/api-docs`);
+    if (!config.OPENAI_API_KEY) {
+      logger.warn(
+        "OPENAI_API_KEY is not set — desktop LLM planner and Whisper will not work",
+      );
+    }
   });
 
   const shutdown = () => {
-    server.close(() => process.exit(0));
+    httpServer.close(() => process.exit(0));
   };
 
   process.on("SIGTERM", shutdown);

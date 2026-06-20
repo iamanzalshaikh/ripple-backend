@@ -6,6 +6,8 @@ import {
   CommandExecutionError,
   executeCommand,
 } from "../services/command.service.js";
+import { extractDesktopIntent } from "../services/desktopIntent.service.js";
+import { extractYouTubeSearchQuery } from "../services/youtubeSearch.service.js";
 import {
   listCommandHistory,
   updateCommandActionStatus,
@@ -163,6 +165,71 @@ export async function ackCommandActionHandler(
     ok(res, { command_id: commandId, action_index, status });
   } catch (e: unknown) {
     logger.error("ackCommandAction", e);
+    fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
+  }
+}
+
+/** Phase 4.6 — structured desktop intent for local execution (no OPEN_APP). */
+export async function desktopIntentHandler(
+  req: AuthRequest,
+  res: Response,
+): Promise<void> {
+  try {
+    if (!req.userId) return fail(res, "Unauthorized", 401);
+    const { command, nlu, last_command, last_intent, last_file, last_folder, last_contact, recent_turns } = req.body as {
+      command?: string;
+      nlu?: string;
+      last_command?: string;
+      last_intent?: string;
+      last_file?: string;
+      last_folder?: string;
+      last_contact?: string;
+      recent_turns?: Array<{
+        command: string;
+        intent?: string;
+        resolved_path?: string;
+        outcome: string;
+      }>;
+    };
+    if (!command?.trim()) return fail(res, "command required", 400);
+
+    const result = await extractDesktopIntent(command.trim(), nlu?.trim(), {
+      lastCommand: last_command?.trim(),
+      lastIntent: last_intent?.trim(),
+      lastFile: last_file?.trim(),
+      lastFolder: last_folder?.trim(),
+      lastContact: last_contact?.trim(),
+      recentTurns: recent_turns,
+    });
+    if (!result) {
+      return fail(res, "Not a desktop command or low confidence", 422);
+    }
+
+    ok(res, { plan: result.plan, usage: result.usage });
+  } catch (e: unknown) {
+    logger.error("desktopIntent", e);
+    fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
+  }
+}
+
+/** LLM — extract English YouTube search query from voice (any language / encoding). */
+export async function youtubeSearchQueryHandler(
+  req: AuthRequest,
+  res: Response,
+): Promise<void> {
+  try {
+    if (!req.userId) return fail(res, "Unauthorized", 401);
+    const { command } = req.body as { command?: string };
+    if (!command?.trim()) return fail(res, "command required", 400);
+
+    const result = await extractYouTubeSearchQuery(command.trim());
+    if (!result) {
+      return fail(res, "Not a YouTube search or low confidence", 422);
+    }
+
+    ok(res, { plan: result.plan, usage: result.usage });
+  } catch (e: unknown) {
+    logger.error("youtubeSearchQuery", e);
     fail(res, "Server error", 500, e instanceof Error ? e.message : undefined);
   }
 }
